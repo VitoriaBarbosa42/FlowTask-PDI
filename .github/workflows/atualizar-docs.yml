@@ -29,7 +29,7 @@ jobs:
 
       - name: Gerar documentação com IA
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MODELS_TOKEN }}
         run: python scripts/atualicar_docs.py
 
       - name: Commit da documentação atualizada
