@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: flowtask
+  datasource:
+    url: jdbc:postgresql://localhost:5432/flowtask
+    hikari:
+      username: postgres
+      password: postgres
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: always
