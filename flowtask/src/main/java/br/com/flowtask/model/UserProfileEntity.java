@@ -1,9 +1,7 @@
 package br.com.flowtask.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import br.com.flowtask.Enum.AccountStatusEnum;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,26 +13,30 @@ import java.util.UUID;
 @Table(name = "tb_user_profile")
 @Getter
 @Setter
-public class UserProfile {
+public class UserProfileEntity {
 
     @Id
-    UUID id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false, length = 100)
-    String name;
+    private String name;
 
     @Column(name = "birth_date", nullable = false)
-    LocalDate birthDate;
+    private LocalDate birthDate;
 
     @Column(nullable = false, unique = true, length = 150)
-    String email;
+    private String email;
 
     @Column(name = "job_title", length = 50)
     private String jobTitle;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_status", length = 20)
-    private String accountStatus = "ACTIVE";
+    private AccountStatusEnum accountStatus;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+
 }
