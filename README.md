@@ -32,3 +32,72 @@ Requisitos
 ```bash
 git clone https://github.com/VitoriaBarbosa42/FlowTask-PDI.git
 cd FlowTask-PDI
+```
+2) Levantar infra (Postgres + pgAdmin) com Docker Compose
+```bash
+docker-compose up -d
+Verificar containers:
+```
+```bash
+docker ps
+docker-compose logs -f
+
+Acesso:
+
+Postgres: localhost:5432
+POSTGRES_USER=nome
+POSTGRES_PASSWORD=senha
+POSTGRES_DB=flowtask
+pgAdmin: http://localhost:5050 — login admin@admin.com / senha admin
+Build e execução da aplicação (local)
+bash
+cd flowtask
+# build (pula testes se desejar)
+./mvnw clean package -DskipTests
+
+# ou rodar diretamente em modo de desenvolvimento
+./mvnw spring-boot:run
+
+```
+
+3) Executar o JAR (após build)
+```bash
+# no diretório flowtask
+java -jar target/*.jar
+Configuração do banco (observações)
+
+Verifique flowtask/src/main/resources/application.properties ou application.yml para ver qual banco está sendo usado (Postgres via JPA ou MongoDB). O pom.xml contém dependências tanto para MongoDB quanto para JPA/Postgres — ajuste as propriedades de acordo.
+Se a app for executada localmente e conectar ao container Postgres, use:
+JDBC: jdbc:postgresql://localhost:5432/flowtask
+Usuário/senha: postgres / postgres
+Se você containerizar a app no mesmo docker-compose, a URL JDBC pode usar o hostname do serviço: jdbc:postgresql://postgres:5432/flowtask.
+```
+
+4) Como parar e limpar
+Parar os serviços do docker-compose:
+
+```bash
+docker-compose down
+Parar e remover volumes (reset do DB):
+```
+```bash
+docker-compose down -v
+```
+Remover containers manualmente:
+
+```bash
+docker rm -f flowtask-postgres flowtask-pgadmin
+```
+Comandos úteis
+Logs dos containers:
+```bash
+docker-compose logs -f
+```
+Entrar no psql do container:
+```bash
+docker exec -it flowtask-postgres psql -U postgres -d flowtask
+```
+Ver volumes:
+```bash
+docker volume ls
+```
