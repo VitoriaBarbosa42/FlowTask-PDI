@@ -10,3 +10,11 @@ CREATE TABLE IF NOT EXISTS tb_user_profile (
                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS tb_user_credential (
+                        id UUID PRIMARY KEY,
+                        user_id UUID NOT NULL UNIQUE,
+                        username VARCHAR(150) NOT NULL UNIQUE,
+                        password_hash VARCHAR(255) NOT NULL,
+                        is_active BOOLEAN DEFAULT TRUE,
+                        CONSTRAINT fk_user_profile FOREIGN KEY (user_id) REFERENCES tb_user_profile(id) ON DELETE CASCADE
+    );
