@@ -19,8 +19,13 @@ public class UserProfileEntity {
     @GeneratedValue
     private UUID id;
 
+    @Column(name = "user_id", nullable = false, unique = true)
+    private UUID user_id;
+
     @Column(nullable = false, length = 100)
     private String name;
+
+
 
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;

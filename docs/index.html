@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowTask & PDI — Hub Visual de Sprints, Releases & System Design</title>
+  <meta name="description" content="Dashboard interativo para planejamento de sprints, tracking de épicos e estudo prático de System Design para o FlowTask.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Tailwind CSS CDN for utility rendering with Custom Theme Extensions -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200', // Itaú signature orange
+              orangeHover: '#E05600',
+              blue: '#004990',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              go: '#00ADD8'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'flow-right': 'flowRight 2s linear infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate'
+          },
+          keyframes: {
+            flowRight: {
+              '0%': { strokeDashoffset: '24' },
+              '100%': { strokeDashoffset: '0' }
+            },
+            glow: {
+              '0%': { filter: 'drop-shadow(0 0 2px rgba(255, 98, 0, 0.4))' },
+              '100%': { filter: 'drop-shadow(0 0 12px rgba(255, 98, 0, 0.8))' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+
+    /* Glassmorphism Classes */
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(255, 98, 0, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Badge glow effects */
+    .glow-orange {
+      box-shadow: 0 0 15px -3px rgba(255, 98, 0, 0.3);
+    }
+    .glow-blue {
+      box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.3);
+    }
+    .glow-purple {
+      box-shadow: 0 0 15px -3px rgba(139, 92, 246, 0.3);
+    }
+    .glow-green {
+      box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Animated dash line for architecture */
+    .flow-line {
+      stroke-dasharray: 6, 6;
+      animation: flowRight 1.5s linear infinite;
+    }
+
+    /* Tab active transitions */
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(255, 98, 0, 0.2) 0%, rgba(255, 98, 0, 0.05) 100%);
+      color: #FF6200;
+      border-color: #FF6200;
+    }
+
+    /* Drag & Drop Visuals */
+    .kanban-col.drag-over {
+      background: rgba(255, 98, 0, 0.05);
+      border-color: rgba(255, 98, 0, 0.4);
+    }
+    .dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+    }
+
+    /* Custom Checkbox */
+    .custom-checkbox:checked {
+      background-color: #FF6200;
+      border-color: #FF6200;
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-orange selection:text-white pb-16">
+
+  <!-- TOP HEADER / BRANDING -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-orange to-amber-500 flex items-center justify-center font-extrabold text-white shadow-lg shadow-brand-orange/20">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                FlowTask <span class="text-xs px-2 py-0.5 rounded-full bg-brand-orange/20 text-brand-orange font-semibold border border-brand-orange/30">PDI & Itaú Prep</span>
+              </h1>
+            </div>
+            <p class="text-xs text-slate-400 font-medium">Plano de Refinamento Técnico, Sprints & System Design</p>
+          </div>
+        </div>
+
+        <!-- Mobile stats toggler -->
+        <div class="flex md:hidden items-center gap-2">
+          <span id="mobile-progress-badge" class="text-xs font-mono font-semibold text-brand-orange bg-brand-orange/10 px-2 py-1 rounded">0%</span>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Bar -->
+      <div class="flex items-center gap-3 text-xs bg-slate-900/90 border border-slate-800 rounded-xl p-1.5 px-3 shadow-inner">
+        <div class="flex items-center gap-2 border-r border-slate-800 pr-3">
+          <span class="text-slate-400">Progresso Geral:</span>
+          <div class="w-24 bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="header-progress-bar" class="bg-gradient-to-r from-brand-orange to-emerald-400 h-full transition-all duration-500 w-0"></div>
+          </div>
+          <span id="header-progress-text" class="font-mono font-bold text-white">0%</span>
+        </div>
+        <div class="flex items-center gap-2 border-r border-slate-800 pr-3">
+          <span class="text-slate-400">Histórias:</span>
+          <span id="header-stories-count" class="font-mono font-bold text-brand-accent">0/13</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Sprints:</span>
+          <span class="font-mono font-bold text-emerald-400">6 Ciclos</span>
+        </div>
+      </div>
+
+      <!-- Actions & Theme -->
+      <div class="flex items-center gap-2">
+        <button onclick="resetDataConfirmation()" title="Resetar progresso para o estado inicial" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-700 text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <span>Resetar</span>
+        </button>
+        <a href="#system-design-section" onclick="switchView('architecture')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-md shadow-brand-orange/20 transition">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+          <span>System Design</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 mt-6">
+
+    <!-- VIEW SELECTOR TABS -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-6">
+      
+      <!-- Primary Navigation -->
+      <div class="flex items-center gap-2 p-1 bg-slate-900/90 rounded-xl border border-slate-800/80">
+        <button onclick="switchView('board')" id="tab-btn-board" class="tab-btn active px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition">
+          <i data-lucide="trello" class="w-4 h-4"></i>
+          <span>Quadro Kanban</span>
+        </button>
+        <button onclick="switchView('sprints')" id="tab-btn-sprints" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2 transition">
+          <i data-lucide="calendar-range" class="w-4 h-4"></i>
+          <span>Sprint Roadmap</span>
+        </button>
+        <button onclick="switchView('releases')" id="tab-btn-releases" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2 transition">
+          <i data-lucide="milestone" class="w-4 h-4"></i>
+          <span>Release Milestones</span>
+        </button>
+        <button onclick="switchView('architecture')" id="tab-btn-architecture" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2 transition">
+          <i data-lucide="network" class="w-4 h-4"></i>
+          <span>Arquitetura & System Design</span>
+        </button>
+        <button onclick="switchView('matrix')" id="tab-btn-matrix" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-2 transition">
+          <i data-lucide="scale" class="w-4 h-4"></i>
+          <span>Trade-offs & ADRs</span>
+        </button>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Buscar história, tecnologia..." class="w-full bg-slate-900 border border-slate-800 focus:border-brand-orange text-xs text-white rounded-lg pl-8 pr-3 py-2 outline-none transition">
+        </div>
+        
+        <select id="epicFilter" onchange="applyFilters()" class="bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg px-2.5 py-2 outline-none focus:border-brand-orange">
+          <option value="all">Todos os Épicos</option>
+          <option value="Epic 1">Epic 1 — Persistência</option>
+          <option value="Epic 2">Epic 2 — Mensageria Kafka</option>
+          <option value="Epic 3">Epic 3 — Microsserviço Go</option>
+          <option value="Epic 4">Epic 4 — Observabilidade</option>
+          <option value="Epic 5">Epic 5 — Infra/Terraform</option>
+          <option value="Epic 6">Epic 6 — CI/CD & Clean Code</option>
+        </select>
+
+        <button id="stretchToggleBtn" onclick="toggleStretchOnly()" class="px-2.5 py-2 rounded-lg border border-slate-800 bg-slate-900 text-xs text-slate-400 hover:text-amber-400 flex items-center gap-1 transition" title="Filtrar apenas metas Stretch (Bônus)">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span class="hidden sm:inline">Stretch</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 1: KANBAN BOARD VIEW -->
+    <!-- ========================================================================= -->
+    <section id="view-board" class="view-section block">
+      
+      <!-- Mini Summary Banner -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+        <div class="glass-panel p-3 rounded-xl border border-slate-800 flex items-center gap-3">
+          <div class="p-2.5 rounded-lg bg-blue-500/10 text-blue-400">
+            <i data-lucide="list-todo" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">A Fazer (Backlog)</div>
+            <div id="stat-todo" class="text-lg font-bold text-white font-mono">0</div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-3 rounded-xl border border-slate-800 flex items-center gap-3">
+          <div class="p-2.5 rounded-lg bg-amber-500/10 text-amber-400">
+            <i data-lucide="clock" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Em Desenvolvimento</div>
+            <div id="stat-doing" class="text-lg font-bold text-amber-400 font-mono">0</div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-3 rounded-xl border border-slate-800 flex items-center gap-3">
+          <div class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Concluído & Validado</div>
+            <div id="stat-done" class="text-lg font-bold text-emerald-400 font-mono">0</div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-3 rounded-xl border border-slate-800 flex items-center gap-3">
+          <div class="p-2.5 rounded-lg bg-purple-500/10 text-purple-400">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Metas Stretch (Bônus)</div>
+            <div id="stat-stretch" class="text-lg font-bold text-purple-400 font-mono">2</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Column Kanban Board -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Column 1: A Fazer -->
+        <div class="kanban-col glass-panel rounded-2xl border border-slate-800/90 p-4 flex flex-col min-h-[580px]" data-col="todo" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'todo')">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+              <h2 class="font-bold text-sm text-slate-200">A Fazer (Backlog)</h2>
+            </div>
+            <span id="badge-count-todo" class="text-xs font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <div id="col-todo-cards" class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            <!-- Dynamic Cards -->
+          </div>
+        </div>
+
+        <!-- Column 2: Em Progresso -->
+        <div class="kanban-col glass-panel rounded-2xl border border-amber-900/40 bg-slate-900/40 p-4 flex flex-col min-h-[580px]" data-col="doing" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'doing')">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-amber-900/30">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <h2 class="font-bold text-sm text-amber-200">Em Progresso (Sprint Atual)</h2>
+            </div>
+            <span id="badge-count-doing" class="text-xs font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <div id="col-doing-cards" class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            <!-- Dynamic Cards -->
+          </div>
+        </div>
+
+        <!-- Column 3: Concluído -->
+        <div class="kanban-col glass-panel rounded-2xl border border-emerald-900/40 bg-slate-900/40 p-4 flex flex-col min-h-[580px]" data-col="done" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'done')">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-emerald-900/30">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <h2 class="font-bold text-sm text-emerald-200">Concluído (Done)</h2>
+            </div>
+            <span id="badge-count-done" class="text-xs font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <div id="col-done-cards" class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1">
+            <!-- Dynamic Cards -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 2: SPRINTS ROADMAP VIEW -->
+    <!-- ========================================================================= -->
+    <section id="view-sprints" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="git-branch" class="w-5 h-5 text-brand-orange"></i>
+              Sequência Lógica de Sprints & Dependências
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Estruturado em 6 ciclos com duração de 1 a 2 semanas cada, garantindo que a base de infraestrutura e persistência preceda a mensageria e observabilidade.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 text-xs bg-slate-900 px-3 py-2 rounded-lg border border-slate-800">
+            <i data-lucide="info" class="w-4 h-4 text-brand-accent"></i>
+            <span class="text-slate-300">Dica: Priorize sempre o <strong>Entregável Principal</strong> antes dos itens Stretch.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sprints Timeline Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="sprints-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 3: RELEASE MILESTONES VIEW -->
+    <!-- ========================================================================= -->
+    <section id="view-releases" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+        <h2 class="text-base font-bold text-white flex items-center gap-2 mb-2">
+          <i data-lucide="rocket" class="w-5 h-5 text-brand-orange"></i>
+          Plano de Releases & Versões Incrementais
+        </h2>
+        <p class="text-xs text-slate-400">
+          Como empacotar as entregas do FlowTask para demonstrar maturidade de engenharia de software e arquitetura limpa em entrevistas e portfólio.
+        </p>
+
+        <!-- Timeline -->
+        <div class="mt-8 relative pl-6 border-l-2 border-slate-800 space-y-8">
+          
+          <!-- Release v0.1 -->
+          <div class="relative group">
+            <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-brand-orange border-4 border-slate-900 group-hover:scale-125 transition"></div>
+            <div class="glass-card p-4 rounded-xl">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span class="text-xs font-mono font-bold text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded border border-brand-orange/20">Release v0.1-alpha · Infra & Core</span>
+                <span class="text-xs text-slate-400">Sprints 1 a 4</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Infraestrutura declarativa & Persistência Poliglota</h3>
+              <p class="text-xs text-slate-300 mt-1">Substituição do docker-compose manual por módulos Terraform, separação de dados relacionais (Postgres) e não-relacionais (MongoDB do PDI), além de cache Redis.</p>
+              <div class="flex flex-wrap gap-1.5 mt-3">
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Terraform</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">PostgreSQL</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">MongoDB</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Redis Cache</span>
+                <span class="text-[10px] bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono">ADR-001 Poliglota</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Release v0.2 -->
+          <div class="relative group">
+            <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-brand-accent border-4 border-slate-900 group-hover:scale-125 transition"></div>
+            <div class="glass-card p-4 rounded-xl">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span class="text-xs font-mono font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded border border-brand-accent/20">Release v0.2-beta · Event-Driven & Go</span>
+                <span class="text-xs text-slate-400">Sprints 5 a 7</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Espinha Dorsal de Eventos & Serviço Poliglota em Go</h3>
+              <p class="text-xs text-slate-300 mt-1">Desacoplamento de Kanban e PDI através do Apache Kafka KRaft. Implementação de um microsserviço independente em Go para consumo de eventos e notificações.</p>
+              <div class="flex flex-wrap gap-1.5 mt-3">
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Apache Kafka</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Go / Gin</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Async Events</span>
+                <span class="text-[10px] bg-slate-800 text-brand-accent px-2 py-0.5 rounded font-mono">Event Schema JSON</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Release v1.0 -->
+          <div class="relative group">
+            <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-emerald-400 border-4 border-slate-900 group-hover:scale-125 transition"></div>
+            <div class="glass-card p-4 rounded-xl">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">Release v1.0.0-GA · Production Ready</span>
+                <span class="text-xs text-slate-400">Sprints 8 a 10</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">Observabilidade Completa, Pipeline CI/CD & Testes de Integração</h3>
+              <p class="text-xs text-slate-300 mt-1">Instrumentação com Micrometer + Prometheus + Grafana (comparativo Datadog), pipeline CI/CD GitHub Actions verde, Testcontainers e revisão SOLID/Clean Code.</p>
+              <div class="flex flex-wrap gap-1.5 mt-3">
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Micrometer</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Prometheus / Grafana</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">GitHub Actions</span>
+                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">Testcontainers</span>
+                <span class="text-[10px] bg-slate-800 text-emerald-400 px-2 py-0.5 rounded font-mono">Clean Architecture</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 4: ARCHITECTURE & SYSTEM DESIGN (O CORE PARA ESTUDO) -->
+    <!-- ========================================================================= -->
+    <section id="view-architecture" class="view-section hidden space-y-6">
+      
+      <!-- Top Title Card -->
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold text-brand-orange bg-brand-orange/10 px-2.5 py-1 rounded border border-brand-orange/20">System Design Explorer</span>
+              <span class="text-xs text-slate-400">FlowTask Target Architecture</span>
+            </div>
+            <h2 class="text-xl font-bold text-white mt-2">Arquitetura de Microsserviços, Persistência Poliglota & Event-Driven</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-3xl">
+              Clique nos nós e fluxos da arquitetura abaixo para inspecionar os detalhes técnicos, protocolos, portas, motivação de design e perguntas clássicas de entrevista técnica.
+            </p>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button onclick="triggerDataFlowAnimation()" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-brand-orange/40 text-brand-orange hover:bg-brand-orange/10 text-xs font-semibold flex items-center gap-2 transition">
+              <i data-lucide="play" class="w-4 h-4"></i>
+              <span>Simular Fluxo de Evento</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Architecture Canvas / SVG Visualizer -->
+      <div class="glass-panel p-6 rounded-2xl border border-slate-800 overflow-x-auto">
+        
+        <div class="min-w-[960px] relative py-4">
+          
+          <!-- ARCHITECTURE TIERS -->
+          <div class="grid grid-cols-5 gap-6 relative z-10">
+            
+            <!-- Tier 1: Clients & Security -->
+            <div class="space-y-4">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-400"></i>
+                <span>1. Entrada & Auth</span>
+              </div>
+
+              <!-- Keycloak -->
+              <div onclick="openArchModal('keycloak')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-blue-500 hover:border-l-blue-400 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-blue-300">Keycloak IAM</span>
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-blue-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">Port: 8080 · OAuth2/OIDC</div>
+                <div class="text-[11px] text-slate-300 mt-1">JWT Tokens & Realm FlowTask</div>
+                <div class="mt-2 text-[10px] text-blue-400 font-medium flex items-center gap-1">
+                  <span>Ver detalhes</span> <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </div>
+              </div>
+
+              <!-- Frontend / Clients -->
+              <div onclick="openArchModal('clients')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-slate-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-slate-300">SPA / Web Client</span>
+                  <i data-lucide="layout" class="w-3.5 h-3.5 text-slate-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">REST / JSON / Bearer Auth</div>
+                <div class="text-[11px] text-slate-300 mt-1">Dashboard Kanban & PDI</div>
+              </div>
+
+              <!-- LocalStack -->
+              <div onclick="openArchModal('localstack')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-purple-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-purple-300">LocalStack (AWS)</span>
+                  <span class="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">Stretch</span>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">Port: 4566 · S3/SQS</div>
+                <div class="text-[11px] text-slate-300 mt-1">Simulação de Cloud Provider</div>
+              </div>
+            </div>
+
+            <!-- Tier 2: Core Services (Spring Boot) -->
+            <div class="space-y-4">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                <i data-lucide="server" class="w-3.5 h-3.5 text-brand-orange"></i>
+                <span>2. Backend Core</span>
+              </div>
+
+              <!-- Spring Boot Core -->
+              <div id="node-spring" onclick="openArchModal('spring')" class="glass-card p-4 rounded-xl cursor-pointer border-l-4 border-l-brand-orange hover:border-l-brand-orangeHover group shadow-lg">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-brand-orange">Spring Boot 3.x</span>
+                  <i data-lucide="zap" class="w-4 h-4 text-brand-orange"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">Java 25 · MVC / JPA / Mongo</div>
+                <div class="text-[11px] text-slate-300 mt-2 space-y-1">
+                  <div class="flex items-center gap-1.5 text-emerald-400 text-[10px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Módulo Kanban (Transacional)
+                  </div>
+                  <div class="flex items-center gap-1.5 text-amber-400 text-[10px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Módulo PDI (Document)
+                  </div>
+                  <div class="flex items-center gap-1.5 text-sky-400 text-[10px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Kafka Producer & Consumer
+                  </div>
+                </div>
+                <div class="mt-3 text-[10px] text-brand-orange font-medium flex items-center gap-1">
+                  <span>Ver arquitetura interna</span> <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </div>
+              </div>
+
+              <!-- Micrometer Actuator -->
+              <div onclick="openArchModal('micrometer')" class="glass-card p-3 rounded-xl cursor-pointer border-l-4 border-l-emerald-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-emerald-300">Actuator / Micrometer</span>
+                  <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">/actuator/prometheus</div>
+                <div class="text-[11px] text-slate-300 mt-1">Métricas de latência, JVM & Kafka</div>
+              </div>
+            </div>
+
+            <!-- Tier 3: Async & Messaging -->
+            <div class="space-y-4">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-brand-accent"></i>
+                <span>3. Mensageria</span>
+              </div>
+
+              <!-- Kafka Broker -->
+              <div id="node-kafka" onclick="openArchModal('kafka')" class="glass-card p-4 rounded-xl cursor-pointer border-l-4 border-l-brand-accent hover:border-l-sky-300 group shadow-lg">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-brand-accent">Apache Kafka</span>
+                  <i data-lucide="layers" class="w-4 h-4 text-brand-accent"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">Port: 9092 · KRaft Mode</div>
+                <div class="text-[11px] text-slate-300 mt-2 bg-slate-900/80 p-2 rounded border border-slate-800 font-mono text-[10px]">
+                  Tópico: <span class="text-amber-300">tarefa-concluida</span><br>
+                  Partições: <span class="text-sky-300">3</span> · RG: <span class="text-emerald-300">flowtask-group</span>
+                </div>
+                <div class="mt-2 text-[10px] text-brand-accent font-medium flex items-center gap-1">
+                  <span>Ver modelo de eventos</span> <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </div>
+              </div>
+
+              <!-- Go Microservice -->
+              <div id="node-go" onclick="openArchModal('goservice')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-brand-go hover:border-l-cyan-300 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-brand-go">Go Notifier (Gin)</span>
+                  <span class="text-[9px] bg-cyan-500/20 text-brand-go px-1.5 py-0.5 rounded font-mono font-bold">Go Service</span>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 font-mono">Port: 8081 · Standalone</div>
+                <div class="text-[11px] text-slate-300 mt-1">Consumer assíncrono de notificações de tarefas</div>
+              </div>
+            </div>
+
+            <!-- Tier 4: Polyglot Persistence -->
+            <div class="space-y-4">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>4. Dados & Cache</span>
+              </div>
+
+              <!-- PostgreSQL -->
+              <div id="node-postgres" onclick="openArchModal('postgres')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-blue-400 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-blue-300">PostgreSQL 15</span>
+                  <i data-lucide="database" class="w-3.5 h-3.5 text-blue-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Port: 5432 · Relacional ACID</div>
+                <div class="text-[11px] text-slate-300 mt-1">Tarefas, Colunas, Quadros e Transações</div>
+              </div>
+
+              <!-- MongoDB -->
+              <div id="node-mongo" onclick="openArchModal('mongo')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-emerald-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-emerald-300">MongoDB 7</span>
+                  <i data-lucide="file-json" class="w-3.5 h-3.5 text-emerald-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Port: 27017 · Schemaless Doc</div>
+                <div class="text-[11px] text-slate-300 mt-1">PDI: Metas flexíveis, habilidades e feedbacks</div>
+              </div>
+
+              <!-- Redis -->
+              <div id="node-redis" onclick="openArchModal('redis')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-red-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-red-300">Redis 7 (In-Memory)</span>
+                  <i data-lucide="fast-forward" class="w-3.5 h-3.5 text-red-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Port: 6379 · Cache Sub-ms</div>
+                <div class="text-[11px] text-slate-300 mt-1">@Cacheable board views + Invalidation</div>
+              </div>
+
+              <!-- Oracle XE -->
+              <div onclick="openArchModal('oracle')" class="glass-card p-3 rounded-xl cursor-pointer border-l-4 border-l-amber-600 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-amber-300">Oracle XE (Auditoria)</span>
+                  <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">Stretch</span>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Port: 1521 · PL/SQL Logs</div>
+              </div>
+            </div>
+
+            <!-- Tier 5: Observability & IaC -->
+            <div class="space-y-4">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                <i data-lucide="line-chart" class="w-3.5 h-3.5 text-purple-400"></i>
+                <span>5. Monitor & IaC</span>
+              </div>
+
+              <!-- Prometheus & Grafana -->
+              <div onclick="openArchModal('grafana')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-orange-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-orange-300">Prometheus + Grafana</span>
+                  <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-orange-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Ports: 9090 / 3000</div>
+                <div class="text-[11px] text-slate-300 mt-1">Métricas em tempo real & Dashboards</div>
+              </div>
+
+              <!-- Terraform -->
+              <div onclick="openArchModal('terraform')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-purple-500 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-purple-300">Terraform (IaC)</span>
+                  <i data-lucide="box" class="w-3.5 h-3.5 text-purple-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Módulos Infra Reutilizáveis</div>
+                <div class="text-[11px] text-slate-300 mt-1">Docker Provider + Plan / Apply</div>
+              </div>
+
+              <!-- CI/CD Actions -->
+              <div onclick="openArchModal('cicd')" class="glass-card p-3.5 rounded-xl cursor-pointer border-l-4 border-l-slate-400 group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white group-hover:text-slate-200">GitHub Actions CI/CD</span>
+                  <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 font-mono">Testcontainers + Lint + Build</div>
+                <div class="text-[11px] text-slate-300 mt-1">Validação automatizada de PRs</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Data Flow Simulation Feedback Box -->
+          <div id="flow-animation-box" class="mt-6 p-4 rounded-xl bg-slate-900/90 border border-brand-orange/30 text-xs hidden transition-all duration-300">
+            <div class="flex items-center gap-2 text-brand-orange font-bold mb-1">
+              <i data-lucide="activity" class="w-4 h-4 animate-spin"></i>
+              <span>Simulando Fluxo Assíncrono Completo (Passo a Passo)</span>
+            </div>
+            <div id="flow-step-text" class="text-slate-300 font-mono mt-2 pl-2 border-l-2 border-brand-orange">
+              Iniciando...
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- System Design Study Guides (Deep Dive) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Card 1: Por que Persistência Poliglota? -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center gap-2 text-brand-orange font-bold text-sm mb-2">
+            <i data-lucide="database" class="w-4 h-4"></i>
+            <h3>1. Persistência Poliglota Consciente</h3>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Em entrevistas de System Design, usar múltiplos bancos sem justificativa é visto como <em>overengineering</em>. No FlowTask, cada banco atende a requisitos não-funcionais específicos:
+          </p>
+          <ul class="text-xs space-y-2 text-slate-300">
+            <li class="flex items-start gap-1.5">
+              <strong class="text-blue-400 font-mono">Postgres:</strong> Integridade relacional (FKs, ACID, transações de colunas e cartões).
+            </li>
+            <li class="flex items-start gap-1.5">
+              <strong class="text-emerald-400 font-mono">MongoDB:</strong> Schema flexível para o PDI (competências, metas dinâmicas, logs de feedback).
+            </li>
+            <li class="flex items-start gap-1.5">
+              <strong class="text-red-400 font-mono">Redis:</strong> Cache de leitura sub-milissegundo para o quadro Kanban (`@Cacheable`).
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card 2: Por que Kafka para Comunicação Assíncrona? -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center gap-2 text-brand-accent font-bold text-sm mb-2">
+            <i data-lucide="git-commit" class="w-4 h-4"></i>
+            <h3>2. Event-Driven & Desacoplamento</h3>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Quando um usuário conclui uma tarefa no Kanban, não queremos chamadas síncronas HTTP lentas ou falhas em cascata para atualizar o PDI ou disparar notificações.
+          </p>
+          <ul class="text-xs space-y-2 text-slate-300">
+            <li class="flex items-start gap-1.5">
+              <strong class="text-brand-accent font-mono">Kafka KRaft:</strong> Alta taxa de transferência, retenção de eventos e replicação sem depender do ZooKeeper.
+            </li>
+            <li class="flex items-start gap-1.5">
+              <strong class="text-amber-400 font-mono">Consumer Groups:</strong> Múltiplos serviços (PDI e Notifier em Go) consomem o mesmo evento em ritmos independentes.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card 3: Observabilidade vs Métricas Simples -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm mb-2">
+            <i data-lucide="gauge" class="w-4 h-4"></i>
+            <h3>3. Observabilidade Corporativa</h3>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            Diferença fundamental entre <em>Logging</em> e <em>Observabilidade</em>: não basta registrar erros, precisamos de métricas de golden signals (Latência, Tráfego, Erros e Saturação).
+          </p>
+          <ul class="text-xs space-y-2 text-slate-300">
+            <li class="flex items-start gap-1.5">
+              <strong class="text-emerald-400 font-mono">Micrometer:</strong> Facade padrão do Spring Boot para exportar contadores e timers.
+            </li>
+            <li class="flex items-start gap-1.5">
+              <strong class="text-purple-400 font-mono">Conexão Itaú/Datadog:</strong> Conceitos de tags, APM traces, percentis (p95, p99) e alertas.
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 5: TRADE-OFFS & ADRS COMPARISON TABLE -->
+    <!-- ========================================================================= -->
+    <section id="view-matrix" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+        <h2 class="text-base font-bold text-white flex items-center gap-2 mb-1">
+          <i data-lucide="file-code" class="w-5 h-5 text-brand-orange"></i>
+          ADRs (Architecture Decision Records) & Matriz de Decisões Técnicas
+        </h2>
+        <p class="text-xs text-slate-400 mb-6">
+          Use esta tabela como guia de estudo para justificar cada decisão arquitetural em conversas técnicas e defesas de código.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-300 font-mono">
+                <th class="p-3">Decisão (ADR)</th>
+                <th class="p-3">Opção Escolhida</th>
+                <th class="p-3">Alternativas Rejeitadas</th>
+                <th class="p-3">Motivação Principal</th>
+                <th class="p-3">Trade-off / Desvantagem</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 text-slate-300">
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-white">ADR-001: Persistência do Kanban</td>
+                <td class="p-3 font-mono text-blue-400 font-bold">PostgreSQL (JPA)</td>
+                <td class="p-3 text-slate-400">MongoDB puro / MySQL</td>
+                <td class="p-3">Garantia ACID, integridade referencial forte entre quadros, colunas e posições.</td>
+                <td class="p-3 text-amber-400/90">Necessidade de migrations (Flyway) e schema rígido.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-white">ADR-002: Estrutura do PDI</td>
+                <td class="p-3 font-mono text-emerald-400 font-bold">MongoDB Document</td>
+                <td class="p-3 text-slate-400">Tabelas normalizadas no Postgres</td>
+                <td class="p-3">Metas de carreira e competências possuem formato heterogêneo e evolutivo por usuário.</td>
+                <td class="p-3 text-amber-400/90">Falta de joins nativos e validação de schema feita na aplicação.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-white">ADR-003: Comunicação Inter-serviços</td>
+                <td class="p-3 font-mono text-sky-400 font-bold">Apache Kafka (KRaft)</td>
+                <td class="p-3 text-slate-400">REST Síncrono / RabbitMQ</td>
+                <td class="p-3">Desacoplamento total, retenção persistente de eventos de conclusão e suporte a múltiplos consumidores.</td>
+                <td class="p-3 text-amber-400/90">Maior complexidade de setup local e consistência eventual.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-white">ADR-004: Serviço de Notificações</td>
+                <td class="p-3 font-mono text-brand-go font-bold">Go (Gin Framework)</td>
+                <td class="p-3 text-slate-400">Outro módulo no Spring Boot</td>
+                <td class="p-3">Praticar arquitetura poliglota real, consumo de memória ínfimo (~15MB vs ~350MB JVM) e inicialização instantânea.</td>
+                <td class="p-3 text-amber-400/90">Necessidade de manter dois pipelines de build e runtimes distintos.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-white">ADR-005: Provisionamento de Infra</td>
+                <td class="p-3 font-mono text-purple-400 font-bold">Terraform (Docker Prov.)</td>
+                <td class="p-3 text-slate-400">docker-compose estático</td>
+                <td class="p-3">Modularização declarativa (`modules/mongo`, `modules/postgres`), aproximação com padrão de produção cloud (AWS).</td>
+                <td class="p-3 text-amber-400/90">Curva de sintaxe HCL e gestão de state (`terraform.tfstate`).</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-white">ADR-006: Estratégia de Testes</td>
+                <td class="p-3 font-mono text-emerald-300 font-bold">Testcontainers (JUnit 5)</td>
+                <td class="p-3 text-slate-400">H2 Database em memória</td>
+                <td class="p-3">Testar contra os motores reais do Postgres, Mongo e Kafka, eliminando falsos positivos do H2.</td>
+                <td class="p-3 text-amber-400/90">Tempo de execução de testes ligeiramente maior devido ao startup de containers.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: CARD DETAILS & CHECKLIST -->
+  <!-- ========================================================================= -->
+  <div id="story-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel bg-slate-950 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 max-h-[90vh] overflow-y-auto shadow-2xl relative">
+      
+      <!-- Close Button -->
+      <button onclick="closeStoryModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-center gap-2 mb-2">
+        <span id="modal-epic-badge" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-brand-orange/20 text-brand-orange border border-brand-orange/30">Epic</span>
+        <span id="modal-sprint-badge" class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Sprint</span>
+        <span id="modal-stretch-badge" class="text-xs font-mono text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30 hidden">Stretch Goal</span>
+      </div>
+
+      <h2 id="modal-title" class="text-lg font-bold text-white mb-3">Título da História</h2>
+      
+      <!-- User Story Box -->
+      <div class="bg-slate-900/90 border-l-4 border-l-brand-orange p-3.5 rounded-r-xl mb-4 text-xs text-slate-200 leading-relaxed italic">
+        <span id="modal-story-quote">"Como desenvolvedora..."</span>
+      </div>
+
+      <!-- Status Controller -->
+      <div class="flex items-center gap-3 mb-5 p-3 rounded-xl bg-slate-900 border border-slate-800">
+        <span class="text-xs text-slate-400 font-medium">Status no Quadro:</span>
+        <div class="flex items-center gap-1.5">
+          <button onclick="updateStoryStatus(currentModalStoryId, 'todo')" id="btn-status-todo" class="px-2.5 py-1 rounded text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300 hover:text-white">A Fazer</button>
+          <button onclick="updateStoryStatus(currentModalStoryId, 'doing')" id="btn-status-doing" class="px-2.5 py-1 rounded text-xs font-medium border border-amber-900/60 bg-amber-950/40 text-amber-400 hover:text-amber-300">Em Progresso</button>
+          <button onclick="updateStoryStatus(currentModalStoryId, 'done')" id="btn-status-done" class="px-2.5 py-1 rounded text-xs font-medium border border-emerald-900/60 bg-emerald-950/40 text-emerald-400 hover:text-emerald-300">Concluído</button>
+        </div>
+      </div>
+
+      <!-- Acceptance Criteria Checklist -->
+      <div class="mb-5">
+        <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold mb-3 flex items-center justify-between">
+          <span>Critérios de Aceite & Subtarefas</span>
+          <span id="modal-checklist-counter" class="text-brand-orange font-normal">0/0</span>
+        </h3>
+        <div id="modal-checklist" class="space-y-2">
+          <!-- Checklist Items -->
+        </div>
+      </div>
+
+      <!-- System Design & Interview Note -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 text-xs">
+        <div class="flex items-center gap-1.5 text-brand-accent font-bold mb-1">
+          <i data-lucide="lightbulb" class="w-4 h-4"></i>
+          <span>Insight para Entrevista Técnica (Itaú)</span>
+        </div>
+        <p id="modal-interview-tip" class="text-slate-300 leading-relaxed">
+          Explicação sobre por que essa história agrega valor e como defendê-la tecnicamente.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ARCHITECTURE NODE DETAILS -->
+  <!-- ========================================================================= -->
+  <div id="arch-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-panel bg-slate-950 border border-slate-800 w-full max-w-xl rounded-2xl p-6 shadow-2xl relative">
+      <button onclick="closeArchModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-2 mb-2">
+        <span id="arch-badge" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-brand-orange/20 text-brand-orange border border-brand-orange/30">System Design Component</span>
+      </div>
+
+      <h2 id="arch-title" class="text-lg font-bold text-white mb-1">Nome do Componente</h2>
+      <div id="arch-tech" class="text-xs font-mono text-brand-accent mb-4">Tech Specs</div>
+
+      <div class="space-y-3 text-xs text-slate-300">
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+          <strong class="text-white block mb-1">Função na Arquitetura:</strong>
+          <span id="arch-desc">Descrição</span>
+        </div>
+
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+          <strong class="text-white block mb-1">Justificativa de Engenharia & Decisão de Design:</strong>
+          <span id="arch-rationale">Justificativa</span>
+        </div>
+
+        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+          <strong class="text-amber-400 block mb-1">Pergunta Comum em Entrevista Técnica:</strong>
+          <span id="arch-question" class="italic text-slate-200">"Como você lidaria com..."</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & STATE MANAGEMENT -->
+  <script>
+    // =========================================================================
+    // INITIAL DATA DEFINITIONS (Derived directly from docs/flowtask-plano-refinamento-itau.md)
+    // =========================================================================
+    const initialStories = [
+      // EPIC 5: Infraestrutura como Código (Sprint 1-2)
+      {
+        id: "5.1",
+        epic: "Epic 5",
+        epicName: "Infraestrutura como Código",
+        sprint: "Sprint 1-2",
+        title: "Provisionamento com Terraform & Provider Docker",
+        quote: "Como desenvolvedora, quero provisionar Mongo, Postgres, Redis e Kafka via Terraform, para substituir o docker-compose manual.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Módulos separados por serviço (modules/mongo, modules/postgres, etc.)", done: false },
+          { text: "Variáveis parametrizadas (portas, credenciais, redes)", done: false },
+          { text: "terraform plan / apply documentado no README", done: false }
+        ],
+        interviewTip: "Demonstra maturidade de DevOps: infraestrutura como código versionada, idempotente e reproduzível, em vez de scripts manuais."
+      },
+      {
+        id: "5.2",
+        epic: "Epic 5",
+        epicName: "Infraestrutura como Código",
+        sprint: "Sprint 1-2",
+        title: "Simulação de Cloud Provider com LocalStack",
+        quote: "Como desenvolvedora, quero simular recursos cloud com LocalStack, para praticar Terraform em um cenário mais próximo de produção.",
+        status: "todo",
+        isStretch: true,
+        tasks: [
+          { text: "LocalStack configurado no Terraform", done: false },
+          { text: "Pelo menos 1 recurso simulado (AWS S3 bucket ou SQS queue)", done: false }
+        ],
+        interviewTip: "Mostra capacidade de trabalhar com ecossistemas AWS/Cloud corporativos mesmo em ambiente de desenvolvimento local."
+      },
+
+      // EPIC 1: Persistência Poliglota (Sprint 3-4)
+      {
+        id: "1.1",
+        epic: "Epic 1",
+        epicName: "Persistência Poliglota",
+        sprint: "Sprint 3-4",
+        title: "Migração do Módulo Kanban para PostgreSQL",
+        quote: "Como desenvolvedora, quero migrar o módulo de tarefas do Kanban para PostgreSQL, para ter dados transacionais com integridade relacional.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Modelagem de tabelas relacionais (tarefas, colunas, board)", done: false },
+          { text: "Configuração JPA/Hibernate no Spring Boot", done: false },
+          { text: "Migração de dados existentes do Mongo para Postgres", done: false },
+          { text: "Testes unitários dos repositories JPA", done: false }
+        ],
+        interviewTip: "Explique o teorema CAP e ACID: tarefas de kanban e colunas exigem integridade relacional e consistência estrita."
+      },
+      {
+        id: "1.2",
+        epic: "Epic 1",
+        epicName: "Persistência Poliglota",
+        sprint: "Sprint 3-4",
+        title: "Cache de Leitura do Board com Redis",
+        quote: "Como desenvolvedora, quero adicionar cache Redis nas consultas do board, para reduzir latência de leitura.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "@Cacheable na consulta de listagem de tarefas", done: false },
+          { text: "Estratégia de invalidação de cache ao atualizar/criar tarefa (@CacheEvict)", done: false },
+          { text: "Teste validando cache hit / miss", done: false }
+        ],
+        interviewTip: "Conhecer estratégias de caching (Cache-Aside, Write-Through) e como evitar problemas clássicos como 'Cache Stampede' ou dados obsoletos."
+      },
+      {
+        id: "1.3",
+        epic: "Epic 1",
+        epicName: "Persistência Poliglota",
+        sprint: "Sprint 3-4",
+        title: "Auditoria e Log de Alterações com Oracle XE",
+        quote: "Como desenvolvedora, quero registrar auditoria de alterações em Oracle, para praticar a sintaxe PL/SQL.",
+        status: "todo",
+        isStretch: true,
+        tasks: [
+          { text: "Container Oracle XE local", done: false },
+          { text: "Tabela de log de auditoria (quem alterou, quando, payload)", done: false },
+          { text: "Trigger ou service gravando o log de auditoria", done: false }
+        ],
+        interviewTip: "Grande diferencial para bancos como Itaú que ainda possuem bases corporativas robustas em Oracle/PL-SQL."
+      },
+
+      // EPIC 2: Mensageria e Comunicação Assíncrona (Sprint 5-6)
+      {
+        id: "2.1",
+        epic: "Epic 2",
+        epicName: "Mensageria e Assincronia",
+        sprint: "Sprint 5-6",
+        title: "Publicação de Evento Kafka ao Concluir Tarefa",
+        quote: "Como desenvolvedora, quero publicar um evento Kafka ao concluir uma tarefa, para desacoplar o Kanban do módulo PDI.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Definição do schema do evento (TarefaConcluidaEvent)", done: false },
+          { text: "Producer configurado no serviço de Kanban com KafkaTemplate", done: false },
+          { text: "Tópico criado com partições adequadas no Kafka KRaft", done: false }
+        ],
+        interviewTip: "Discuta semântica de entrega (At-least-once, At-most-once, Exactly-once) e por que desacoplar via eventos previne gargalos no Kanban."
+      },
+      {
+        id: "2.2",
+        epic: "Epic 2",
+        epicName: "Mensageria e Assincronia",
+        sprint: "Sprint 5-6",
+        title: "Consumo de Evento no Módulo PDI",
+        quote: "Como desenvolvedora, quero consumir esse evento no módulo PDI, para atualizar o progresso automaticamente.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Consumer group configurado no módulo PDI", done: false },
+          { text: "Lógica de atualização do PDI no MongoDB ao receber evento", done: false },
+          { text: "Teste de integração producer → consumer", done: false }
+        ],
+        interviewTip: "Explique como garantir Idempotência no consumidor para evitar atualizar o progresso duas vezes em caso de reentrega."
+      },
+
+      // EPIC 3: Microsserviço em Go (Sprint 7)
+      {
+        id: "3.1",
+        epic: "Epic 3",
+        epicName: "Microsserviço em Go",
+        sprint: "Sprint 7",
+        title: "Criação do Serviço de Notificações em Go (Gin)",
+        quote: "Como desenvolvedora, quero criar um serviço de notificações em Go, para praticar comunicação poliglota entre serviços.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Setup do projeto Go (Gin/Echo framework)", done: false },
+          { text: "Consumer Kafka em Go lendo TarefaConcluidaEvent", done: false },
+          { text: "Endpoint de health-check e métricas básicas", done: false }
+        ],
+        interviewTip: "Mostra versatilidade poliglota e compreensão das forças do Go: concurrency com Goroutines, baixo consumo de memória e inicialização rápida."
+      },
+      {
+        id: "3.2",
+        epic: "Epic 3",
+        epicName: "Microsserviço em Go",
+        sprint: "Sprint 7",
+        title: "Containerização & Integração Terraform do Go Service",
+        quote: "Como desenvolvedora, quero que o serviço Go seja containerizado e provisionado via Terraform, para manter consistência com o resto da infra.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Dockerfile multi-stage ultra-leve do serviço Go", done: false },
+          { text: "Módulo Terraform incluindo o novo serviço na rede", done: false }
+        ],
+        interviewTip: "Dockerfile multi-stage reduz imagens de centenas de MBs para menos de 20MB, fundamental para eficiência de containers em Cloud."
+      },
+
+      // EPIC 4: Observabilidade (Sprint 8)
+      {
+        id: "4.1",
+        epic: "Epic 4",
+        epicName: "Observabilidade",
+        sprint: "Sprint 8",
+        title: "Exposição de Métricas via Micrometer & Prometheus",
+        quote: "Como desenvolvedora, quero expor métricas do Spring Boot via Micrometer, para monitorar latência e throughput.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Dependência Micrometer + endpoint /actuator/prometheus", done: false },
+          { text: "Métricas customizadas (ex: contagem de eventos Kafka processados)", done: false }
+        ],
+        interviewTip: "Conhecimento de métricas RED (Rate, Errors, Duration) e USE (Utilization, Saturation, Errors)."
+      },
+      {
+        id: "4.2",
+        epic: "Epic 4",
+        epicName: "Observabilidade",
+        sprint: "Sprint 8",
+        title: "Dashboard Grafana & De-para com Datadog",
+        quote: "Como desenvolvedora, quero visualizar essas métricas em um dashboard, para simular o que seria feito no Datadog.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Prometheus configurado coletando métricas do Spring e Go", done: false },
+          { text: "Dashboard Grafana com 3+ métricas críticas do FlowTask", done: false },
+          { text: "Documentação comparando conceitos com Datadog (tags, APM, dashboards)", done: false }
+        ],
+        interviewTip: "No Itaú, o Datadog é amplamente utilizado. Saber correlacionar tags de serviço, traces distribuídos e SLIs/SLOs é um diferencial de ouro."
+      },
+
+      // EPIC 6: CI/CD e Testes (Sprint 9-10)
+      {
+        id: "6.1",
+        epic: "Epic 6",
+        epicName: "CI/CD e Testes",
+        sprint: "Sprint 9-10",
+        title: "Testes de Integração com Testcontainers",
+        quote: "Como desenvolvedora, quero testes de integração com Testcontainers, para validar comportamento real dos bancos e do Kafka.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Testcontainers para PostgreSQL", done: false },
+          { text: "Testcontainers para MongoDB", done: false },
+          { text: "Testcontainers para Kafka", done: false }
+        ],
+        interviewTip: "Evita o antipadrão de testar em H2 em memória e ter surpresas em produção com dialetos SQL ou comportamento de transação."
+      },
+      {
+        id: "6.2",
+        epic: "Epic 6",
+        epicName: "CI/CD e Testes",
+        sprint: "Sprint 9-10",
+        title: "Pipeline CI/CD Completo no GitHub Actions",
+        quote: "Como desenvolvedora, quero um pipeline CI/CD completo, para automatizar validação e build a cada push.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Etapa de Lint e análise estática", done: false },
+          { text: "Etapa de Testes (Unitários + Integração)", done: false },
+          { text: "Etapa de Build de artefato JAR / Docker", done: false },
+          { text: "Etapa terraform plan (validação sem apply automático)", done: false }
+        ],
+        interviewTip: "Explicar a importância de gates de qualidade automatizados: nenhum código sobe para main sem testes verdes e validação de infra."
+      },
+      {
+        id: "6.3",
+        epic: "Epic 6",
+        epicName: "CI/CD e Testes",
+        sprint: "Sprint 9-10",
+        title: "Revisão Geral de Código: SOLID & Clean Code",
+        quote: "Como desenvolvedora, quero revisar o código dos épicos anteriores aplicando SOLID/Clean Code, para consolidar boas práticas antes de finalizar.",
+        status: "todo",
+        isStretch: false,
+        tasks: [
+          { text: "Checklist de revisão por módulo (Single Responsibility, Inversion of Control)", done: false },
+          { text: "Refatorações registradas em commits separados com mensagens semânticas", done: false }
+        ],
+        interviewTip: "Histórico de commits bem explicados contando a refatoração é o melhor material para demonstrar evolução técnica em entrevistas."
+      }
+    ];
+
+    const sprintsData = [
+      {
+        number: "Sprint 1-2",
+        epicTitle: "Epic 5: Infraestrutura como Código",
+        deliverable: "Repositório com pasta infra/ versionada e README explicando decisões do Terraform.",
+        focus: "Sair do docker-compose puro e provisionar via Terraform modularizado (modules/mongo, postgres, redis, kafka).",
+        techs: ["Terraform", "Docker Provider", "LocalStack"],
+        epicId: "Epic 5",
+        status: "planejada"
+      },
+      {
+        number: "Sprint 3-4",
+        epicTitle: "Epic 1: Persistência Poliglota",
+        deliverable: "ADR (Architecture Decision Record) explicando por que cada dado foi para cada banco.",
+        focus: "Migrar dados transacionais do Kanban para Postgres (JPA), manter PDI em Mongo e adicionar cache Redis (@Cacheable).",
+        techs: ["PostgreSQL", "MongoDB", "Redis", "Oracle XE"],
+        epicId: "Epic 1",
+        status: "planejada"
+      },
+      {
+        number: "Sprint 5-6",
+        epicTitle: "Epic 2: Mensageria e Assincronia",
+        deliverable: "Diagrama de fluxo de eventos + testes de integração de producer e consumer.",
+        focus: "Kafka como espinha dorsal entre Kanban e PDI (evento TarefaConcluidaEvent -> PDI atualiza progresso).",
+        techs: ["Kafka KRaft", "Spring Kafka", "Event Schema"],
+        epicId: "Epic 2",
+        status: "planejada"
+      },
+      {
+        number: "Sprint 7",
+        epicTitle: "Epic 3: Microsserviço em Go",
+        deliverable: "Serviço standalone com Dockerfile próprio integrado ao Terraform.",
+        focus: "Comunicação poliglota real com serviço Go (Gin) consumindo eventos do Kafka para notificações.",
+        techs: ["Go", "Gin / Echo", "Kafka Go Consumer", "Multi-stage Docker"],
+        epicId: "Epic 3",
+        status: "planejada"
+      },
+      {
+        number: "Sprint 8",
+        epicTitle: "Epic 4: Observabilidade",
+        deliverable: "Dashboard Grafana com pelo menos 3 métricas relevantes do FlowTask.",
+        focus: "Micrometer no Spring Boot, exportador Prometheus e Grafana local (comparativo com Datadog).",
+        techs: ["Micrometer", "Prometheus", "Grafana", "Datadog Concept"],
+        epicId: "Epic 4",
+        status: "planejada"
+      },
+      {
+        number: "Sprint 9-10",
+        epicTitle: "Epic 6: CI/CD + Testes + Fechamento",
+        deliverable: "Pipeline verde no GitHub Actions + README final contando a jornada de engenharia.",
+        focus: "Testcontainers para Postgres/Mongo/Kafka, pipeline de CI/CD completa e revisão geral SOLID/Clean Code.",
+        techs: ["Testcontainers", "GitHub Actions", "Clean Code", "Portfolio"],
+        epicId: "Epic 6",
+        status: "planejada"
+      }
+    ];
+
+    const archComponents = {
+      keycloak: {
+        title: "Keycloak IAM (Identity & Access Management)",
+        tech: "Port: 8080 · OAuth2.0 / OpenID Connect · JWT Bearer",
+        desc: "Servidor centralizado de autenticação e autorização para o ecossistema FlowTask. Gerencia usuários, papéis (roles: DEV, TECH_LEAD, ADMIN) e emissão de tokens JWT criptografados.",
+        rationale: "Desacopla regras de autenticação da regra de negócio das APIs. Em arquiteturas corporativas como a do Itaú, a segurança é delegada a identity providers dedicados.",
+        question: "Como você validaria o token JWT nas APIs de backend sem fazer requisição HTTP a cada request no Keycloak? (R: Validação stateless usando a chave pública JWKS do realm)."
+      },
+      clients: {
+        title: "SPA Web Dashboard / Mobile Client",
+        tech: "HTML5 / Tailwind / React / Mobile · HTTP REST API",
+        desc: "Interface de usuário responsável pela gestão visual do quadro Kanban e visualização de metas e feedbacks do PDI.",
+        rationale: "Comunicação totalmente stateless com o backend enviando header Authorization: Bearer <token>.",
+        question: "Qual estratégia você utiliza para evitar problemas de CORS e proteger contra ataques XSS/CSRF no cliente web?"
+      },
+      spring: {
+        title: "FlowTask Backend Core (Spring Boot)",
+        tech: "Java 25 · Spring Boot 3.x · Spring Data JPA & MongoDB · Spring Kafka",
+        desc: "Núcleo transacional e orquestrador do FlowTask. Encapsula o domínio do Kanban (Postgres), o domínio de PDI (Mongo), o cache de alta performance (Redis) e publica eventos no Kafka.",
+        rationale: "Spring Boot oferece suporte maduro a transações distribuídas, injeção de dependência e integração perfeita com JPA, Redis e Kafka.",
+        question: "Como você garante que uma alteração de status no banco Postgres e a publicação do evento no Kafka ocorram de forma atômica? (R: Padrão Transactional Outbox)."
+      },
+      kafka: {
+        title: "Apache Kafka (KRaft Mode)",
+        tech: "Port: 9092 · Event Streaming Platform · Partições & Consumer Groups",
+        desc: "Espinha dorsal de mensageria assíncrona do sistema. Permite que eventos de conclusão de tarefas sejam distribuídos para o módulo de PDI e para o serviço de notificações em Go.",
+        rationale: "Ao contrário de filas simples (RabbitMQ), o Kafka retém eventos em log ordenado, permitindo replay, múltiplos consumidores independentes e altíssimo throughput.",
+        question: "O que acontece se uma partição do Kafka cair ou um consumidor ficar mais lento que os produtores? (R: Consumer lag, balanceamento de partições no Consumer Group)."
+      },
+      goservice: {
+        title: "Go Notifications Microservice",
+        tech: "Go (Golang) · Gin Engine · Sarama Kafka Client · Port: 8081",
+        desc: "Microsserviço independente e leve que consome mensagens do tópico 'tarefa-concluida' para enviar notificações assíncronas aos usuários e líderes.",
+        rationale: "Demonstra arquitetura poliglota real: Go consome menos de 20MB de RAM e inicia em milissegundos, sendo ideal para workers de eventos em escala.",
+        question: "Por que usar Go para workers de background em vez de instanciar outra JVM inteira do Java?"
+      },
+      postgres: {
+        title: "PostgreSQL 15 (Relational DB)",
+        tech: "Port: 5432 · ACID Compliance · JPA/Hibernate",
+        desc: "Banco de dados relacional que armazena a estrutura do Kanban: quadros, colunas ordenadas, tarefas, tags e histórico com integridade referencial forte.",
+        rationale: "O modelo do Kanban possui relacionamentos rígidos (coluna tem N tarefas ordenadas por posição) e necessita de transações ACID garantidas.",
+        question: "Por que o Kanban não deveria ficar no MongoDB? (R: Risco de inconsistência referencial e necessidade de updates atômicos de posição de cards)."
+      },
+      mongo: {
+        title: "MongoDB 7 (Document DB)",
+        tech: "Port: 27017 · Schemaless JSON-like Documents",
+        desc: "Banco orientado a documentos que armazena os Planos de Desenvolvimento Individual (PDI), metas dinâmicas, feedbacks e trilhas de aprendizado.",
+        rationale: "Cada PDI possui campos e estruturas variáveis dependendo do nível do profissional (Junior, Pleno, Especialista), beneficiando-se da flexibilidade de documentos.",
+        question: "Como você lida com evolução de schema no MongoDB sem quebrar registros antigos da coleção de PDI?"
+      },
+      redis: {
+        title: "Redis 7 (In-Memory Data Store)",
+        tech: "Port: 6379 · Cache Sub-milissegundo · Key-Value",
+        desc: "Cache em memória para as consultas mais frequentes do quadro Kanban (@Cacheable), com expiração TTL e invalidação sob demanda (@CacheEvict).",
+        rationale: "Quadros de equipes são lidos centenas de vezes a cada minuto; o Redis desonera o Postgres e entrega respostas com latência inferior a 2ms.",
+        question: "Como você previne dados fantasmas (stale cache) quando um cartão é movido de coluna no Kanban?"
+      },
+      oracle: {
+        title: "Oracle Database XE (Auditoria PL/SQL)",
+        tech: "Port: 1521 · Relacional Corporativo · Stretch Goal",
+        desc: "Base secundária para registro imutável de auditoria corporativa e execução de procedures/triggers de compliance.",
+        rationale: "Demonstra familiaridade com o ecossistema corporativo tradicional dos grandes bancos brasileiros (Itaú).",
+        question: "Como implementar auditoria assíncrona para que a gravação do log não impacte o tempo de resposta da API principal?"
+      },
+      grafana: {
+        title: "Observabilidade: Prometheus + Grafana",
+        tech: "Ports: 9090 (Prometheus) / 3000 (Grafana) · Time-series Metrics",
+        desc: "Pilha de monitoramento que faz scraping das métricas expostas pelo Actuator e pelo Go Service, exibindo gráficos de latência (p95/p99) e throughput.",
+        rationale: "Garante visibilidade operacional em tempo real e serve de ponte conceitual direta para ferramentas corporativas como Datadog.",
+        question: "Qual a diferença conceitual entre métricas (Prometheus), logs (ELK) e traces distribuídos (OpenTelemetry/Jaeger)?"
+      },
+      terraform: {
+        title: "Terraform (Infrastructure as Code)",
+        tech: "HashiCorp HCL · Provider Docker / AWS LocalStack",
+        desc: "Provisionamento declarativo de toda a infraestrutura local (bancos, mensageria, serviços), substituindo scripts manuais por módulos reutilizáveis.",
+        rationale: "Permite reproduzir o ambiente idêntico em qualquer máquina ou pipeline com um único comando `terraform apply`.",
+        question: "Como você gerencia o arquivo `terraform.tfstate` em equipe para evitar concorrência e vazamento de secrets?"
+      },
+      cicd: {
+        title: "GitHub Actions CI/CD & Testcontainers",
+        tech: "YAML Workflow · JUnit 5 Testcontainers · Docker-in-Docker",
+        desc: "Pipeline de integração contínua que executa linting, testes de integração reais contra containers descartáveis e validação do terraform plan a cada pull request.",
+        rationale: "Garante que bugs sejam capturados antes do merge e que a base de código permaneça sempre pronta para produção.",
+        question: "Por que Testcontainers é superior ao uso de mocks ou banco H2 em memória nos testes de integração?"
+      },
+      localstack: {
+        title: "LocalStack (Cloud AWS Mock)",
+        tech: "Port: 4566 · Emulador AWS S3, SQS, SNS",
+        desc: "Emulador local da nuvem AWS para testar Terraform e integrações com S3 (armazenamento de anexos do PDI) e SQS sem custos de nuvem.",
+        rationale: "Capacita a desenvolvedora a simular arquiteturas nativas em nuvem no próprio notebook de desenvolvimento.",
+        question: "Como chavear o endpoint da AWS SDK para apontar para o LocalStack no ambiente dev e para a AWS real em prod?"
+      },
+      micrometer: {
+        title: "Micrometer Metrics Facade",
+        tech: "Spring Boot Starter Actuator · /actuator/prometheus",
+        desc: "Abstração padrão do Spring Boot para instrumentos de métricas de aplicação: contadores, timers, gauges e medição de conexões de banco e pools Kafka.",
+        rationale: "Permite alterar o backend de monitoramento (Prometheus, Datadog, CloudWatch) apenas trocando a dependência, sem alterar o código Java.",
+        question: "Como criar uma métrica customizada que mede o tempo que uma tarefa leva desde a criação até a conclusão?"
+      }
+    };
+
+    // =========================================================================
+    // STATE & LOCAL STORAGE INITIALIZATION
+    // =========================================================================
+    let stories = [];
+    let currentFilter = {
+      search: "",
+      epic: "all",
+      stretchOnly: false
+    };
+    let currentModalStoryId = null;
+
+    function initData() {
+      const saved = localStorage.getItem("flowtask_stories_v1");
+      if (saved) {
+        try {
+          stories = JSON.parse(saved);
+        } catch (e) {
+          stories = JSON.parse(JSON.stringify(initialStories));
+        }
+      } else {
+        stories = JSON.parse(JSON.stringify(initialStories));
+      }
+      saveState();
+      renderAll();
+    }
+
+    function saveState() {
+      localStorage.setItem("flowtask_stories_v1", JSON.stringify(stories));
+      updateGlobalStats();
+    }
+
+    function resetDataConfirmation() {
+      if (confirm("Deseja realmente resetar o progresso do board para o estado inicial?")) {
+        localStorage.removeItem("flowtask_stories_v1");
+        stories = JSON.parse(JSON.stringify(initialStories));
+        saveState();
+        renderAll();
+      }
+    }
+
+    // =========================================================================
+    // RENDERING LOGIC
+    // =========================================================================
+    function renderAll() {
+      renderKanban();
+      renderSprints();
+      updateGlobalStats();
+      lucide.createIcons();
+    }
+
+    function updateGlobalStats() {
+      const totalStories = stories.length;
+      const doneStories = stories.filter(s => s.status === 'done').length;
+      const doingStories = stories.filter(s => s.status === 'doing').length;
+      const todoStories = stories.filter(s => s.status === 'todo').length;
+      const stretchCount = stories.filter(s => s.isStretch).length;
+
+      // Checklists count
+      let totalTasks = 0;
+      let doneTasks = 0;
+      stories.forEach(s => {
+        s.tasks.forEach(t => {
+          totalTasks++;
+          if (t.done) doneTasks++;
+        });
+      });
+
+      const percent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
+      // Update Header
+      document.getElementById('header-progress-bar').style.width = percent + '%';
+      document.getElementById('header-progress-text').innerText = percent + '%';
+      document.getElementById('mobile-progress-badge').innerText = percent + '%';
+      document.getElementById('header-stories-count').innerText = `${doneStories}/${totalStories}`;
+
+      // Update Kanban Counters
+      document.getElementById('stat-todo').innerText = todoStories;
+      document.getElementById('stat-doing').innerText = doingStories;
+      document.getElementById('stat-done').innerText = doneStories;
+      document.getElementById('stat-stretch').innerText = stretchCount;
+
+      document.getElementById('badge-count-todo').innerText = todoStories;
+      document.getElementById('badge-count-doing').innerText = doingStories;
+      document.getElementById('badge-count-done').innerText = doneStories;
+    }
+
+    function getEpicColorClass(epic) {
+      switch(epic) {
+        case 'Epic 1': return 'border-blue-500/30 text-blue-400 bg-blue-500/10';
+        case 'Epic 2': return 'border-sky-500/30 text-sky-400 bg-sky-500/10';
+        case 'Epic 3': return 'border-cyan-500/30 text-brand-go bg-cyan-500/10';
+        case 'Epic 4': return 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10';
+        case 'Epic 5': return 'border-purple-500/30 text-purple-400 bg-purple-500/10';
+        case 'Epic 6': return 'border-amber-500/30 text-amber-400 bg-amber-500/10';
+        default: return 'border-slate-500/30 text-slate-400 bg-slate-500/10';
+      }
+    }
+
+    function renderKanban() {
+      const todoCol = document.getElementById('col-todo-cards');
+      const doingCol = document.getElementById('col-doing-cards');
+      const doneCol = document.getElementById('col-done-cards');
+
+      todoCol.innerHTML = '';
+      doingCol.innerHTML = '';
+      doneCol.innerHTML = '';
+
+      const filtered = stories.filter(story => {
+        const matchesSearch = story.title.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+                              story.quote.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+                              story.epicName.toLowerCase().includes(currentFilter.search.toLowerCase());
+        const matchesEpic = currentFilter.epic === 'all' || story.epic === currentFilter.epic;
+        const matchesStretch = !currentFilter.stretchOnly || story.isStretch;
+        return matchesSearch && matchesEpic && matchesStretch;
+      });
+
+      filtered.forEach(story => {
+        const card = createStoryCardElement(story);
+        if (story.status === 'todo') todoCol.appendChild(card);
+        else if (story.status === 'doing') doingCol.appendChild(card);
+        else if (story.status === 'done') doneCol.appendChild(card);
+      });
+    }
+
+    function createStoryCardElement(story) {
+      const card = document.createElement('div');
+      card.className = "glass-card p-4 rounded-xl cursor-grab active:cursor-grabbing border border-slate-800/80 hover:border-slate-700 relative group";
+      card.draggable = true;
+      card.id = `card-${story.id}`;
+
+      // Drag Events
+      card.ondragstart = (e) => {
+        e.dataTransfer.setData('text/plain', story.id);
+        card.classList.add('dragging');
+      };
+      card.ondragend = () => {
+        card.classList.remove('dragging');
+      };
+
+      const epicColor = getEpicColorClass(story.epic);
+      const totalTasks = story.tasks.length;
+      const doneTasks = story.tasks.filter(t => t.done).length;
+      const progressPercent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${epicColor}">
+              ${story.epic}
+            </span>
+            <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">
+              ${story.sprint}
+            </span>
+            ${story.isStretch ? '<span class="text-[10px] font-mono text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded border border-purple-500/20">Stretch</span>' : ''}
+          </div>
+          <span class="text-xs font-mono font-bold text-slate-400">#${story.id}</span>
+        </div>
+
+        <h3 class="text-xs font-bold text-white group-hover:text-brand-orange transition mb-1.5 leading-snug">
+          ${story.title}
+        </h3>
+
+        <p class="text-[11px] text-slate-400 line-clamp-2 italic mb-3">
+          ${story.quote}
+        </p>
+
+        <!-- Progress Mini Bar -->
+        <div class="space-y-1 mb-3">
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+            <span>Critérios: ${doneTasks}/${totalTasks}</span>
+            <span class="${progressPercent === 100 ? 'text-emerald-400' : 'text-slate-300'}">${progressPercent}%</span>
+          </div>
+          <div class="w-full bg-slate-800/90 h-1.5 rounded-full overflow-hidden">
+            <div class="h-full ${progressPercent === 100 ? 'bg-emerald-400' : 'bg-brand-orange'} transition-all duration-300" style="width: ${progressPercent}%"></div>
+          </div>
+        </div>
+
+        <!-- Card Footer / Actions -->
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-xs">
+          <button onclick="openStoryModal('${story.id}')" class="text-brand-orange hover:text-amber-400 font-semibold text-[11px] flex items-center gap-1">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+            <span>Ver Detalhes</span>
+          </button>
+          
+          <div class="flex items-center gap-1">
+            ${story.status !== 'todo' ? `<button onclick="moveStoryQuick('${story.id}', 'prev')" title="Mover para coluna anterior" class="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"><i data-lucide="chevron-left" class="w-3 h-3"></i></button>` : ''}
+            ${story.status !== 'done' ? `<button onclick="moveStoryQuick('${story.id}', 'next')" title="Avançar status" class="p-1 rounded bg-slate-800 hover:bg-brand-orange text-slate-300 hover:text-white text-[10px]"><i data-lucide="chevron-right" class="w-3 h-3"></i></button>` : ''}
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function renderSprints() {
+      const grid = document.getElementById('sprints-grid');
+      grid.innerHTML = '';
+
+      sprintsData.forEach(sprint => {
+        const sprintStories = stories.filter(s => s.sprint === sprint.number);
+        const total = sprintStories.length;
+        const done = sprintStories.filter(s => s.status === 'done').length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        const card = document.createElement('div');
+        card.className = "glass-panel p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono font-bold text-brand-orange bg-brand-orange/10 px-2.5 py-0.5 rounded border border-brand-orange/20">
+                ${sprint.number}
+              </span>
+              <span class="text-[11px] font-mono text-slate-400">Progresso: <strong class="${pct === 100 ? 'text-emerald-400' : 'text-white'}">${pct}%</strong></span>
+            </div>
+
+            <h3 class="text-sm font-bold text-white mb-1">${sprint.epicTitle}</h3>
+            <p class="text-xs text-slate-300 mb-3">${sprint.focus}</p>
+
+            <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 mb-3">
+              <div class="text-[10px] font-mono uppercase text-brand-orange font-bold flex items-center gap-1 mb-1">
+                <i data-lucide="package-check" class="w-3.5 h-3.5"></i>
+                <span>Entregável da Sprint:</span>
+              </div>
+              <p class="text-xs text-slate-200">${sprint.deliverable}</p>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              ${sprint.techs.map(t => `<span class="text-[10px] bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded font-mono border border-slate-700/50">${t}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-mono">${done}/${total} Histórias Concluídas</span>
+            <button onclick="filterBySprint('${sprint.epicId}')" class="text-xs text-brand-accent hover:underline flex items-center gap-1 font-medium">
+              <span>Ver no Quadro</span>
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // =========================================================================
+    // DRAG AND DROP & QUICK MOVE
+    // =========================================================================
+    function allowDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('drag-over');
+    }
+
+    function dragLeave(e) {
+      e.currentTarget.classList.remove('drag-over');
+    }
+
+    function handleDrop(e, targetCol) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const storyId = e.dataTransfer.getData('text/plain');
+      if (storyId) {
+        updateStoryStatus(storyId, targetCol);
+      }
+    }
+
+    function moveStoryQuick(storyId, direction) {
+      const story = stories.find(s => s.id === storyId);
+      if (!story) return;
+
+      const flow = ['todo', 'doing', 'done'];
+      let currentIndex = flow.indexOf(story.status);
+      if (direction === 'next' && currentIndex < flow.length - 1) {
+        story.status = flow[currentIndex + 1];
+      } else if (direction === 'prev' && currentIndex > 0) {
+        story.status = flow[currentIndex - 1];
+      }
+      saveState();
+      renderAll();
+    }
+
+    function updateStoryStatus(storyId, newStatus) {
+      const story = stories.find(s => s.id === storyId);
+      if (story) {
+        story.status = newStatus;
+        saveState();
+        renderAll();
+        if (currentModalStoryId === storyId) {
+          updateModalStatusButtons(newStatus);
+        }
+      }
+    }
+
+    // =========================================================================
+    // FILTERING & NAVIGATION
+    // =========================================================================
+    function applyFilters() {
+      currentFilter.search = document.getElementById('searchInput').value;
+      currentFilter.epic = document.getElementById('epicFilter').value;
+      renderKanban();
+      lucide.createIcons();
+    }
+
+    function toggleStretchOnly() {
+      currentFilter.stretchOnly = !currentFilter.stretchOnly;
+      const btn = document.getElementById('stretchToggleBtn');
+      if (currentFilter.stretchOnly) {
+        btn.classList.add('border-purple-500', 'bg-purple-950/40', 'text-purple-300');
+      } else {
+        btn.classList.remove('border-purple-500', 'bg-purple-950/40', 'text-purple-300');
+      }
+      renderKanban();
+      lucide.createIcons();
+    }
+
+    function filterBySprint(epicId) {
+      document.getElementById('epicFilter').value = epicId;
+      currentFilter.epic = epicId;
+      switchView('board');
+      renderKanban();
+      lucide.createIcons();
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${viewName}`).classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // MODAL DIALOGS
+    // =========================================================================
+    function openStoryModal(storyId) {
+      const story = stories.find(s => s.id === storyId);
+      if (!story) return;
+
+      currentModalStoryId = storyId;
+      document.getElementById('modal-title').innerText = `#${story.id} — ${story.title}`;
+      document.getElementById('modal-epic-badge').innerText = `${story.epic} (${story.epicName})`;
+      document.getElementById('modal-sprint-badge').innerText = story.sprint;
+      document.getElementById('modal-story-quote').innerText = story.quote;
+      document.getElementById('modal-interview-tip').innerText = story.interviewTip;
+
+      const stretchBadge = document.getElementById('modal-stretch-badge');
+      if (story.isStretch) stretchBadge.classList.remove('hidden');
+      else stretchBadge.classList.add('hidden');
+
+      updateModalStatusButtons(story.status);
+      renderModalChecklist(story);
+
+      document.getElementById('story-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeStoryModal() {
+      document.getElementById('story-modal').classList.add('hidden');
+      currentModalStoryId = null;
+    }
+
+    function updateModalStatusButtons(status) {
+      ['todo', 'doing', 'done'].forEach(st => {
+        const btn = document.getElementById(`btn-status-${st}`);
+        if (st === status) {
+          btn.classList.add('ring-2', 'ring-brand-orange', 'font-bold');
+        } else {
+          btn.classList.remove('ring-2', 'ring-brand-orange', 'font-bold');
+        }
+      });
+    }
+
+    function renderModalChecklist(story) {
+      const listContainer = document.getElementById('modal-checklist');
+      listContainer.innerHTML = '';
+
+      const doneTasks = story.tasks.filter(t => t.done).length;
+      document.getElementById('modal-checklist-counter').innerText = `${doneTasks}/${story.tasks.length} Concluídos`;
+
+      story.tasks.forEach((task, idx) => {
+        const item = document.createElement('label');
+        item.className = "flex items-start gap-3 p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 hover:border-slate-700 cursor-pointer transition";
+        item.innerHTML = `
+          <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask(${idx})" class="mt-0.5 rounded border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4 bg-slate-950">
+          <span class="text-xs ${task.done ? 'line-through text-slate-500' : 'text-slate-200'} leading-relaxed">${task.text}</span>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    function toggleTask(taskIdx) {
+      const story = stories.find(s => s.id === currentModalStoryId);
+      if (story && story.tasks[taskIdx]) {
+        story.tasks[taskIdx].done = !story.tasks[taskIdx].done;
+        
+        // Auto mark as done if all checked
+        const allDone = story.tasks.every(t => t.done);
+        if (allDone && story.status !== 'done') {
+          story.status = 'done';
+        }
+
+        saveState();
+        renderModalChecklist(story);
+        updateModalStatusButtons(story.status);
+        renderKanban();
+        lucide.createIcons();
+      }
+    }
+
+    // ARCHITECTURE MODAL
+    function openArchModal(key) {
+      const comp = archComponents[key];
+      if (!comp) return;
+
+      document.getElementById('arch-title').innerText = comp.title;
+      document.getElementById('arch-tech').innerText = comp.tech;
+      document.getElementById('arch-desc').innerText = comp.desc;
+      document.getElementById('arch-rationale').innerText = comp.rationale;
+      document.getElementById('arch-question').innerText = `"${comp.question}"`;
+
+      document.getElementById('arch-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeArchModal() {
+      document.getElementById('arch-modal').classList.add('hidden');
+    }
+
+    // =========================================================================
+    // DATA FLOW SIMULATION ANIMATION
+    // =========================================================================
+    let animationTimer = null;
+    function triggerDataFlowAnimation() {
+      const box = document.getElementById('flow-animation-box');
+      const text = document.getElementById('flow-step-text');
+      box.classList.remove('hidden');
+
+      const steps = [
+        "1. Usuário arrasta um card para a coluna 'Concluído' no Kanban (Spring Boot MVC).",
+        "2. Spring Boot inicia transação no PostgreSQL, atualiza o status do card e invalida a chave no Redis Cache (@CacheEvict).",
+        "3. Spring Boot publica 'TarefaConcluidaEvent' no tópico Kafka 'tarefa-concluida' (KRaft Broker).",
+        "4. Consumer no módulo PDI recebe o evento assíncrono e atualiza metas e progresso no MongoDB.",
+        "5. Consumer em Go (Gin Notifier) recebe o evento em paralelo e dispara notificação assíncrona.",
+        "6. Micrometer coleta métricas de latência e contagem de eventos, expostas ao Prometheus e exibidas no Grafana.",
+        "✅ Fluxo concluído com sucesso com resiliência, baixo acoplamento e observabilidade garantida!"
+      ];
+
+      let stepIdx = 0;
+      clearInterval(animationTimer);
+
+      const nodes = [
+        document.getElementById('node-spring'),
+        document.getElementById('node-postgres'),
+        document.getElementById('node-redis'),
+        document.getElementById('node-kafka'),
+        document.getElementById('node-mongo'),
+        document.getElementById('node-go')
+      ];
+
+      nodes.forEach(n => n && n.classList.remove('glow-orange', 'glow-blue', 'glow-purple'));
+
+      function playNext() {
+        if (stepIdx < steps.length) {
+          text.innerText = steps[stepIdx];
+          
+          if (stepIdx === 0 || stepIdx === 1) {
+            document.getElementById('node-spring')?.classList.add('glow-orange');
+            document.getElementById('node-postgres')?.classList.add('glow-blue');
+          } else if (stepIdx === 2) {
+            document.getElementById('node-redis')?.classList.add('glow-blue');
+            document.getElementById('node-kafka')?.classList.add('glow-purple');
+          } else if (stepIdx === 3) {
+            document.getElementById('node-mongo')?.classList.add('glow-blue');
+          } else if (stepIdx === 4) {
+            document.getElementById('node-go')?.classList.add('glow-blue');
+          }
+
+          stepIdx++;
+          animationTimer = setTimeout(playNext, 1800);
+        } else {
+          setTimeout(() => {
+            nodes.forEach(n => n && n.classList.remove('glow-orange', 'glow-blue', 'glow-purple'));
+          }, 3000);
+        }
+      }
+
+      playNext();
+    }
+
+    // Close Modals on ESC or Backdrop click
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeStoryModal();
+        closeArchModal();
+      }
+    });
+
+    document.getElementById('story-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('story-modal')) closeStoryModal();
+    });
+
+    document.getElementById('arch-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('arch-modal')) closeArchModal();
+    });
+
+    // Start App
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+    });
+  </script>
+</body>
+</html>
