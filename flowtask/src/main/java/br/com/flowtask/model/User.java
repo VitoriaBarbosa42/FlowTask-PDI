@@ -10,6 +10,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Table(name = "tb_user_credential")
 public class User {
 
     @Id
@@ -19,9 +20,11 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @Enumerated
+    @Column(name = "account_status")
     private AccountStatusEnum status;
+
 }

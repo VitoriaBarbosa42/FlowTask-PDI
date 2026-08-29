@@ -1,103 +1,209 @@
-# FlowTask + PDI
+# FlowTask + PDI 🚀
 
-Resumo
-------
-FlowTask é um projeto pessoal de estudo: backend em Java (Spring Boot + Maven) com foco em um módulo de Plano de Desenvolvimento Individual (PDI). O repositório contém a aplicação Java em `flowtask/` e um `docker-compose.yaml` (branch `develop`) que levanta Postgres + pgAdmin para desenvolvimento local.
+[![Java 25](https://img.shields.io/badge/Java-25-orange.svg?style=flat-square&logo=openjdk)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x%20%2F%204.x-6DB33F.svg?style=flat-square&logo=springboot)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1.svg?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0-47A248.svg?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
+[![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-KRaft-231F20.svg?style=flat-square&logo=apachekafka)](https://kafka.apache.org/)
+[![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC.svg?style=flat-square&logo=terraform)](https://www.terraform.io/)
+[![Keycloak](https://img.shields.io/badge/Keycloak-IAM%20%26%20OAuth2-00838F.svg?style=flat-square&logo=keycloak)](https://www.keycloak.org/)
 
-O que já foi feito
-------------------
-- Estrutura Maven em `flowtask/` com `mvnw` (wrapper) e `pom.xml`.
-- Dependências principais no `pom.xml`: Spring Boot (webmvc, data-jpa, data-mongodb), driver PostgreSQL e Lombok.
-- `docker-compose.yaml` (raiz) com serviços:
-  - `postgres` (postgres:15-alpine) — usuário `postgres`, senha `postgres`, DB `flowtask`.
-  - `pgadmin` (dpage/pgadmin4) — acesso em `http://localhost:5050` (admin@flowtask.com / admin).
-- Código-fonte em `flowtask/src` (estrutura de projeto Spring Boot). Ainda não há serviço da aplicação no `docker-compose` — a app é executada via mvnw/localmente ou por container se você adicionar um serviço `app` no compose.
+> **FlowTask** é um ecossistema backend moderno desenvolvido em **Java (Spring Boot)** e **Go**, combinando **gestão ágil de tarefas (Kanban)** com um módulo de **Plano de Desenvolvimento Individual (PDI)**. O projeto adota **persistência poliglota consciente**, **comunicação assíncrona orientada a eventos (EDA)** e **práticas corporativas de observabilidade e infraestrutura como código**.
 
-Stack
------
-- Language(s): Java (100%)
-- Framework / runtime: Spring Boot (parent 4.1.0), Maven (wrapper disponível)
-- Notable libraries: spring-boot-starter-webmvc, spring-boot-starter-data-mongodb, spring-boot-starter-data-jpa, postgresql driver, lombok
+---
 
-Como rodar (do zero)
---------------------
+## 🎯 Hub Visual de Sprints, Releases & System Design
 
-Requisitos
-- Git
-- Docker & Docker Compose (ou Docker Desktop)
-- JDK compatível (o `pom.xml` declara `java.version` 25; se usar o wrapper, o Maven wrapper resolve o Maven, mas o JDK deve existir)
-- (Opcional) Maven local
+Para acompanhar o planejamento completo de sprints, checklists interativos e o simulador interativo de arquitetura:
 
-1) Clonar repositório
+👉 **[Abrir Hub Visual Interativo (`docs/index.html`)](docs/index.html)**
+
+- 📋 **Quadro Kanban Interativo**: Com suporte a *drag & drop*, filtros por épicos e salvamento automático do progresso no navegador.
+- 📅 **Sprint Roadmap & Milestones**: Planejamento sequencial dos 6 ciclos de entrega e metas *Stretch*.
+- 🏛️ **System Design Explorer**: Diagrama visual interativo com simulação de eventos e justificativas de cada tecnologia para entrevistas técnicas.
+- ⚖️ **Matriz de Trade-offs & ADRs**: Comparativo prático de decisões (ex: Postgres vs Mongo, Kafka vs RabbitMQ, Go vs Java para workers).
+
+---
+
+## 🏛️ Arquitetura do Sistema
+
+```mermaid
+flowchart TD
+    subgraph Ingress ["1. Entrada & Segurança"]
+        Client["SPA Web / Mobile Client"]
+        Keycloak["Keycloak IAM<br/>(OAuth2 / OIDC / JWT)"]
+        LocalStack["LocalStack AWS (Stretch)<br/>(S3 / SQS)"]
+    end
+
+    subgraph BackendCore ["2. Backend Core (Spring Boot)"]
+        API["REST Controllers"]
+        KanbanModule["Módulo Kanban<br/>(Spring Data JPA)"]
+        PDIModule["Módulo PDI<br/>(Spring Data Mongo)"]
+        Producer["Kafka Event Producer"]
+        Actuator["Micrometer / Actuator"]
+    end
+
+    subgraph Messaging ["3. Mensageria & Microsserviços"]
+        Kafka["Apache Kafka (KRaft)<br/>Topic: tarefa-concluida"]
+        GoService["Go Notifier Microservice<br/>(Gin Engine / Kafka Consumer)"]
+    end
+
+    subgraph Storage ["4. Persistência Poliglota"]
+        Postgres[(PostgreSQL 15<br/>Relacional / ACID)]
+        Mongo[(MongoDB 7<br/>Documentos PDI)]
+        Redis[(Redis 7<br/>Cache @Cacheable)]
+        Oracle[(Oracle XE<br/>Auditoria PL/SQL)]
+    end
+
+    subgraph Ops ["5. Observabilidade & IaC"]
+        Prometheus["Prometheus / Grafana"]
+        Terraform["Terraform Modules"]
+        CI["GitHub Actions + Testcontainers"]
+    end
+
+    Client -->|Bearer JWT| API
+    Keycloak -.->|Validação Token JWKS| API
+    API --> KanbanModule
+    API --> PDIModule
+
+    KanbanModule -->|ACID Transactions| Postgres
+    KanbanModule -->|Cache Sub-ms| Redis
+    PDIModule -->|Schemaless Docs| Mongo
+
+    KanbanModule -->|Publica TarefaConcluidaEvent| Producer
+    Producer --> Kafka
+
+    Kafka -->|Consome Evento| PDIModule
+    Kafka -->|Consome Evento| GoService
+
+    Actuator --> Prometheus
+```
+
+---
+
+## 🛠️ Stack Tecnológica
+
+| Camada | Tecnologias & Ferramentas |
+| :--- | :--- |
+| **Backend Core** | Java 25, Spring Boot 3.x / 4.x, Spring Data JPA, Spring Data MongoDB, Spring Kafka, Lombok |
+| **Microsserviço** | Go (Golang), Gin Web Framework, Sarama Kafka Client |
+| **Bancos de Dados** | PostgreSQL 15, MongoDB 7.0, Redis 7 (In-Memory Cache), Oracle Database XE *(Stretch)* |
+| **Mensageria** | Apache Kafka (KRaft Mode sem ZooKeeper) |
+| **Segurança & IAM** | Keycloak IAM, OAuth2.0, OpenID Connect, Spring Security JWT Bearer |
+| **Observabilidade** | Micrometer, Prometheus, Grafana, Mapeamento conceitual Datadog |
+| **Infra & DevOps** | Docker, Docker Compose, Terraform (Provider Docker/LocalStack), Testcontainers, GitHub Actions |
+
+---
+
+## 🚀 Como Rodar o Projeto
+
+### Pré-requisitos
+- **Git** instalado
+- **Docker & Docker Compose** (ou Docker Desktop)
+- **JDK 21+ ou JDK 25** instalado
+
+---
+
+### 1. Clonar o repositório
 ```bash
 git clone https://github.com/VitoriaBarbosa42/FlowTask-PDI.git
 cd FlowTask-PDI
 ```
-2) Levantar infra (Postgres + pgAdmin) com Docker Compose
+
+---
+
+### 2. Subir a infraestrutura (PostgreSQL, pgAdmin e Keycloak)
 ```bash
 docker-compose up -d
-Verificar containers:
 ```
+
+Verifique o status dos containers:
 ```bash
-docker ps
-docker-compose logs -f
+docker-compose ps
+```
 
-Acesso:
+#### 🌐 Serviços e Portas Locais:
+- **PostgreSQL**: `localhost:5432` *(User: `postgres` | Senha: `postgres` | DB: `flowtask`)*
+- **pgAdmin 4**: [http://localhost:5050](http://localhost:5050) *(Login: `admin@flowtask.com` | Senha: `admin`)*
+- **Keycloak IAM**: [http://localhost:8080](http://localhost:8080) *(Login: `admin` | Senha: `admin`)*
+- **Hub Visual (Board)**: abra o arquivo [`docs/index.html`](docs/index.html) no navegador
 
-Postgres: localhost:5432
-POSTGRES_USER=nome
-POSTGRES_PASSWORD=senha
-POSTGRES_DB=flowtask
-pgAdmin: http://localhost:5050 — login admin@admin.com / senha admin
-Build e execução da aplicação (local)
-bash
+---
+
+### 3. Executar o Backend Spring Boot
+
+Acesse o diretório da aplicação:
+```bash
 cd flowtask
-# build (pula testes se desejar)
-./mvnw clean package -DskipTests
+```
 
-# ou rodar diretamente em modo de desenvolvimento
+Executar em modo desenvolvimento via Maven Wrapper:
+```bash
+# No Linux / macOS:
 ./mvnw spring-boot:run
 
+# No Windows (PowerShell / CMD):
+.\mvnw.cmd spring-boot:run
 ```
 
-3) Executar o JAR (após build)
+Ou compilar o pacote JAR e executar:
 ```bash
-# no diretório flowtask
-java -jar target/*.jar
-Configuração do banco (observações)
+# Build (pulando testes se necessário)
+./mvnw clean package -DskipTests
 
-Verifique flowtask/src/main/resources/application.properties ou application.yml para ver qual banco está sendo usado (Postgres via JPA ou MongoDB). O pom.xml contém dependências tanto para MongoDB quanto para JPA/Postgres — ajuste as propriedades de acordo.
-Se a app for executada localmente e conectar ao container Postgres, use:
-JDBC: jdbc:postgresql://localhost:5432/flowtask
-Usuário/senha: postgres / postgres
-Se você containerizar a app no mesmo docker-compose, a URL JDBC pode usar o hostname do serviço: jdbc:postgresql://postgres:5432/flowtask.
+# Execução do JAR gerado
+java -jar target/*.jar
 ```
 
-4) Como parar e limpar
-Parar os serviços do docker-compose:
+---
 
+### 4. Parar e limpar o ambiente
+
+Para pausar os containers:
 ```bash
 docker-compose down
-Parar e remover volumes (reset do DB):
 ```
+
+Para remover os volumes persistentes e resetar a base de dados:
 ```bash
 docker-compose down -v
 ```
-Remover containers manualmente:
 
-```bash
-docker rm -f flowtask-postgres flowtask-pgadmin
+---
+
+## 🗺️ Roadmap de Sprints & Épicos
+
+| Sprint | Épico | Foco Principal | Entregável Chave |
+| :---: | :--- | :--- | :--- |
+| **Sprint 1-2** | **Epic 5: Infraestrutura como Código** | Terraform com provider Docker modularizado (`modules/postgres`, `mongo`, `redis`, `kafka`) | Pasta `infra/` versionada com `terraform plan/apply` |
+| **Sprint 3-4** | **Epic 1: Persistência Poliglota** | Migração do Kanban para PostgreSQL (JPA), PDI em MongoDB e cache Redis (`@Cacheable`) | ADR documentando a escolha de cada banco |
+| **Sprint 5-6** | **Epic 2: Mensageria & Eventos** | Apache Kafka KRaft desacoplando conclusão de tarefas e atualização do PDI | Fluxo de eventos assíncrono + testes de integração |
+| **Sprint 7** | **Epic 3: Microsserviço em Go** | Serviço leve de notificações em Go (Gin) consumindo eventos Kafka | Serviço standalone com Dockerfile multi-stage |
+| **Sprint 8** | **Epic 4: Observabilidade** | Instrumentação Micrometer, endpoints Prometheus e dashboards Grafana | Dashboard com métricas de latência e throughput |
+| **Sprint 9-10** | **Epic 6: CI/CD & Clean Architecture** | Pipeline GitHub Actions com Testcontainers e revisão SOLID | Pipeline verde automatizada e documentação de portfólio |
+
+---
+
+## 📁 Estrutura do Repositório
+
+```text
+FlowTask-PDI/
+├── docs/
+│   ├── index.html                           # 🌟 Hub Visual (Kanban Board & System Design)
+│   └── flowtask-plano-refinamento-itau.md   # Documento base de refinamento técnico
+├── flowtask/                                # Aplicação Spring Boot (Java 25)
+│   ├── src/main/java/br/com/flowtask/       # Controllers, Services, Models e Security
+│   ├── src/main/resources/                  # application.yaml e schema.sql
+│   ├── mvnw / mvnw.cmd                      # Maven Wrapper
+│   └── pom.xml                              # Dependências do projeto
+├── keycloak-config/
+│   └── flowtask-realm.json                  # Realm pré-configurado do Keycloak
+├── docker-compose.yaml                      # Orquestração local dos containers
+└── README.md                                # Documentação principal
 ```
-Comandos úteis
-Logs dos containers:
-```bash
-docker-compose logs -f
-```
-Entrar no psql do container:
-```bash
-docker exec -it flowtask-postgres psql -U postgres -d flowtask
-```
-Ver volumes:
-```bash
-docker volume ls
-```
+
+---
+
+## 📚 Documentações Complementares
+- 📖 [Plano de Refinamento Técnico Completo](docs/flowtask-plano-refinamento-itau.md)
+- 📊 [Dashboard Interativo & System Design](docs/index.html)
