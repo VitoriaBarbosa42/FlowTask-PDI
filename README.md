@@ -19,10 +19,9 @@ O **FlowTask** conta com um portal visual rico publicado diretamente no **GitHub
 👉 **[Acessar Portal Central & Hub de Documentação (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
 
 ### 🌟 Módulos Disponíveis no Portal:
-- 🏠 **Home & Hub do Ecossistema**: Visão geral da arquitetura, stack tecnológica e atalhos em grade para todos os módulos do projeto.
+- 🏠 **Home & Hub do Ecossistema**: Visão geral da arquitetura, stack tecnológica e atalhos rápidos em grade.
 - 📋 **Quadro Kanban Ágil (Tela Separada)**: Gestão interativa de tarefas dos 6 épicos com suporte a *drag & drop*, filtros avançados e persistência do progresso local.
-- 📋 **Central de Refinamento Técnico & SDD**: Acesso aos planos das 10 sprints, mapa de dependências em Mermaid e subpastas de épicos (`docs/refinamento-tecnico/`).
-- 📚 **Central de Anotações & Estudos**: Biblioteca didática categorizada por tópicos (Metodologias SDD, Java, Go, Infra e QA) com quizzes de fixação (`docs/anotacoes/`).
+- 📁 **Explorador Hierárquico de Pastas & Documentação (`docs/`)**: Navegador visual interativo unificado para inspecionar specs SDD (`docs/refinamento-tecnico/`), planos de arquitetura, anotações de estudo (`docs/anotacoes/`) e relatórios técnicos.
 - 🏛️ **System Design Explorer**: Diagrama visual interativo da topologia com simulador em tempo real do ciclo de eventos Kafka.
 - ⚖️ **Matriz de Trade-offs & ADRs**: Comparativo técnico de decisões (Postgres vs Mongo, Kafka vs RabbitMQ, Go vs Java) e simulador de entrevistas Itaú.
 - 📅 **Sprint Roadmap & Releases**: Sequenciamento lógico dos 6 ciclos de entrega e metas *Stretch*.

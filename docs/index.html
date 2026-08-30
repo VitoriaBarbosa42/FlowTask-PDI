@@ -220,14 +220,10 @@
           <i data-lucide="trello" class="w-4 h-4"></i>
           <span>Quadro Kanban</span>
         </button>
-        <button onclick="switchView('refinement')" id="tab-btn-refinement" class="tab-btn px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1.5 transition">
-          <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-          <span>Refinamento Técnico</span>
-        </button>
-        <button onclick="switchView('library')" id="tab-btn-library" class="tab-btn px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1.5 transition">
-          <i data-lucide="book-open" class="w-4 h-4"></i>
-          <span>Anotações de Estudo</span>
-          <span id="nav-lib-count" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-brand-orange/20 text-brand-orange border border-brand-orange/30 font-bold">4</span>
+        <button onclick="switchView('docs')" id="tab-btn-docs" class="tab-btn px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+          <i data-lucide="folder-tree" class="w-4 h-4"></i>
+          <span>Pastas & Documentação</span>
+          <span id="nav-docs-count" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold">4 docs</span>
         </button>
         <button onclick="switchView('architecture')" id="tab-btn-architecture" class="tab-btn px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1.5 transition">
           <i data-lucide="network" class="w-4 h-4"></i>
@@ -294,7 +290,7 @@
           </h1>
 
           <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-            O <strong>FlowTask + PDI</strong> é uma aplicação backend moderna com persistência poliglota consciente e mensageria orientada a eventos. Este hub centraliza o <strong>Quadro Ágil (Kanban)</strong>, a <strong>Central de Refinamento Técnico (SDD)</strong>, a <strong>Biblioteca Didática de Estudos</strong>, o <strong>System Design Explorer</strong> e as <strong>Decisões Arquiteturais (ADRs)</strong>.
+            O <strong>FlowTask + PDI</strong> é uma aplicação backend moderna com persistência poliglota consciente e mensageria orientada a eventos. Este hub centraliza o <strong>Quadro Ágil (Kanban)</strong>, o <strong>Explorador de Pastas & Documentação SDD</strong>, o <strong>System Design Explorer</strong> e as <strong>Decisões Arquiteturais (ADRs)</strong>.
           </p>
 
           <!-- Tech Specs Pill Row -->
@@ -328,17 +324,17 @@
               <i data-lucide="trello" class="w-4 h-4"></i>
               <span>Abrir Quadro Kanban</span>
             </button>
-            <button onclick="switchView('refinement')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-800 flex items-center gap-2 transition">
-              <i data-lucide="clipboard-list" class="w-4 h-4 text-blue-400"></i>
-              <span>Refinamento Técnico & SDD</span>
-            </button>
-            <button onclick="switchView('library')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-800 flex items-center gap-2 transition">
-              <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i>
-              <span>Anotações de Estudo</span>
+            <button onclick="openExplorerFolder('docs')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-800 flex items-center gap-2 transition">
+              <i data-lucide="folder-tree" class="w-4 h-4 text-brand-orange"></i>
+              <span>Explorador de Pastas & Docs</span>
             </button>
             <button onclick="switchView('architecture')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-800 flex items-center gap-2 transition">
               <i data-lucide="network" class="w-4 h-4 text-purple-400"></i>
               <span>System Design</span>
+            </button>
+            <button onclick="switchView('matrix')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-800 flex items-center gap-2 transition">
+              <i data-lucide="scale" class="w-4 h-4 text-amber-400"></i>
+              <span>Trade-offs & ADRs</span>
             </button>
           </div>
         </div>
@@ -383,7 +379,7 @@
           </div>
 
           <!-- Card 2: Refinamento Técnico -->
-          <div onclick="switchView('refinement')" class="glass-card p-6 rounded-2xl border border-slate-800/90 cursor-pointer flex flex-col justify-between group">
+          <div onclick="openExplorerFolder('refinamento-tecnico')" class="glass-card p-6 rounded-2xl border border-slate-800/90 cursor-pointer flex flex-col justify-between group">
             <div>
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold">
@@ -407,7 +403,7 @@
           </div>
 
           <!-- Card 3: Anotações de Estudo -->
-          <div onclick="switchView('library')" class="glass-card p-6 rounded-2xl border border-slate-800/90 cursor-pointer flex flex-col justify-between group">
+          <div onclick="openExplorerFolder('anotacoes')" class="glass-card p-6 rounded-2xl border border-slate-800/90 cursor-pointer flex flex-col justify-between group">
             <div>
               <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
@@ -425,7 +421,7 @@
               </p>
             </div>
             <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-emerald-400">
-              <span>Acessar Biblioteca</span>
+              <span>Acessar Anotações</span>
               <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition"></i>
             </div>
           </div>
@@ -1108,21 +1104,21 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VIEW: REFINAMENTO TÉCNICO & SDD (docs/refinamento-tecnico/) -->
+    <!-- VIEW: PASTAS & DOCUMENTAÇÃO UNIFICADA (docs/ - refinamento & anotacoes) -->
     <!-- ========================================================================= -->
-    <section id="view-refinement" class="view-section hidden space-y-6">
+    <section id="view-docs" class="view-section hidden space-y-6">
       
       <!-- Top Banner -->
       <div class="glass-panel p-6 rounded-2xl border border-slate-800">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded border border-blue-500/20">docs/refinamento-tecnico/</span>
-              <span class="text-xs text-slate-400">Spec-Driven Development Suite</span>
+              <span class="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded border border-blue-500/20">docs/</span>
+              <span class="text-xs text-slate-400 font-mono">Refinamento SDD & Anotações de Estudo</span>
             </div>
-            <h2 class="text-xl font-bold text-white mt-2">Hub & Explorador Hierárquico de Pastas SDD</h2>
-            <p class="text-xs text-slate-300 mt-1 max-w-3xl">
-              Navegue pela estrutura real de diretórios do projeto, inspecione especificações, planos de arquitetura, micro-tarefas e relatórios de auditoria clicando nas pastas e arquivos abaixo.
+            <h2 class="text-xl font-bold text-white mt-2">Central de Pastas & Documentação Técnica</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
+              Navegue pela estrutura completa de diretórios do repositório, inspecione especificações técnicas, planos de arquitetura, anotações conceituais com diagramas Mermaid e checklists clicando nas pastas e arquivos abaixo.
             </p>
           </div>
 
@@ -1154,7 +1150,7 @@
               <i data-lucide="folder-tree" class="w-4 h-4 text-brand-orange"></i>
               <h3 class="text-xs font-bold text-white uppercase tracking-wider font-mono">Estrutura de Pastas</h3>
             </div>
-            <span id="tree-total-count" class="text-[10px] font-mono bg-slate-900 px-2 py-0.5 rounded text-slate-400 border border-slate-800">12 pastas</span>
+            <span id="tree-total-count" class="text-[10px] font-mono bg-slate-900 px-2 py-0.5 rounded text-slate-400 border border-slate-800">19 itens</span>
           </div>
 
           <!-- Quick Search Filter in Tree -->
@@ -1183,116 +1179,15 @@
 
       </div>
 
-      <!-- SDD Refinement Skill Callout -->
+      <!-- Skill Callout -->
       <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex items-start gap-3 text-xs text-slate-300">
         <div class="p-2 rounded-xl bg-brand-orange/20 text-brand-orange shrink-0 mt-0.5">
           <i data-lucide="sparkles" class="w-4 h-4"></i>
         </div>
         <div>
-          <strong class="text-white block mb-0.5">Como refinar uma nova funcionalidade e preencher as pastas:</strong>
-          <span>Utilize o comando <code class="text-brand-orange font-mono">/sdd-refinar &lt;texto da funcionalidade&gt;</code> no chat. A IA gerará automaticamente os 3 arquivos HTML (<code class="text-slate-200">spec.html</code>, <code class="text-slate-200">plan.html</code>, <code class="text-slate-200">tasks.html</code>) dentro da subpasta do épico correspondente e atualizará a árvore do Hub.</span>
+          <strong class="text-white block mb-0.5">Como criar novas anotações e refinamentos:</strong>
+          <span>Utilize <code class="text-brand-orange font-mono">/sdd-refinar &lt;funcionalidade&gt;</code> para gerar as specs e micro-tarefas de épicos, ou <code class="text-emerald-400 font-mono">/anotacoes-estudo &lt;tema&gt;</code> para criar materiais didáticos completos com diagramas Mermaid.</span>
         </div>
-      </div>
-
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- VIEW 6: ANOTAÇÕES, ESTUDOS & DOCUMENTOS (CENTRAL DE CONHECIMENTO) -->
-    <!-- ========================================================================= -->
-    <section id="view-library" class="view-section hidden space-y-6">
-      
-      <!-- Library Hero Header -->
-      <div class="glass-panel p-6 rounded-2xl border border-slate-800 relative overflow-hidden">
-        <div class="absolute -right-16 -top-16 w-64 h-64 bg-brand-orange/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
-          <div>
-            <div class="flex items-center gap-2.5 mb-2">
-              <span class="px-2.5 py-1 rounded-md bg-brand-orange/20 border border-brand-orange/30 text-brand-orange text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="library" class="w-3.5 h-3.5"></i>
-                GitHub Pages Knowledge Hub
-              </span>
-              <span class="text-xs text-slate-400 font-mono">docs/anotacoes/</span>
-            </div>
-            <h2 class="text-xl font-extrabold text-white tracking-tight">Central de Anotações & Documentação Técnica</h2>
-            <p class="text-xs text-slate-300 max-w-2xl mt-1 leading-relaxed">
-              Acervo interativo de estudos técnicos, guias conceituais com diagramas Mermaid, listas de exercícios e relatórios de engenharia publicados automaticamente no GitHub Pages.
-            </p>
-          </div>
-
-          <!-- Quick Stats Cards -->
-          <div class="flex items-center gap-3 flex-wrap">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 px-4 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg bg-brand-orange/10 text-brand-orange flex items-center justify-center font-bold">
-                <i data-lucide="file-code" class="w-4 h-4"></i>
-              </div>
-              <div>
-                <div class="text-[10px] uppercase font-mono text-slate-400">Total de Materiais</div>
-                <div id="lib-stat-total" class="text-sm font-bold font-mono text-white">0</div>
-              </div>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 px-4 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold">
-                <i data-lucide="folder-tree" class="w-4 h-4"></i>
-              </div>
-              <div>
-                <div class="text-[10px] uppercase font-mono text-slate-400">Categorias Ativas</div>
-                <div id="lib-stat-categories" class="text-sm font-bold font-mono text-white">0</div>
-              </div>
-            </div>
-
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 px-4 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
-                <i data-lucide="globe" class="w-4 h-4"></i>
-              </div>
-              <div>
-                <div class="text-[10px] uppercase font-mono text-slate-400">GitHub Pages</div>
-                <div class="text-xs font-bold font-mono text-emerald-400 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Sincronizado
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filters & Category Navigation Bar -->
-      <div class="glass-panel p-4 rounded-2xl border border-slate-800 space-y-3">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-          
-          <!-- Category Filter Pills -->
-          <div class="flex items-center gap-1.5 overflow-x-auto w-full pb-1 md:pb-0 scrollbar-none" id="library-category-pills">
-            <!-- Rendered dynamically via JavaScript -->
-          </div>
-
-          <!-- Search Input in Library -->
-          <div class="relative w-full md:w-80 shrink-0">
-            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="libSearchInput" oninput="filterLibrary()" placeholder="Buscar por tema, tag, tecnologia..." class="w-full bg-slate-900 border border-slate-800 focus:border-brand-orange text-xs text-white rounded-lg pl-8 pr-8 py-2 outline-none transition">
-            <button id="libSearchClear" onclick="clearLibSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
-              <i data-lucide="x" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Documents Grid -->
-      <div id="library-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Rendered dynamically via JavaScript -->
-      </div>
-
-      <!-- Empty State -->
-      <div id="library-empty-state" class="hidden glass-panel p-12 text-center rounded-2xl border border-slate-800">
-        <div class="w-12 h-12 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
-          <i data-lucide="file-search" class="w-6 h-6"></i>
-        </div>
-        <h3 class="text-sm font-bold text-white mb-1">Nenhum documento encontrado</h3>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto mb-4">Nenhum material de estudo corresponde aos critérios ou termos pesquisados.</p>
-        <button onclick="resetLibFilter()" class="px-3.5 py-1.5 rounded-lg bg-brand-orange hover:bg-brand-orangeHover text-white text-xs font-semibold transition inline-flex items-center gap-1.5">
-          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-          <span>Limpar Filtros</span>
-        </button>
       </div>
 
     </section>
@@ -2241,7 +2136,16 @@
       switchView('library');
     }
 
+    function openExplorerFolder(folderId) {
+      switchView('docs');
+      selectTreeNode(folderId || 'docs');
+    }
+
     function switchView(viewName) {
+      if (viewName === 'refinement' || viewName === 'library') {
+        viewName = 'docs';
+      }
+
       document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -2259,10 +2163,7 @@
         }
       }
 
-      if (viewName === 'library') {
-        renderLibrary();
-      }
-      if (viewName === 'refinement') {
+      if (viewName === 'docs') {
         renderFolderExplorer();
       }
 
@@ -2741,6 +2642,15 @@
       return count;
     }
 
+    function countTotalFilesOnly(nodes) {
+      let count = 0;
+      for (const node of nodes) {
+        if (node.files) count += node.files.length;
+        if (node.children) count += countTotalFilesOnly(node.children);
+      }
+      return count;
+    }
+
     function renderFolderExplorer() {
       const treeContainer = document.getElementById('tree-hierarchy-container');
       if (!treeContainer) return;
@@ -2748,6 +2658,11 @@
       const totalCountEl = document.getElementById('tree-total-count');
       if (totalCountEl) {
         totalCountEl.innerText = `${countTotalFoldersAndFiles(folderTreeData)} itens`;
+      }
+
+      const navDocsCount = document.getElementById('nav-docs-count');
+      if (navDocsCount) {
+        navDocsCount.innerText = `${countTotalFilesOnly(folderTreeData)} docs`;
       }
 
       treeContainer.innerHTML = '';
