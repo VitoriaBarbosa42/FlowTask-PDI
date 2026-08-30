@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micro-Tarefas & Checklist — Epic 5: Terraform & Infraestrutura | FlowTask SDD</title>
+  <meta name="description" content="Checklist atômico e sequencial de micro-tarefas para implementação da infraestrutura com Terraform, Docker Provider e LocalStack.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-accent selection:text-brand-darker pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/25">
+          <i data-lucide="check-square" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Fase 3: Tasks & Checklist SDD</span>
+            <span class="text-slate-500">•</span>
+            <span>Epic 5: Sprints 1-2</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Fila de Execução Atômica (Terraform & LocalStack)</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Voltar ao Hub</span>
+        </a>
+        <a href="./terraform-infra-plan.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          <span>Ver Plano</span>
+        </a>
+        <a href="../../index.html" onclick="localStorage.setItem('flowtask_target_view', 'board')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm shadow-brand-orange/20 transition">
+          <i data-lucide="trello" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Quadro Interativo</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO & PROGRESS TRACKER -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/30 flex items-center gap-1.5">
+              <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+              Micro-Tarefas Atômicas & Sequenciais
+            </span>
+            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+              14 Tarefas Ordenadas
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Checklist de Implementação: Epic 5
+          </h1>
+        </div>
+
+        <div class="bg-slate-950/80 px-5 py-3 rounded-2xl border border-slate-800 flex items-center gap-4">
+          <div>
+            <span class="text-[11px] text-slate-400 block uppercase font-mono">Progresso da Epic</span>
+            <span id="progress-percent" class="text-lg font-bold font-mono text-brand-orange">0% (0/14)</span>
+          </div>
+          <button onclick="resetTasks()" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border border-slate-800 transition" title="Resetar Checklist">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-950 rounded-full h-2.5 overflow-hidden border border-slate-800/80 mt-2">
+        <div id="progress-bar" class="bg-gradient-to-r from-brand-orange via-amber-500 to-emerald-400 h-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- TASK GROUPS CONTAINER -->
+    <div class="space-y-8" id="tasks-container">
+
+      <!-- GRUPO 1: FUNDAÇÃO HCL & REDE BRIDGE -->
+      <section class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-base">
+            <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-mono text-xs">G1</span>
+            <h2>Fase 1: Fundação HCL, Providers & Rede Bridge</h2>
+          </div>
+          <span class="text-xs font-mono text-slate-400">4 Tarefas</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <!-- Task 1.1 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-1-1" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 1.1: Criar Estrutura de Diretórios e Pastas de Persistência</span>
+                <p class="text-slate-400 font-sans">
+                  Criar diretórios <code class="font-mono text-indigo-300">infra/terraform/modules/{postgres,pgadmin,mongo,mongo-express,redis,kafka,keycloak,localstack}</code> e a pasta física <code class="font-mono text-indigo-300">.docker/data/</code> com <code class="font-mono text-slate-400">.gitignore</code> apropriado.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: <code>ls -la infra/terraform/modules/</code> confirma a presença das 8 subpastas.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 1.2 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-1-2" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 1.2: Configurar Providers Terraform (Docker & AWS LocalStack)</span>
+                <p class="text-slate-400 font-sans">
+                  Criar <code class="font-mono text-indigo-300">infra/terraform/providers.tf</code> declarando <code class="font-mono text-slate-300">kreuzwerker/docker</code> (~> 3.0) e <code class="font-mono text-slate-300">hashicorp/aws</code> (~> 5.0) com endpoints customizados para LocalStack (<code class="font-mono text-slate-300">http://localhost:4566</code>) e <code class="font-mono text-slate-300">s3_use_path_style = true</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: <code>terraform init</code> executa com sucesso baixando ambos os providers.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 1.3 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-1-3" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 1.3: Definir Variáveis Globais e Template de Ambiente</span>
+                <p class="text-slate-400 font-sans">
+                  Criar <code class="font-mono text-indigo-300">infra/terraform/variables.tf</code> com portas parametrizadas (5432, 5050, 27017, 8081, 6379, 9092, 8080, 4566), credenciais de banco e a flag <code class="font-mono text-slate-300">clear_data_on_destroy = false</code>. Criar <code class="font-mono text-indigo-300">terraform.tfvars.example</code>.
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 1.4 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-1-4" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 1.4: Criar Recurso de Rede Bridge Privada</span>
+                <p class="text-slate-400 font-sans">
+                  Declarar o recurso <code class="font-mono text-indigo-300">docker_network.flowtask_net</code> em <code class="font-mono text-indigo-300">infra/terraform/main.tf</code> configurado com driver <code class="font-mono text-slate-300">bridge</code> e nome <code class="font-mono text-slate-300">flowtask-network</code>.
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRUPO 2: MÓDULOS DE PERSISTÊNCIA & GUIS -->
+      <section class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-base">
+            <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-mono text-xs">G2</span>
+            <h2>Fase 2: Módulos de Persistência Poliglota & Interfaces Visuais</h2>
+          </div>
+          <span class="text-xs font-mono text-slate-400">5 Tarefas</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <!-- Task 2.1 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-2-1" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 2.1: Implementar Módulo do PostgreSQL 15</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-emerald-300">infra/terraform/modules/postgres/</code> usando a imagem <code class="font-mono text-slate-300">postgres:15-alpine</code>, bind mount em <code class="font-mono text-slate-300">.docker/data/postgres</code>, banco <code class="font-mono text-slate-300">flowtask</code> e script de criação do banco auxiliar <code class="font-mono text-slate-300">flowtask_keycloak</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: Conexão via <code>pg_isready -h localhost -p 5432 -U postgres</code> retorna status 0.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 2.2 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-2-2" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 2.2: Implementar Módulo do pgAdmin 4</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-emerald-300">infra/terraform/modules/pgadmin/</code> usando <code class="font-mono text-slate-300">dpage/pgadmin4:latest</code> na porta 5050, pré-conectado à rede <code class="font-mono text-slate-300">flowtask-network</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: HTTP GET <code>http://localhost:5050</code> retorna HTTP 200 / tela de login.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 2.3 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-2-3" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 2.3: Implementar Módulo do MongoDB 7.0</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-emerald-300">infra/terraform/modules/mongo/</code> usando <code class="font-mono text-slate-300">mongo:7.0</code>, bind mount em <code class="font-mono text-slate-300">.docker/data/mongo</code>, porta 27017 e autenticação opcional para o banco de dados <code class="font-mono text-slate-300">pdi</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: <code>mongosh --port 27017 --eval "db.adminCommand('ping')"</code> retorna <code>{ ok: 1 }</code>.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 2.4 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-2-4" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 2.4: Implementar Módulo do Mongo Express</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-emerald-300">infra/terraform/modules/mongo-express/</code> na porta 8081 configurado com variáveis <code class="font-mono text-slate-300">ME_CONFIG_MONGODB_SERVER=mongo</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: HTTP GET <code>http://localhost:8081</code> exibe a lista de bancos do Mongo.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 2.5 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-2-5" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 2.5: Implementar Módulo do Redis 7</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-emerald-300">infra/terraform/modules/redis/</code> usando <code class="font-mono text-slate-300">redis:7-alpine</code>, bind mount em <code class="font-mono text-slate-300">.docker/data/redis</code>, porta 6379 com flag <code class="font-mono text-slate-300">appendonly yes</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: <code>redis-cli ping</code> retorna <code>PONG</code>.
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRUPO 3: MÓDULOS DE MENSAGERIA & AUTH -->
+      <section class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center gap-2.5 text-purple-400 font-bold text-base">
+            <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center font-mono text-xs">G3</span>
+            <h2>Fase 3: Mensageria Kafka KRaft & Keycloak IAM</h2>
+          </div>
+          <span class="text-xs font-mono text-slate-400">2 Tarefas</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <!-- Task 3.1 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-3-1" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 3.1: Implementar Módulo do Apache Kafka (KRaft Mode)</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-purple-300">infra/terraform/modules/kafka/</code> com imagem <code class="font-mono text-slate-300">confluentinc/cp-kafka:7.5.0</code> em modo KRaft standalone, mapeando porta 9092 para o host e 29092 para a rede interna <code class="font-mono text-slate-300">flowtask-network</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: <code>docker exec kafka kafka-topics --bootstrap-server localhost:9092 --list</code> executa sem erros.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 3.2 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-3-2" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 3.2: Implementar Módulo do Keycloak 24+ com Realm Import</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-purple-300">infra/terraform/modules/keycloak/</code> montando o volume <code class="font-mono text-slate-300">keycloak-config/flowtask-realm.json</code>, conectando ao banco <code class="font-mono text-slate-300">postgres:5432/flowtask_keycloak</code> na porta 8080.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: Endpoint OIDC <code>http://localhost:8080/realms/flowtask/.well-known/openid-configuration</code> responde JSON com JWKS.
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRUPO 4: SIMULAÇÃO CLOUD LOCALSTACK -->
+      <section class="glass-panel p-6 sm:p-7 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center gap-2.5 text-cyan-400 font-bold text-base">
+            <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center font-mono text-xs">G4</span>
+            <h2>Fase 4: Simulação Cloud AWS com LocalStack (S3, SQS, Secrets)</h2>
+          </div>
+          <span class="text-xs font-mono text-slate-400">3 Tarefas</span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <!-- Task 4.1 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-4-1" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 4.1: Implementar Container do LocalStack</span>
+                <p class="text-slate-400 font-sans">
+                  Desenvolver <code class="font-mono text-cyan-300">infra/terraform/modules/localstack/</code> instanciando <code class="font-mono text-slate-300">localstack/localstack:latest</code> na porta 4566 com variáveis <code class="font-mono text-slate-300">SERVICES=s3,sqs,secretsmanager</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: HTTP GET <code>http://localhost:4566/_localstack/health</code> retorna status "available".
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 4.2 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-4-2" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 4.2: Provisionar Recursos AWS no LocalStack (S3, SQS DLQ, Secrets)</span>
+                <p class="text-slate-400 font-sans">
+                  Declarar via HCL os recursos: <code class="font-mono text-cyan-300">aws_s3_bucket.attachments</code> (<code class="font-mono text-slate-300">flowtask-attachments</code>), <code class="font-mono text-cyan-300">aws_sqs_queue.dlq</code> (<code class="font-mono text-slate-300">flowtask-deadletter-queue</code>) e <code class="font-mono text-cyan-300">aws_secretsmanager_secret.app_secrets</code>.
+                </p>
+                <div class="text-[11px] font-mono text-slate-500 bg-slate-950 p-2 rounded-lg border border-slate-800/60">
+                  Validação: <code>aws --endpoint-url=http://localhost:4566 s3 ls</code> lista o bucket criado.
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Task 4.3 -->
+          <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-2 hover:border-slate-700 transition">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="task-e5-4-3" onchange="toggleTask(this.id)" class="mt-0.5 rounded bg-slate-950 border-slate-700 text-brand-orange focus:ring-brand-orange h-4 w-4">
+              <div class="space-y-1">
+                <span class="font-bold text-slate-200 text-sm block">Task 4.3: Configurar Outputs e Guia no README.md</span>
+                <p class="text-slate-400 font-sans">
+                  Configurar <code class="font-mono text-indigo-300">infra/terraform/outputs.tf</code> exibindo um resumo visual no terminal ao fim do apply com todos os links, portas e comandos úteis, e atualizar o <code class="font-mono text-slate-300">README.md</code>.
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- NAVIGATION ACTIONS -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 glass-panel rounded-2xl border border-slate-800 text-xs">
+      <a href="./terraform-infra-plan.html" class="text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao Plano Técnico
+      </a>
+
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-400 font-mono flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> Refinamento Completo Concluído!
+        </span>
+        <a href="../../index.html" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-bold flex items-center gap-2 shadow-md shadow-brand-orange/20 transition">
+          <span>Ver no Hub Central</span>
+          <i data-lucide="home" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'flowtask_tasks_epic05_terraform';
+
+    function loadProgress() {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      let checkedCount = 0;
+
+      checkboxes.forEach(cb => {
+        if (saved[cb.id]) {
+          cb.checked = true;
+          checkedCount++;
+        } else {
+          cb.checked = false;
+        }
+      });
+
+      updateUI(checkedCount, checkboxes.length);
+    }
+
+    function toggleTask(id) {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const cb = document.getElementById(id);
+      saved[id] = cb.checked;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      const checkedCount = Array.from(checkboxes).filter(c => c.checked).length;
+      updateUI(checkedCount, checkboxes.length);
+    }
+
+    function updateUI(checked, total) {
+      const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+      document.getElementById('progress-percent').innerText = `${pct}% (${checked}/${total})`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+    }
+
+    function resetTasks() {
+      if (confirm('Deseja resetar o checklist destas 14 tarefas da Epic 5?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadProgress();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

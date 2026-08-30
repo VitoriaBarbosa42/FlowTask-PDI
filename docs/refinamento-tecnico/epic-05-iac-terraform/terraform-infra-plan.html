@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plano Técnico & Arquitetura — Epic 5: Terraform & Infraestrutura | FlowTask SDD</title>
+  <meta name="description" content="Planejamento técnico, modularização HCL, mapeamento de arquivos e decisões arquiteturais para a Epic 5 (Terraform & LocalStack).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#8b5cf6',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#8b5cf6',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(139, 92, 246, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-purple-600 selection:text-white pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-600/25">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Fase 2: Planejamento Técnico SDD</span>
+            <span class="text-slate-500">•</span>
+            <span>Epic 5: Sprints 1-2</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Arquitetura de Infraestrutura (Terraform & LocalStack)</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Voltar ao Hub</span>
+        </a>
+        <a href="./terraform-infra-spec.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span>Ver Spec</span>
+        </a>
+        <a href="../../index.html" onclick="localStorage.setItem('flowtask_target_view', 'board')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm shadow-brand-orange/20 transition">
+          <i data-lucide="trello" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Quadro Interativo</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO / TITLE -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center gap-2.5 mb-4">
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center gap-1.5">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+          Plano Arquitetural (SDD Plan)
+        </span>
+        <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Status: Pronto para Decomposição em Tarefas
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">
+        Plano Técnico: Arquitetura Modular Terraform HCL & LocalStack
+      </h1>
+      <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-4xl">
+        Detalhamento da estrutura de pacotes HCL, mapeamento de arquivos afetados, matriz de decisões arquiteturais (ADRs), gerenciamento de dependências e topologia de provisionamento para o ecossistema FlowTask.
+      </p>
+    </div>
+
+    <!-- 1. RESUMO DA ABORDAGEM TÉCNICA -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+            <i data-lucide="git-merge" class="w-5 h-5"></i>
+          </div>
+          <h2>1. Resumo da Abordagem Técnica (O Como)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Design & Estrutura</span>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p>
+          A arquitetura de infraestrutura adotará um padrão **100% modularizado em HCL (HashiCorp Configuration Language)**, isolando a responsabilidade de cada container e serviço em subdiretórios encapsulados dentro de <code class="font-mono text-purple-300">infra/terraform/modules/</code>.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 space-y-2">
+            <span class="font-bold text-indigo-400 font-mono flex items-center gap-2">
+              <i data-lucide="box" class="w-4 h-4"></i> Módulos Docker Locais
+            </span>
+            <p class="text-slate-400">
+              PostgreSQL 15, pgAdmin 4, MongoDB 7, Mongo Express, Redis 7, Kafka KRaft e Keycloak 24+ instanciados via provider <code class="font-mono text-slate-300">kreuzwerker/docker</code>, compartilhando a rede bridge <code class="font-mono text-slate-300">flowtask-network</code>.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 space-y-2">
+            <span class="font-bold text-cyan-400 font-mono flex items-center gap-2">
+              <i data-lucide="cloud" class="w-4 h-4"></i> Módulo LocalStack AWS
+            </span>
+            <p class="text-slate-400">
+              Container LocalStack emulando a porta 4566, gerenciado em conjunto com o provider <code class="font-mono text-slate-300">hashicorp/aws</code> apontando para <code class="font-mono text-slate-300">http://localhost:4566</code> para provisionar S3, SQS e Secrets Manager.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DIAGRAMA DE FLUXO & DEPENDÊNCIAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <i data-lucide="network" class="w-5 h-5"></i>
+          </div>
+          <h2>2. Diagrama de Dependências de Inicialização (Mermaid)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Ordem de Provisionamento</span>
+      </div>
+
+      <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+        <div class="mermaid text-center">
+flowchart TD
+    subgraph Step1 ["1. Fundação de Rede & Volumes"]
+        Net["docker_network.flowtask_net<br/>(bridge)"]
+        Dir["host_path: .docker/data/*<br/>(Bind Mounts)"]
+    end
+
+    subgraph Step2 ["2. Bancos de Dados & Cache"]
+        Postgres["module.postgres<br/>(Port: 5432)"]
+        Mongo["module.mongo<br/>(Port: 27017)"]
+        Redis["module.redis<br/>(Port: 6379)"]
+    end
+
+    subgraph Step3 ["3. Ferramentas GUI & EDA"]
+        PGAdmin["module.pgadmin<br/>(Port: 5050)"]
+        MongoExp["module.mongo_express<br/>(Port: 8081)"]
+        Kafka["module.kafka_kraft<br/>(Port: 9092 / 29092)"]
+    end
+
+    subgraph Step4 ["4. IAM & Cloud Emulation"]
+        Keycloak["module.keycloak<br/>(Port: 8080)"]
+        LocalStack["module.localstack<br/>(Port: 4566)"]
+    end
+
+    subgraph Step5 ["5. Recursos AWS no LocalStack"]
+        S3["aws_s3_bucket.attachments"]
+        SQS["aws_sqs_queue.dlq"]
+        Secret["aws_secretsmanager.app_secrets"]
+    end
+
+    Net --> Postgres
+    Net --> Mongo
+    Net --> Redis
+    Net --> Kafka
+    Dir -.-> Postgres
+    Dir -.-> Mongo
+    Dir -.-> Redis
+    Dir -.-> Kafka
+
+    Postgres -->|depends_on| PGAdmin
+    Postgres -->|depends_on (KC_DB)| Keycloak
+    Mongo -->|depends_on| MongoExp
+
+    LocalStack -->|Provider AWS Target| S3
+    LocalStack -->|Provider AWS Target| SQS
+    LocalStack -->|Provider AWS Target| Secret
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. MAPEAMENTO DE ARQUIVOS AFETADOS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-blue-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <i data-lucide="folder-tree" class="w-5 h-5"></i>
+          </div>
+          <h2>3. Mapeamento de Arquivos Afetados</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Total: 28 Arquivos Mapeados</span>
+      </div>
+
+      <div class="space-y-3 text-xs font-mono">
+        <!-- Root HCL -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <span class="text-indigo-400 font-bold font-sans text-xs uppercase flex items-center gap-1.5">
+            <i data-lucide="folder" class="w-3.5 h-3.5"></i> Módulo Raiz (infra/terraform/)
+          </span>
+          <div class="space-y-1.5 text-slate-300">
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">[NOVO]</span> <code>infra/terraform/main.tf</code> — Orquestração dos submódulos e rede bridge.</div>
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">[NOVO]</span> <code>infra/terraform/variables.tf</code> — Declaração de variáveis globais (portas, credenciais, flags).</div>
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">[NOVO]</span> <code>infra/terraform/outputs.tf</code> — URLs de conexão, strings de conexão e endpoints.</div>
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">[NOVO]</span> <code>infra/terraform/providers.tf</code> — Configuração dos providers <code>kreuzwerker/docker</code> e <code>hashicorp/aws</code>.</div>
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">[NOVO]</span> <code>infra/terraform/terraform.tfvars.example</code> — Template de valores padrões para desenvolvimento.</div>
+          </div>
+        </div>
+
+        <!-- Submodules -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <span class="text-purple-400 font-bold font-sans text-xs uppercase flex items-center gap-1.5">
+            <i data-lucide="folder-git-2" class="w-3.5 h-3.5"></i> Submódulos HCL Encapsulados (infra/terraform/modules/)
+          </span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-300">
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/postgres/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (docker_container & image)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/pgadmin/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (pgAdmin 4 web UI)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/mongo/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (MongoDB 7.0 engine)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/mongo-express/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (Mongo Express visual UI)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/redis/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (Redis 7 in-memory cache)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/kafka/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (Kafka KRaft standalone)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-indigo-300 font-bold">modules/keycloak/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (Keycloak IAM + Realm mount)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/60">
+              <span class="text-cyan-300 font-bold">modules/localstack/</span>
+              <ul class="text-[11px] text-slate-400 list-disc list-inside mt-1">
+                <li><code>main.tf</code> (LocalStack container + S3, SQS, Secrets)</li>
+                <li><code>variables.tf</code> & <code>outputs.tf</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentation & Root Files -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <span class="text-amber-400 font-bold font-sans text-xs uppercase flex items-center gap-1.5">
+            <i data-lucide="file-edit" class="w-3.5 h-3.5"></i> Arquivos Existentes Atualizados
+          </span>
+          <div class="space-y-1.5 text-slate-300">
+            <div class="flex items-center gap-2"><span class="text-amber-400 font-bold">[ALTERAR]</span> <code>README.md</code> — Adicionar seção passo a passo de inicialização via Terraform.</div>
+            <div class="flex items-center gap-2"><span class="text-amber-400 font-bold">[ALTERAR]</span> <code>docker-compose.yaml</code> — Manter como referência legada/fallback dev.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. MATRIZ DE DECISÕES DE DESIGN & TRADE-OFFS (ADRs) -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="scale" class="w-5 h-5"></i>
+          </div>
+          <h2>4. Matriz de Decisões de Design & Trade-offs (Mini-ADRs)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">ADR Suite</span>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- ADR 1 -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-white flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-xs">ADR-01</span>
+              <span>Terraform com Docker Provider vs Docker Compose Puro</span>
+            </span>
+            <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Aprovado</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-slate-400 font-mono uppercase text-[10px]">Alternativa Descartada</span>
+              <p class="text-slate-300 mt-1">Manter apenas o <code>docker-compose.yaml</code> tradicional.</p>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-emerald-400 font-mono uppercase text-[10px]">Justificativa Técnica / Por Que</span>
+              <p class="text-slate-300 mt-1">O Terraform introduz gerenciamento de estado (statefile), idempotência verificável, modularização estrita e habilita o provisionamento dos recursos de nuvem no LocalStack com o mesmo fluxo de trabalho declarativo.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADR 2 -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-white flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-xs">ADR-02</span>
+              <span>Apache Kafka em Modo KRaft vs Kafka com ZooKeeper</span>
+            </span>
+            <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Aprovado</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-slate-400 font-mono uppercase text-[10px]">Alternativa Descartada</span>
+              <p class="text-slate-300 mt-1">Subir 2 containers separados: 1 ZooKeeper + 1 Kafka Broker.</p>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-emerald-400 font-mono uppercase text-[10px]">Justificativa Técnica / Por Que</span>
+              <p class="text-slate-300 mt-1">O modo KRaft (Kafka Raft Metadata) é o padrão moderno oficial a partir do Kafka 3.x, eliminando a dependência do ZooKeeper, reduzindo o consumo de memória em ~400MB e diminuindo o tempo de boot em 50%.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADR 3 -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-white flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono text-xs">ADR-03</span>
+              <span>Persistência Híbrida com Bind Mounts vs Docker Named Volumes</span>
+            </span>
+            <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Aprovado</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-slate-400 font-mono uppercase text-[10px]">Alternativa Descartada</span>
+              <p class="text-slate-300 mt-1">Usar apenas <code>docker_volume</code> anônimos gerenciados pelo daemon do Docker.</p>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-emerald-400 font-mono uppercase text-[10px]">Justificativa Técnica / Por Que</span>
+              <p class="text-slate-300 mt-1">Bind Mounts em pasta física (<code>.docker/data/</code>) garantem que dados de desenvolvimento e testes persistam intactos após um <code>terraform destroy</code>, ao mesmo tempo em que a flag <code>clear_data_on_destroy</code> permite reiniciar o banco zerado quando necessário.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ANÁLISE DE RISCOS & MITIGAÇÕES -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-rose-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <h2>5. Análise de Riscos & Estratégia de Mitigação</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Risk Assessment</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2">
+          <span class="font-bold text-amber-400 font-mono flex items-center gap-2">
+            <i data-lucide="flame" class="w-4 h-4"></i> Risco 1: Conflito de Portas no Host
+          </span>
+          <p class="text-slate-300 leading-relaxed font-sans">
+            <strong>Impacto:</strong> Se o desenvolvedor já tiver instâncias locais de Postgres (5432) ou Redis (6379), o <code>terraform apply</code> falhará ao tentar bindar a porta.
+          </p>
+          <p class="text-emerald-400 font-mono text-[11px]">
+            <strong>Mitigação:</strong> Todas as portas externas são parametrizadas no <code>variables.tf</code> (ex: <code>postgres_port = 5432</code>), permitindo override simples via <code>terraform.tfvars</code>.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2">
+          <span class="font-bold text-amber-400 font-mono flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4"></i> Risco 2: Inicialização Assíncrona do Keycloak
+          </span>
+          <p class="text-slate-300 leading-relaxed font-sans">
+            <strong>Impacto:</strong> O Keycloak pode falhar na inicialização se o PostgreSQL ainda estiver em processo de boot criando o schema <code>flowtask_keycloak</code>.
+          </p>
+          <p class="text-emerald-400 font-mono text-[11px]">
+            <strong>Mitigação:</strong> Declaração explícita de <code>depends_on = [module.postgres]</code> no HCL e configuração de auto-retry no JDBC do Keycloak.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. NAVEGAÇÃO & PRÓXIMOS PASSOS -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 glass-panel rounded-2xl border border-slate-800 text-xs">
+      <a href="./terraform-infra-spec.html" class="text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar à Especificação
+      </a>
+
+      <div class="flex items-center gap-3">
+        <span class="text-slate-500 font-mono hidden md:inline">Próxima Etapa do SDD: Fase 3 (Micro-Tarefas)</span>
+        <a href="./terraform-infra-tasks.html" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition">
+          <span>Avançar para Micro-Tarefas (Tasks)</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

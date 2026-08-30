@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Especificação Técnica — Epic 5: Terraform & Infraestrutura | FlowTask SDD</title>
+  <meta name="description" content="Especificação técnica canônica para provisionamento declarativo de infraestrutura com Terraform, Docker Provider e LocalStack AWS, com relatório financeiro FinOps.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#6366f1',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#6366f1',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+    }
+    .finops-gradient {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.08) 50%, rgba(99, 102, 241, 0.12) 100%);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-indigo selection:text-white pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/25">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Fase 1: Especificação SDD</span>
+            <span class="text-slate-500">•</span>
+            <span>Epic 5: Sprints 1-2</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Infraestrutura como Código (Terraform & LocalStack)</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Voltar ao Hub</span>
+        </a>
+        <a href="../../index.html" onclick="localStorage.setItem('flowtask_target_view', 'board')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm shadow-brand-orange/20 transition">
+          <i data-lucide="trello" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Quadro Interativo</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO / TITLE -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center gap-2.5 mb-4">
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 flex items-center gap-1.5">
+          <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
+          Especificação Canônica (SDD Spec)
+        </span>
+        <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          Status: Aprovado para Planejamento
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          Histórias 5.1 & 5.2
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">
+        Epic 5 — Infraestrutura como Código (Terraform & LocalStack AWS)
+      </h1>
+      <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-4xl">
+        Especificação formal dos requisitos funcionais, não-funcionais, critérios de aceite, estratégia de persistência híbrida e governança financeira (FinOps) para o provisionamento declarativo do middleware local e simulação de serviços AWS com Terraform.
+      </p>
+    </div>
+
+    <!-- 1. OBJETIVO & PROPÓSITO -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <i data-lucide="target" class="w-5 h-5"></i>
+          </div>
+          <h2>1. Objetivo de Negócio (O Por Que)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão 1/5 SDD</span>
+      </div>
+
+      <div class="bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl">
+        <p class="text-sm sm:text-base text-slate-200 leading-relaxed italic font-medium">
+          "Substituir scripts manuais e o docker-compose estático por uma infraestrutura modular, versionada, idempotente e reproduzível com Terraform, permitindo subir todo o middleware de desenvolvimento local em menos de 45 segundos e simular recursos corporativos de nuvem (AWS S3, SQS, Secrets Manager) via LocalStack com custo financeiro zero."
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/60 space-y-2">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i>
+            <span>Dores Resolvidas</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            Elimina o clássico <em>"na minha máquina funciona"</em>, configurações discrepantes entre desenvolvedores e a necessidade de rodar comandos manuais complexos de Docker.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/60 space-y-2">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold">
+            <i data-lucide="cloud" class="w-4 h-4 text-cyan-400"></i>
+            <span>Paridade com Produção</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            O backend utiliza os mesmos SDKs oficiais da AWS (Spring Cloud AWS, AWS SDK Java/Go), operando de forma idêntica em desenvolvimento local e na nuvem de produção.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/60 space-y-2">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold">
+            <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i>
+            <span>Eficiência & FinOps</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            Economia de mais de <strong>$570/mês</strong> em infraestrutura de nuvem por desenvolvedor, permitindo experimentação ilimitada sem faturas reais.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DELIMITAÇÃO DE ESCOPO -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <h2>2. Delimitação de Escopo (Fronteiras Estritas)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão 2/5 SDD</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs sm:text-sm">
+        <!-- IN SCOPE -->
+        <div class="bg-emerald-950/20 border border-emerald-500/30 p-5 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold font-mono uppercase text-xs tracking-wider">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>✅ In-Scope (Compromisso deste Ciclo)</span>
+          </div>
+          <ul class="space-y-2 text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 mt-0.5">•</span>
+              <span><strong>Módulos HCL Locais:</strong> PostgreSQL 15, pgAdmin 4, MongoDB 7.0, Mongo Express, Redis 7, Apache Kafka KRaft e Keycloak 24+.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 mt-0.5">•</span>
+              <span><strong>Módulo LocalStack AWS:</strong> S3 Bucket (<code class="font-mono text-emerald-300">flowtask-attachments</code>), SQS Queue (<code class="font-mono text-emerald-300">flowtask-deadletter-queue</code>) e Secrets Manager (<code class="font-mono text-emerald-300">flowtask/app-secrets</code>).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 mt-0.5">•</span>
+              <span><strong>Persistência Híbrida:</strong> Mapeamento por Bind Mounts em <code class="font-mono text-slate-200">.docker/data/</code> para retenção de dados após <code class="font-mono text-slate-200">terraform destroy</code>, com variável de limpeza forçada (<code class="font-mono text-slate-200">clear_data_on_destroy</code>).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 mt-0.5">•</span>
+              <span><strong>Isolamento de Rede:</strong> Criação de rede bridge privada (<code class="font-mono text-slate-200">flowtask-network</code>) com comunicação via DNS interno dos containers.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 mt-0.5">•</span>
+              <span><strong>Relatório FinOps Integrado:</strong> Matriz comparativa de custos de desenvolvimento local vs nuvem pública real com boas práticas de governança.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- OUT OF SCOPE -->
+        <div class="bg-rose-950/20 border border-rose-500/30 p-5 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold font-mono uppercase text-xs tracking-wider">
+            <i data-lucide="x-circle" class="w-4 h-4"></i>
+            <span>🚫 Out-of-Scope (Fora do Ciclo / Futuro)</span>
+          </div>
+          <ul class="space-y-2 text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 mt-0.5">•</span>
+              <span><strong>Deploy em Nuvem Pública Real:</strong> Não haverá provisionamento em contas reais pagas da AWS, Azure ou Google Cloud.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 mt-0.5">•</span>
+              <span><strong>Clusters Kubernetes:</strong> Não faremos provisionamento de clusters EKS, GKE ou Helm charts nesta sprint.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 mt-0.5">•</span>
+              <span><strong>Build e Deploy dos Apps Java/Go:</strong> O Terraform cuidará apenas do middleware/bancos; a compilação e teste dos microsserviços pertence à pipeline de CI/CD (Epic 6).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 mt-0.5">•</span>
+              <span><strong>Certificados TLS/HTTPS Corporativos:</strong> Ambientes locais operarão em HTTP com portas expostas em localhost sem certificados emitidos por CA pública.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. REQUISITOS FUNCIONAIS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-blue-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <i data-lucide="list-checks" class="w-5 h-5"></i>
+          </div>
+          <h2>3. Requisitos Funcionais (RF — 1 por Linha)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão 3/5 SDD</span>
+      </div>
+
+      <!-- Category 1: Middleware Core -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-mono font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+          <span>📦 História 5.1 — Core Middleware & Bancos de Dados</span>
+        </h3>
+        <div class="space-y-2 text-xs font-mono">
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-01:</span>
+            <span class="text-slate-200">O módulo Terraform de PostgreSQL deve instanciar um container PostgreSQL 15 na porta 5432 com banco 'flowtask' e credenciais parametrizáveis.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-02:</span>
+            <span class="text-slate-200">O módulo Terraform de pgAdmin deve instanciar interface web na porta 5050 pré-configurada para comunicação com o PostgreSQL.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-03:</span>
+            <span class="text-slate-200">O módulo Terraform de MongoDB deve instanciar um container MongoDB 7.0 na porta 27017 com banco 'pdi' e credenciais de acesso.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-04:</span>
+            <span class="text-slate-200">O módulo Terraform de Mongo Express deve instanciar interface visual web na porta 8081 conectada automaticamente ao MongoDB.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-05:</span>
+            <span class="text-slate-200">O módulo Terraform de Redis deve instanciar um container Redis 7 na porta 6379 com cache em memória e suporte a snapshot AOF.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-06:</span>
+            <span class="text-slate-200">O módulo Terraform de Kafka deve instanciar um broker Apache Kafka em modo KRaft (sem ZooKeeper) expondo a porta 9092 para a rede do host e 29092 para a rede interna.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-brand-orange font-bold">RF-07:</span>
+            <span class="text-slate-200">O módulo Terraform de Keycloak deve instanciar servidor IAM na porta 8080 importando automaticamente o realm 'flowtask-realm.json' na inicialização.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 2: LocalStack Cloud -->
+      <div class="space-y-3 pt-3 border-t border-slate-800/60">
+        <h3 class="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+          <span>☁️ História 5.2 — Simulação Cloud AWS com LocalStack</span>
+        </h3>
+        <div class="space-y-2 text-xs font-mono">
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-cyan-400 font-bold">RF-08:</span>
+            <span class="text-slate-200">O módulo LocalStack deve inicializar container emulador na porta 4566 expondo APIs para S3, SQS e Secrets Manager.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-cyan-400 font-bold">RF-09:</span>
+            <span class="text-slate-200">O Terraform deve provisionar o S3 Bucket 'flowtask-attachments' configurado com versionamento ativado para armazenar relatórios e anexos.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-cyan-400 font-bold">RF-10:</span>
+            <span class="text-slate-200">O Terraform deve provisionar a fila SQS 'flowtask-deadletter-queue' com período de retenção de 14 dias para eventos com falha.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-cyan-400 font-bold">RF-11:</span>
+            <span class="text-slate-200">O Terraform deve provisionar o segredo 'flowtask/app-secrets' no Secrets Manager contendo chaves JWT, credenciais de banco e tokens.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 3: Rede, Persistência & Parametrização -->
+      <div class="space-y-3 pt-3 border-t border-slate-800/60">
+        <h3 class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+          <span>⚙️ Infraestrutura, Rede & Persistência</span>
+        </h3>
+        <div class="space-y-2 text-xs font-mono">
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-purple-400 font-bold">RF-12:</span>
+            <span class="text-slate-200">Todos os containers devem ser conectados à rede bridge dedicada 'flowtask-network' criada declarativamente pelo Terraform.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-purple-400 font-bold">RF-13:</span>
+            <span class="text-slate-200">A persistência dos bancos deve utilizar Bind Mounts na pasta '.docker/data/' preservando dados mesmo após 'terraform destroy' quando a flag 'clear_data_on_destroy' for false.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-purple-400 font-bold">RF-14:</span>
+            <span class="text-slate-200">O arquivo 'variables.tf' deve parametrizar portas, senhas padrões, nomes de banco e flags de ambiente com documentação e defaults seguros.</span>
+          </div>
+          <div class="p-3 bg-slate-900/90 border border-slate-800/90 rounded-xl flex items-start gap-3">
+            <span class="text-purple-400 font-bold">RF-15:</span>
+            <span class="text-slate-200">O arquivo 'outputs.tf' deve exibir no terminal as URLs de conexão JDBC, strings de conexão Mongo/Redis, bootstrap-servers do Kafka e endpoints do LocalStack.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. REQUISITOS NÃO-FUNCIONAIS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <i data-lucide="gauge" class="w-5 h-5"></i>
+          </div>
+          <h2>4. Requisitos Não-Funcionais (RNF — Métricas Numéricas)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão 4/5 SDD</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400">RNF-01: Idempotência Estrita</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">0 Alterações</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            A execução subsequente de <code class="font-mono text-slate-200">terraform plan</code> após um apply bem-sucedido deve retornar rigorosamente <strong>"0 to add, 0 to change, 0 to destroy"</strong> sem flutuação de estado (drift).
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400">RNF-02: Tempo de Convergência</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">&lt; 45 segundos</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            O tempo de execução do comando <code class="font-mono text-slate-200">terraform apply -auto-approve</code> em ambiente com imagens previamente baixadas deve ser <strong>menor que 45 segundos</strong> até a prontidão de todos os serviços.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400">RNF-03: Desligamento Limpo</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">&lt; 20 segundos</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            A destruição total da infraestrutura via <code class="font-mono text-slate-200">terraform destroy -auto-approve</code> deve ocorrer em <strong>menos de 20 segundos</strong>, removendo 100% dos containers e redes sem deixar processos órfãos.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400">RNF-04: Teto de Consumo de RAM</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">&lt; 2.5 GB RAM</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            O consumo combinado de memória RAM de todos os 8 containers de infraestrutura em estado ocioso (idle) não deve ultrapassar <strong>2.500 MB</strong> na máquina do desenvolvedor.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400">RNF-05: Isolamento & Segurança de Rede</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">DNS Bridge</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            A comunicação entre microsserviços deve operar via DNS interno da rede Docker (<code class="font-mono text-slate-200">postgres:5432</code>, <code class="font-mono text-slate-200">kafka:29092</code>), isolando o tráfego da rede pública do host.
+          </p>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border border-slate-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400">RNF-06: Modularidade HCL</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">100% Encapsulado</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            Cada serviço deve residir em sua própria subpasta dentro de <code class="font-mono text-slate-200">modules/</code>, possuindo obrigatoriamente <code class="font-mono text-slate-200">main.tf</code>, <code class="font-mono text-slate-200">variables.tf</code> e <code class="font-mono text-slate-200">outputs.tf</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. CRITÉRIOS DE ACEITE VERIFICÁVEIS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="check-square" class="w-5 h-5"></i>
+          </div>
+          <h2>5. Critérios de Aceite Verificáveis (Definition of Done)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão 5/5 SDD</span>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300">
+        Bateria de testes determinísticos de caixa-preta para validar se a entrega atende a 100% dos requisitos especificados:
+      </p>
+
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2.5 font-bold text-slate-200 cursor-pointer">
+              <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-700 text-brand-orange h-4 w-4">
+              <span>CA-01: Validação e Inicialização dos Providers</span>
+            </label>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">terraform init / validate</span>
+          </div>
+          <p class="text-slate-400 pl-6">
+            O comando <code class="font-mono text-slate-300">terraform init</code> e <code class="font-mono text-slate-300">terraform validate</code> devem baixar com sucesso os providers <code class="font-mono text-slate-300">kreuzwerker/docker</code> e <code class="font-mono text-slate-300">hashicorp/aws</code> sem erros de sintaxe.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2.5 font-bold text-slate-200 cursor-pointer">
+              <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-700 text-brand-orange h-4 w-4">
+              <span>CA-02: Criação Completa dos Containers</span>
+            </label>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">terraform apply</span>
+          </div>
+          <p class="text-slate-400 pl-6">
+            Após <code class="font-mono text-slate-300">terraform apply -auto-approve</code>, o comando <code class="font-mono text-slate-300">docker ps</code> deve listar todos os 8 containers com status <code class="font-mono text-emerald-400">Up</code> (postgres, pgadmin, mongo, mongo-express, redis, kafka, keycloak, localstack).
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2.5 font-bold text-slate-200 cursor-pointer">
+              <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-700 text-brand-orange h-4 w-4">
+              <span>CA-03: Conectividade de Banco e GUIs Web</span>
+            </label>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">HTTP & TCP Probes</span>
+          </div>
+          <p class="text-slate-400 pl-6">
+            Acessar com sucesso <code class="font-mono text-slate-300">http://localhost:5050</code> (pgAdmin), <code class="font-mono text-slate-300">http://localhost:8081</code> (Mongo Express) e <code class="font-mono text-slate-300">http://localhost:8080</code> (Keycloak Realm FlowTask).
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2.5 font-bold text-slate-200 cursor-pointer">
+              <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-700 text-brand-orange h-4 w-4">
+              <span>CA-04: Verificação de Recursos AWS no LocalStack</span>
+            </label>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">AWS CLI Local</span>
+          </div>
+          <p class="text-slate-400 pl-6">
+            Comando <code class="font-mono text-slate-300">aws --endpoint-url=http://localhost:4566 s3 ls</code> lista <code class="font-mono text-indigo-300">flowtask-attachments</code>, e <code class="font-mono text-slate-300">aws --endpoint-url=http://localhost:4566 sqs list-queues</code> lista a fila <code class="font-mono text-indigo-300">flowtask-deadletter-queue</code>.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2.5 font-bold text-slate-200 cursor-pointer">
+              <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-700 text-brand-orange h-4 w-4">
+              <span>CA-05: Teste de Persistência com Bind Mounts (Destroy & Apply)</span>
+            </label>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">Data Retain Test</span>
+          </div>
+          <p class="text-slate-400 pl-6">
+            Inserir uma linha na tabela de teste do PostgreSQL, executar <code class="font-mono text-slate-300">terraform destroy</code>, depois executar <code class="font-mono text-slate-300">terraform apply</code> e verificar que a linha inserida continua presente no banco de dados.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2.5 font-bold text-slate-200 cursor-pointer">
+              <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-700 text-brand-orange h-4 w-4">
+              <span>CA-06: Verificação de Idempotência do Plano</span>
+            </label>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">Zero Drift</span>
+          </div>
+          <p class="text-slate-400 pl-6">
+            Executar <code class="font-mono text-slate-300">terraform plan</code> imediatamente após apply e obter a mensagem: <code class="font-mono text-emerald-400">"No changes. Your infrastructure matches the configuration."</code>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. RELATÓRIO FINANCEIRO (FINOPS) & ANÁLISE DE CUSTOS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 finops-gradient space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-3 text-emerald-400 font-bold text-lg">
+          <div class="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 shadow-lg shadow-emerald-500/10">
+            <i data-lucide="trending-down" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2>6. Relatório Financeiro (FinOps) & Análise de Custos Cloud</h2>
+            <p class="text-xs text-slate-400 font-normal">Comparativo Financeiro: LocalStack/Docker ($0.00) vs AWS Cloud Real</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+            Economia Estimada: 100% ($574.50/mês)
+          </span>
+        </div>
+      </div>
+
+      <!-- FinOps Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-1">
+          <span class="text-[11px] font-mono text-slate-400 uppercase">Custo Ambiente Local (Dev)</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">USD 0,00</div>
+          <span class="text-[10px] text-slate-500">LocalStack + Docker no Host local</span>
+        </div>
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-1">
+          <span class="text-[11px] font-mono text-slate-400 uppercase">Custo Estimado na Nuvem (AWS)</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-rose-400 font-mono">USD 574,50</div>
+          <span class="text-[10px] text-slate-500">Equivalente mensal em us-east-1 (~R$ 3.160/mês)</span>
+        </div>
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-1">
+          <span class="text-[11px] font-mono text-slate-400 uppercase">Economia Anual Projetada</span>
+          <div class="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">USD 6.894,00</div>
+          <span class="text-[10px] text-slate-500">Por desenvolvedor no ciclo de testes (~R$ 37.900/ano)</span>
+        </div>
+      </div>
+
+      <!-- Cost Breakdown Table -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="table" class="w-4 h-4 text-emerald-400"></i>
+          <span>De-Para Detalhado de Custos de Componentes (AWS us-east-1 On-Demand)</span>
+        </h3>
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/60">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-300 font-mono uppercase text-[10px] border-b border-slate-800">
+              <tr>
+                <th class="p-3.5">Componente FlowTask</th>
+                <th class="p-3.5">Serviço AWS Equivalente</th>
+                <th class="p-3.5">Dimensionamento Típico</th>
+                <th class="p-3.5">Custo AWS / Mês</th>
+                <th class="p-3.5">Custo LocalStack / Docker</th>
+                <th class="p-3.5 text-right">Economia FinOps</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 text-slate-300">
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-blue-400"></span> PostgreSQL 15
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">Amazon RDS PostgreSQL</td>
+                <td class="p-3.5 font-mono text-slate-400">db.t3.medium (Multi-AZ, 50GB gp3)</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$115.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$115.00 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span> MongoDB 7.0
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">Amazon DocumentDB</td>
+                <td class="p-3.5 font-mono text-slate-400">db.t3.medium (1 Instância, 30GB)</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$140.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$140.00 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-red-400"></span> Redis 7 Cache
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">Amazon ElastiCache Redis</td>
+                <td class="p-3.5 font-mono text-slate-400">cache.t3.medium (Cluster Mode)</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$51.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$51.00 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-purple-400"></span> Apache Kafka KRaft
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">Amazon MSK (Managed Kafka)</td>
+                <td class="p-3.5 font-mono text-slate-400">kafka.t3.small (2 Brokers, 100GB)</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$218.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$218.00 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span> S3 Object Storage
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">Amazon S3 Standard</td>
+                <td class="p-3.5 font-mono text-slate-400">50GB Storage + 20k PUT/GET ops</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$2.50</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$2.50 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-indigo-400"></span> SQS Message Queue
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">Amazon SQS Standard</td>
+                <td class="p-3.5 font-mono text-slate-400">1M Requests mensais</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$0.50</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$0.50 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Secrets Manager
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">AWS Secrets Manager</td>
+                <td class="p-3.5 font-mono text-slate-400">3 Secrets + 50k API calls</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$1.50</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$1.50 (100%)</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40">
+                <td class="p-3.5 font-medium text-white flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-slate-400"></span> Rede & Transferência
+                </td>
+                <td class="p-3.5 font-mono text-slate-400">NAT Gateway + Data Egress</td>
+                <td class="p-3.5 font-mono text-slate-400">1 NAT Gateway (730h) + 10GB Data</td>
+                <td class="p-3.5 font-mono text-rose-400 font-bold">$46.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold">$0.00</td>
+                <td class="p-3.5 font-mono text-emerald-400 font-bold text-right">-$46.00 (100%)</td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-slate-900/90 font-mono text-xs border-t border-slate-800">
+              <tr class="text-white font-bold">
+                <td colspan="3" class="p-3.5">TOTAL ESTIMADO (Mensal)</td>
+                <td class="p-3.5 text-rose-400 font-bold">$574.50 / mês</td>
+                <td class="p-3.5 text-emerald-400 font-bold">$0.00 / mês</td>
+                <td class="p-3.5 text-emerald-400 font-bold text-right">-$574.50 (Economia de 100%)</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- FinOps Pillars & Best Practices -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-cyan-400"></i>
+          <span>Pilares & Práticas de Governança FinOps Aplicadas</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2">
+            <span class="font-bold text-emerald-400 font-mono">1. Shift-Left Cost Optimization</span>
+            <p class="text-slate-300 leading-relaxed font-sans">
+              Testar pipelines, mensageria e upload de arquivos contra o LocalStack local antes de qualquer commit em cloud real impede faturamentos desnecessários e loops de retry que consom cotas de API.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2">
+            <span class="font-bold text-cyan-400 font-mono">2. Estratégia de Tagging Obrigatório</span>
+            <p class="text-slate-300 leading-relaxed font-sans">
+              O Terraform padroniza tags em todos os recursos (<code class="font-mono text-slate-200">Environment</code>, <code class="font-mono text-slate-200">Project=FlowTask</code>, <code class="font-mono text-slate-200">CostCenter=PDI-Eng</code>, <code class="font-mono text-slate-200">ManagedBy=Terraform</code>), viabilizando alocação de custos transparente e auditoria.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2">
+            <span class="font-bold text-indigo-400 font-mono">3. Rightsizing & Ambientes Efêmeros</span>
+            <p class="text-slate-300 leading-relaxed font-sans">
+              Dimensionamento mínimo de memória nos containers locais, e política de desligamento rápido (<code class="font-mono text-slate-200">terraform destroy</code>) que evita desperdício de recursos ociosos na máquina host.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80 space-y-2">
+            <span class="font-bold text-amber-400 font-mono">4. S3 Lifecycle & SQS Retention Policies</span>
+            <p class="text-slate-300 leading-relaxed font-sans">
+              Definição declarativa de expiração de objetos temporários no S3 após 30 dias e expiração de mensagens mortas na DLQ após 14 dias, evitando acúmulo de dados desnecessários.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. DIAGRAMA DE TOPOLOGIA MERMAID -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <i data-lucide="network" class="w-5 h-5"></i>
+          </div>
+          <h2>7. Topologia de Módulos & Rede (Mermaid)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Visual Blueprint</span>
+      </div>
+
+      <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+        <div class="mermaid text-center">
+flowchart TB
+    subgraph HostDev ["🖥️ Host do Desenvolvedor (Localhost)"]
+        TF["Terraform Core<br/>(HCL / main.tf)"]
+        BindData[".docker/data/<br/>(Persistência Física)"]
+        Browser["Navegador Web / Apps"]
+    end
+
+    subgraph DockerBridge ["🌐 Docker Bridge Network: flowtask-network"]
+        subgraph ModDB ["Módulos de Persistência"]
+            Postgres["PostgreSQL 15<br/>(Port: 5432)"]
+            PGAdmin["pgAdmin 4 GUI<br/>(Port: 5050)"]
+            Mongo["MongoDB 7.0<br/>(Port: 27017)"]
+            MongoExp["Mongo Express GUI<br/>(Port: 8081)"]
+            Redis["Redis 7 Cache<br/>(Port: 6379)"]
+        end
+
+        subgraph ModEDA ["Módulos de Mensageria & Auth"]
+            Kafka["Apache Kafka (KRaft)<br/>(Port: 9092 / 29092)"]
+            Keycloak["Keycloak IAM 24+<br/>(Port: 8080)"]
+        end
+
+        subgraph ModCloud ["Módulo LocalStack AWS (Port: 4566)"]
+            S3["AWS S3 Bucket<br/>flowtask-attachments"]
+            SQS["AWS SQS Queue<br/>flowtask-deadletter-queue"]
+            SecMgr["AWS Secrets Manager<br/>flowtask/app-secrets"]
+        end
+    end
+
+    TF -->|Provider Docker| Postgres
+    TF -->|Provider Docker| PGAdmin
+    TF -->|Provider Docker| Mongo
+    TF -->|Provider Docker| MongoExp
+    TF -->|Provider Docker| Redis
+    TF -->|Provider Docker| Kafka
+    TF -->|Provider Docker| Keycloak
+    TF -->|Provider AWS LocalStack| S3
+    TF -->|Provider AWS LocalStack| SQS
+    TF -->|Provider AWS LocalStack| SecMgr
+
+    Postgres -.->|Bind Mount| BindData
+    Mongo -.->|Bind Mount| BindData
+    PGAdmin -->|Conecta via DNS| Postgres
+    MongoExp -->|Conecta via DNS| Mongo
+
+    Browser -->|HTTP :5050| PGAdmin
+    Browser -->|HTTP :8081| MongoExp
+    Browser -->|HTTP :8080| Keycloak
+    Browser -->|HTTP :4566| ModCloud
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. NAVEGAÇÃO & PRÓXIMOS PASSOS -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 glass-panel rounded-2xl border border-slate-800 text-xs">
+      <a href="../../index.html" class="text-slate-400 hover:text-white flex items-center gap-1.5 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao Hub Central
+      </a>
+
+      <div class="flex items-center gap-3">
+        <span class="text-slate-500 font-mono hidden md:inline">Próxima Etapa do SDD: Fase 2 (Planejamento Técnico)</span>
+        <a href="../epic-05-iac-terraform/terraform-infra-plan.html" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold flex items-center gap-2 shadow-md shadow-indigo-500/20 transition">
+          <span>Avançar para Planejamento (Plan)</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

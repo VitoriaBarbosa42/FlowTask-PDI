@@ -2467,11 +2467,57 @@
                 type: "folder",
                 icon: "folder",
                 color: "text-indigo-400",
-                badge: "Sprints 1-2",
+                badge: "3 Arquivos (SDD)",
                 epicTitle: "Epic 5 — Infraestrutura como Código (Terraform)",
-                techs: ["Terraform HCL", "Docker Provider", "LocalStack AWS"],
-                description: "Provisionamento declarativo e modularizado de todos os serviços locais (PostgreSQL, MongoDB, Redis, Kafka) substituindo configurações manuais.",
-                files: []
+                techs: ["Terraform HCL", "Docker Provider", "LocalStack AWS", "FinOps"],
+                description: "Provisionamento declarativo e modularizado de todos os serviços locais (PostgreSQL, MongoDB, Redis, Kafka, Keycloak, pgAdmin, Mongo Express) e simulação AWS (S3, SQS, Secrets Manager) com análise FinOps.",
+                files: [
+                  {
+                    id: "epic-05-terraform-spec",
+                    name: "terraform-infra-spec.html",
+                    title: "1. Especificação Técnica — Epic 5: Terraform & Infraestrutura",
+                    path: "docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-spec.html",
+                    url: "./refinamento-tecnico/epic-05-iac-terraform/terraform-infra-spec.html",
+                    type: "Especificação SDD",
+                    category: "Refinamento & Specs",
+                    badgeColor: "border-indigo-500/30 text-indigo-400 bg-indigo-500/10",
+                    description: "Especificação canônica do provisionamento declarativo do middleware e simulação AWS com LocalStack, persistência híbrida e relatório financeiro FinOps.",
+                    tags: ["Terraform", "LocalStack", "AWS S3", "AWS SQS", "Secrets Manager", "FinOps", "Docker Provider", "SDD"],
+                    readTime: "14 min",
+                    date: "30 Ago 2026",
+                    isNew: true
+                  },
+                  {
+                    id: "epic-05-terraform-plan",
+                    name: "terraform-infra-plan.html",
+                    title: "2. Planejamento Técnico — Arquitetura Modular HCL",
+                    path: "docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-plan.html",
+                    url: "./refinamento-tecnico/epic-05-iac-terraform/terraform-infra-plan.html",
+                    type: "Plano Técnico SDD",
+                    category: "Refinamento & Specs",
+                    badgeColor: "border-purple-500/30 text-purple-400 bg-purple-500/10",
+                    description: "Mapeamento dos 28 arquivos afetados, 8 submódulos HCL encapsulados, Mini-ADRs (KRaft, Bind Mounts, Docker Provider) e análise de riscos.",
+                    tags: ["Plano Técnico", "Arquitetura", "ADR", "HCL", "Terraform Modules", "Mermaid"],
+                    readTime: "12 min",
+                    date: "30 Ago 2026",
+                    isNew: true
+                  },
+                  {
+                    id: "epic-05-terraform-tasks",
+                    name: "terraform-infra-tasks.html",
+                    title: "3. Micro-Tarefas — Checklist de Implementação",
+                    path: "docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-tasks.html",
+                    url: "./refinamento-tecnico/epic-05-iac-terraform/terraform-infra-tasks.html",
+                    type: "Tasks & Checklist SDD",
+                    category: "Refinamento & Specs",
+                    badgeColor: "border-sky-500/30 text-sky-400 bg-sky-500/10",
+                    description: "Checklist interativo de 14 micro-tarefas ordenadas em 4 fases, com persistência em localStorage e comandos de validação determinísticos.",
+                    tags: ["Tasks", "Checklist", "Execução Atômica", "Comandos CLI", "Validação"],
+                    readTime: "10 min",
+                    date: "30 Ago 2026",
+                    isNew: true
+                  }
+                ]
               },
               {
                 id: "epic-06-cicd-qualidade",
