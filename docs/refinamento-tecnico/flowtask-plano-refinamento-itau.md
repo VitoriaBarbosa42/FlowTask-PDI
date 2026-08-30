@@ -1,6 +1,6 @@
 # FlowTask — Plano de Estudos & Refinamento (Vaga Junior Itaú)
 
-> 💡 **Visual Dashboard & System Design**: Para uma experiência interativa com Kanban Board (drag & drop, checklists interativos e persistência), roadmap visual de sprints e simulador da arquitetura, abra o arquivo [`index.html`](./index.html) diretamente no seu navegador.
+> 💡 **Visual Dashboard & System Design**: Para uma experiência interativa com Kanban Board (drag & drop, checklists interativos e persistência), roadmap visual de sprints e simulador da arquitetura, abra o arquivo [`index.html`](../index.html) ou a versão estilizada em HTML [`flowtask-plano-refinamento-itau.html`](./flowtask-plano-refinamento-itau.html) diretamente no seu navegador.
 
 ## Parte 1 — Sprint Plan Sequencial
 

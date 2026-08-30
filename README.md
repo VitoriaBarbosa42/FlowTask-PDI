@@ -12,9 +12,9 @@
 
 ---
 
-## 🎯 Hub Visual de Sprints, Releases & System Design
+## 🎯 Hub Visual de Sprints, Releases & Central de Conhecimento
 
-Para acompanhar o planejamento completo de sprints, checklists interativos e o simulador interativo de arquitetura:
+Para acompanhar o planejamento completo de sprints, checklists interativos, simulador de arquitetura e catálogo de anotações didáticas:
 
 👉 **[Abrir Hub Visual Interativo (`docs/index.html`)](docs/index.html)**
 
@@ -22,6 +22,7 @@ Para acompanhar o planejamento completo de sprints, checklists interativos e o s
 - 📅 **Sprint Roadmap & Milestones**: Planejamento sequencial dos 6 ciclos de entrega e metas *Stretch*.
 - 🏛️ **System Design Explorer**: Diagrama visual interativo com simulação de eventos e justificativas de cada tecnologia para entrevistas técnicas.
 - ⚖️ **Matriz de Trade-offs & ADRs**: Comparativo prático de decisões (ex: Postgres vs Mongo, Kafka vs RabbitMQ, Go vs Java para workers).
+- 📚 **Central de Anotações & Docs**: Catálogo subdividido por categorias (Metodologias, Backend, Arquitetura, QA, etc.) com busca em tempo real e visualizador integrado.
 
 ---
 
@@ -126,7 +127,7 @@ docker-compose ps
 - **PostgreSQL**: `localhost:5432` *(User: `postgres` | Senha: `postgres` | DB: `flowtask`)*
 - **pgAdmin 4**: [http://localhost:5050](http://localhost:5050) *(Login: `admin@flowtask.com` | Senha: `admin`)*
 - **Keycloak IAM**: [http://localhost:8080](http://localhost:8080) *(Login: `admin` | Senha: `admin`)*
-- **Hub Visual (Board)**: abra o arquivo [`docs/index.html`](docs/index.html) no navegador
+- **Hub Visual (Board & Docs)**: abra o arquivo [`docs/index.html`](docs/index.html) no navegador
 
 ---
 
@@ -188,9 +189,16 @@ docker-compose down -v
 
 ```text
 FlowTask-PDI/
-├── docs/
-│   ├── index.html                           # 🌟 Hub Visual (Kanban Board & System Design)
-│   └── flowtask-plano-refinamento-itau.md   # Documento base de refinamento técnico
+├── .agents/                                 # Configurações e Skills para Agentes de IA
+│   └── skills/anotacoes-estudo/             # Skill de geração de anotações didáticas em HTML
+├── docs/                                    # 🌐 Publicação no GitHub Pages
+│   ├── index.html                           # 🌟 Hub Visual (Kanban, Sprints, System Design & Catálogo)
+│   ├── anotacoes/                           # 📚 Anotações didáticas categorizadas
+│   │   └── metodologias/
+│   │       └── spec-driven-development-fundamentos.html
+│   └── refinamento-tecnico/                 # 📋 Documentação de Refinamento Técnico & Itaú Prep
+│       ├── flowtask-plano-refinamento-itau.html # Versão estilizada e interativa em HTML
+│       └── flowtask-plano-refinamento-itau.md   # Versão base em Markdown
 ├── flowtask/                                # Aplicação Spring Boot (Java 25)
 │   ├── src/main/java/br/com/flowtask/       # Controllers, Services, Models e Security
 │   ├── src/main/resources/                  # application.yaml e schema.sql
@@ -204,6 +212,9 @@ FlowTask-PDI/
 
 ---
 
-## 📚 Documentações Complementares
-- 📖 [Plano de Refinamento Técnico Completo](docs/flowtask-plano-refinamento-itau.md)
-- 📊 [Dashboard Interativo & System Design](docs/index.html)
+## 📚 Documentações Complementares & GitHub Pages
+
+- 🌟 **[Hub Visual & Dashboard Interativo](docs/index.html)**
+- 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)** *(ou [Markdown](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.md))*
+- 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
+

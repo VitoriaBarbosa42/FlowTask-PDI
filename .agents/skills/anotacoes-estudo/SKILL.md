@@ -1,12 +1,12 @@
 ---
 name: anotacoes-estudo
 description: >-
-  Gera material didático estruturado de estudo técnico, anotações aprofundadas de aulas/cursos e listas de exercícios com gabarito no formato HTML estilizado na pasta 'anotacoes/'. Ative quando o usuário pedir para 'estudar', 'anotar', 'documentar meu aprendizado sobre', 'fazer anotações de', 'transformar essa aula/texto em material de estudo', colar transcrições/textos técnicos de cursos, ou solicitar listas de exercícios sobre um tema de estudo.
+  Gera material didático estruturado de estudo técnico, anotações aprofundadas de aulas/cursos e listas de exercícios com gabarito no formato HTML estilizado na pasta 'docs/anotacoes/'. Ative quando o usuário pedir para 'estudar', 'anotar', 'documentar meu aprendizado sobre', 'fazer anotações de', 'transformar essa aula/texto em material de estudo', colar transcrições/textos técnicos de cursos, ou solicitar listas de exercícios sobre um tema de estudo.
 ---
 
 # Skill: Anotações de Estudo & Material Didático em HTML (`anotacoes-estudo`)
 
-Esta skill atua como um **Tutor e Mentor Técnico Especialista**, transformando transcrições de aulas, artigos, anotações brutas e tópicos conceituais em **material de estudo didático, aprofundado, visual e interativo**, **sempre gerado no formato `.html`** e armazenado de forma organizada na pasta `anotacoes/` na raiz do projeto.
+Esta skill atua como um **Tutor e Mentor Técnico Especialista**, transformando transcrições de aulas, artigos, anotações brutas e tópicos conceituais em **material de estudo didático, aprofundado, visual e interativo**, **sempre gerado no formato `.html`** e armazenado de forma organizada na pasta `docs/anotacoes/` para publicação direta no **GitHub Pages**.
 
 ---
 
@@ -15,9 +15,9 @@ Esta skill atua como um **Tutor e Mentor Técnico Especialista**, transformando 
 1. **Formato Exclusivo em HTML**: Todas as anotações e listas de exercícios geradas por esta skill devem ser arquivos `.html` auto-contidos, prontos para abertura imediata no navegador com design moderno, responsivo e suporte a modo escuro.
 2. **Didática Real (Não Resumo Raso)**: Nunca faça apenas uma cópia resumida do texto de entrada. Ensine o conceito partindo do zero até o nível prático, explicando o *porquê*, o *como funciona por baixo dos panos* e *quando aplicar*.
 3. **Renderização Visual de Diagramas com Mermaid.js**: Inclua a biblioteca Mermaid.js via CDN (`https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js`) em cada arquivo HTML para renderizar diagramas de fluxo, arquitetura e comparações visuais nítidas.
-4. **Organização Modular**: Arquivos separados por categoria/subtema dentro de `anotacoes/` (ex: `anotacoes/kafka/particoes.html`, `anotacoes/spring-boot/injecao-dependencias.html`), nunca acumulados em um único arquivo desorganizado.
+4. **Organização Modular**: Arquivos separados por categoria/subtema dentro de `docs/anotacoes/` (ex: `docs/anotacoes/kafka/particoes.html`, `docs/anotacoes/spring-boot/injecao-dependencias.html`), nunca acumulados em um único arquivo desorganizado.
 5. **Sem Sobrescrita Silenciosa**: Se o arquivo `.html` já existir, confirme com o usuário se deve complementar ou criar uma nova versão.
-6. **Exercícios Sob Demanda**: Gere material de exercícios apenas quando solicitado explicitamente pelo usuário, salvo em `anotacoes/<categoria>/<tema>-exercicios.html` com gabarito em seção interativa retrátil.
+6. **Exercícios Sob Demanda**: Gere material de exercícios apenas quando solicitado explicitamente pelo usuário, salvo em `docs/anotacoes/<categoria>/<tema>-exercicios.html` com gabarito em seção interativa retrátil.
 7. **Integridade de Links**: Links de referência devem ser **reais e canônicos** (documentação oficial, RFCs, GitHub oficial). Nunca invente URLs.
 
 ---
@@ -37,17 +37,17 @@ Esta skill atua como um **Tutor e Mentor Técnico Especialista**, transformando 
 ---
 
 ### Passo 2: Estrutura de Diretórios e Verificação de Conflitos
-1. Verifique se a pasta `anotacoes/` existe na raiz do workspace atual. Se não existir, crie-a.
-2. Identifique a categoria lógica e o nome do arquivo a partir do assunto (ex: `anotacoes/kafka/particoes.html`, `anotacoes/spring-boot/injecao-dependencias.html`, `anotacoes/banco-de-dados/postgres-vs-mongo.html`).
+1. Verifique se a pasta `docs/anotacoes/` existe. Se não existir, crie-a.
+2. Identifique a categoria lógica e o nome do arquivo a partir do assunto (ex: `docs/anotacoes/kafka/particoes.html`, `docs/anotacoes/spring-boot/injecao-dependencias.html`, `docs/anotacoes/banco-de-dados/postgres-vs-mongo.html`).
 3. **Verificação de Arquivo Existente**:
    - Se o arquivo de destino `.html` já existir no diretório, **pergunte ao usuário**:
-     > *"Já existe uma anotação sobre este tema em `anotacoes/<caminho>.html`. Você prefere que eu:*
+     > *"Já existe uma anotação sobre este tema em `docs/anotacoes/<caminho>.html`. Você prefere que eu:*
      > 1. *Complemente a anotação existente com as novas informações.*
      > 2. *Crie um novo arquivo com sufixo ou em subpasta separada.*"
 
 ---
 
-### Passo 3: Criação do Material de Estudo HTML (`anotacoes/<categoria>/<tema>.html`)
+### Passo 3: Criação do Material de Estudo HTML (`docs/anotacoes/<categoria>/<tema>.html`)
 
 Gere o arquivo `.html` completo utilizando as bibliotecas CDN para visual moderno e componentes ricos:
 - **Tailwind CSS CDN**: `<script src="https://cdn.tailwindcss.com"></script>`
@@ -79,7 +79,7 @@ Gere o arquivo `.html` completo utilizando as bibliotecas CDN para visual modern
 
 ### Passo 4: Geração de Exercícios em HTML (Somente se Solicitado Explicitamente)
 
-Quando o usuário pedir exercícios (ex: *"crie exercícios sobre esse tema"* ou *"faça exercícios para fixar"*), crie o arquivo `anotacoes/<categoria>/<tema>-exercicios.html` contendo:
+Quando o usuário pedir exercícios (ex: *"crie exercícios sobre esse tema"* ou *"faça exercícios para fixar"*), crie o arquivo `docs/anotacoes/<categoria>/<tema>-exercicios.html` contendo:
 
 1. **Parte 1: Fixação Teórica & Conceitual**:
    - 3 a 5 perguntas reflexivas e cenários de tomada de decisão técnica.
@@ -93,7 +93,7 @@ Quando o usuário pedir exercícios (ex: *"crie exercícios sobre esse tema"* ou
 ## 🔍 Checklist de Qualidade da Anotação HTML
 
 Antes de finalizar o arquivo, valide:
-- [ ] O arquivo foi salvo com extensão `.html` dentro da pasta `anotacoes/` na raiz do projeto?
+- [ ] O arquivo foi salvo com extensão `.html` dentro da pasta `docs/anotacoes/` para publicação no GitHub Pages?
 - [ ] O HTML é auto-contido e abre diretamente no navegador com Tailwind, fontes e ícones?
 - [ ] Contém pelo menos 1 diagrama visual em Mermaid válido renderizado via `mermaid.js`?
 - [ ] As explicações práticas, analogias e exemplos detalham o conceito com profundidade?
