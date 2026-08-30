@@ -189,8 +189,15 @@ docker-compose down -v
 
 ```text
 FlowTask-PDI/
-├── .agents/                                 # Configurações e Skills para Agentes de IA
-│   └── skills/anotacoes-estudo/             # Skill de geração de anotações didáticas em HTML
+├── .agents/                                 # Configurações e Suíte de Skills SDD para Agentes de IA
+│   └── skills/
+│       ├── sdd-refinar/                     # 🚀 Orquestrador de Refinamento Técnico Completo
+│       ├── sdd-spec/                        # 📝 Fase 1: Levantamento de Requisitos RF/RNF & Spec HTML
+│       ├── sdd-plan/                        # 📐 Fase 2: Planejamento Técnico, Arquitetura & ADRs HTML
+│       ├── sdd-tasks/                       # 📋 Fase 3: Micro-Tarefas Atômicas & Checklist Interativo
+│       ├── sdd-implement/                   # 💻 Fase 4: Execução com Commits Semânticos
+│       ├── sdd-verify/                      # 🧪 Fase 5: Auditoria de Critérios de Aceite & QA HTML
+│       └── anotacoes-estudo/                # 📚 Gerador de material didático em HTML
 ├── docs/                                    # 🌐 Publicação no GitHub Pages
 │   ├── index.html                           # 🌟 Hub Visual (Kanban, Sprints, System Design & Catálogo)
 │   ├── anotacoes/                           # 📚 Anotações didáticas categorizadas

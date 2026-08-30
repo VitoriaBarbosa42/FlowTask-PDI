@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Especificação Técnica — {{TITULO_FEATURE}} | FlowTask SDD</title>
+  <meta name="description" content="Especificação funcional e não-funcional para {{TITULO_FEATURE}} seguindo o padrão Spec-Driven Development.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#FF6200',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#FF6200',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(255, 98, 0, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-orange selection:text-white pb-24">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-orange to-amber-500 flex items-center justify-center font-bold text-white shadow-md shadow-brand-orange/20">
+          <i data-lucide="file-text" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-brand-orange uppercase tracking-wider flex items-center gap-1.5">
+            <span>Fase 1: Especificação SDD</span>
+            <span class="text-slate-500">•</span>
+            <span class="text-slate-400">{{EPICO_ID}}</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">{{TITULO_FEATURE}}</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Voltar ao Hub</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Imprimir</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+
+    <!-- HERO -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/20">
+          Especificação Canônica
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2.5 py-0.5 rounded-full border border-slate-800">
+          Status: Aprovado para Planejamento
+        </span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">{{TITULO_FEATURE}}</h1>
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">{{DESCRICAO_RESUMIDA}}</p>
+    </div>
+
+    <!-- 1. OBJETIVO & POR QUE -->
+    <section class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-3">
+      <div class="flex items-center gap-2 text-brand-orange font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="target" class="w-4 h-4"></i>
+        <h2>1. Objetivo de Negócio (O Por Que)</h2>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium bg-slate-950 p-4 rounded-2xl border border-slate-800">
+        "{{OBJETIVO_NEGOCIO_2_LINHAS}}"
+      </p>
+    </section>
+
+    <!-- 2. ESCOPO & FORA DO ESCOPO -->
+    <section class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2 text-purple-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="shield" class="w-4 h-4"></i>
+        <h2>2. Delimitação de Escopo</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-emerald-950/20 border border-emerald-500/30 p-4 rounded-2xl space-y-2">
+          <span class="font-bold text-emerald-400 font-mono uppercase">✅ In-Scope (Neste Ciclo)</span>
+          <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+            {{IN_SCOPE_ITEMS}}
+          </ul>
+        </div>
+        <div class="bg-rose-950/20 border border-rose-500/30 p-4 rounded-2xl space-y-2">
+          <span class="font-bold text-rose-400 font-mono uppercase">🚫 Out-of-Scope (Fora do Ciclo)</span>
+          <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+            {{OUT_OF_SCOPE_ITEMS}}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. REQUISITOS FUNCIONAIS -->
+    <section class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2 text-blue-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        <h2>3. Requisitos Funcionais (RF) — 1 por Linha</h2>
+      </div>
+      <div class="space-y-2 text-xs font-mono">
+        {{REQUISITOS_FUNCIONAIS_LIST}}
+      </div>
+    </section>
+
+    <!-- 4. REQUISITOS NÃO-FUNCIONAIS -->
+    <section class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2 text-emerald-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="gauge" class="w-4 h-4"></i>
+        <h2>4. Requisitos Não-Funcionais (RNF) — Métricas</h2>
+      </div>
+      <div class="space-y-2 text-xs font-mono">
+        {{REQUISITOS_NAO_FUNCIONAIS_LIST}}
+      </div>
+    </section>
+
+    <!-- 5. CRITÉRIOS DE ACEITE -->
+    <section class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2 text-amber-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="check-square" class="w-4 h-4"></i>
+        <h2>5. Critérios de Aceite Verificáveis (Definition of Done)</h2>
+      </div>
+      <div class="space-y-2 text-xs">
+        {{CRITERIOS_ACEITE_LIST}}
+      </div>
+    </section>
+
+    <!-- NAVIGATION ACTIONS -->
+    <div class="flex items-center justify-between p-4 glass-panel rounded-2xl border border-slate-800 text-xs">
+      <a href="../index.html" class="text-slate-400 hover:text-white flex items-center gap-1.5">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao Hub
+      </a>
+      <a href="{{LINK_PROXIMO_PLANO}}" class="px-4 py-2 rounded-xl bg-brand-orange hover:bg-brand-orangeHover text-white font-bold flex items-center gap-2 transition">
+        <span>Avançar para Planejamento (Plan)</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
