@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micro-Tarefas & Checklist — {{TITULO_FEATURE}} | FlowTask SDD</title>
+  <meta name="description" content="Checklist interativo e lista de tarefas ordenadas para implementação de {{TITULO_FEATURE}}.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-accent selection:text-brand-darker pb-24">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-sky-500/20">
+          <i data-lucide="check-square" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Fase 3: Tasks & Checklist</span>
+            <span class="text-slate-500">•</span>
+            <span class="text-slate-400">{{EPICO_ID}}</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">{{TITULO_FEATURE}}</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Voltar ao Hub</span>
+        </a>
+        <a href="{{LINK_PLAN}}" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          <span>Ver Plano</span>
+        </a>
+        <a href="../../index.html" onclick="localStorage.setItem('flowtask_target_view', 'board')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm shadow-brand-orange/20 transition">
+          <i data-lucide="trello" class="w-3.5 h-3.5"></i>
+          <span>Quadro Interativo</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+
+    <!-- HERO & PROGRESS -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-3">
+        <div>
+          <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+            Fila de Execução Atômica
+          </span>
+          <h1 class="text-2xl font-extrabold text-white tracking-tight mt-2">{{TITULO_FEATURE}}</h1>
+        </div>
+        <div class="bg-slate-950 px-4 py-2 rounded-2xl border border-slate-800 flex items-center gap-3">
+          <span class="text-xs text-slate-400">Progresso:</span>
+          <span id="progress-percent" class="text-sm font-bold font-mono text-brand-orange">0%</span>
+        </div>
+      </div>
+      <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800 mt-2">
+        <div id="progress-bar" class="bg-gradient-to-r from-brand-orange to-amber-500 h-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- TASK GROUPS -->
+    <div class="space-y-6" id="tasks-container">
+      {{GRUPOS_DE_TAREFAS_HTML}}
+    </div>
+
+    <!-- NAVIGATION ACTIONS -->
+    <div class="flex items-center justify-between p-4 glass-panel rounded-2xl border border-slate-800 text-xs">
+      <a href="{{LINK_PLAN}}" class="text-slate-400 hover:text-white flex items-center gap-1.5">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao Plano
+      </a>
+      <button onclick="resetTasks()" class="text-xs text-rose-400 hover:underline">
+        Resetar Checkboxes
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'flowtask_tasks_{{STORAGE_SLUG}}';
+
+    function loadProgress() {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      let checkedCount = 0;
+
+      checkboxes.forEach(cb => {
+        if (saved[cb.id]) {
+          cb.checked = true;
+          checkedCount++;
+        } else {
+          cb.checked = false;
+        }
+      });
+
+      updateUI(checkedCount, checkboxes.length);
+    }
+
+    function toggleTask(id) {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const cb = document.getElementById(id);
+      saved[id] = cb.checked;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      const checkedCount = Array.from(checkboxes).filter(c => c.checked).length;
+      updateUI(checkedCount, checkboxes.length);
+    }
+
+    function updateUI(checked, total) {
+      const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+      document.getElementById('progress-percent').innerText = `${pct}% (${checked}/${total})`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+    }
+
+    function resetTasks() {
+      if (confirm('Deseja resetar o checklist destas tarefas?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadProgress();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
