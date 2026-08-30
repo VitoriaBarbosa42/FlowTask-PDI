@@ -196,6 +196,7 @@ FlowTask-PDI/
 │   ├── anotacoes/                           # 📚 Anotações didáticas categorizadas
 │   │   └── metodologias/
 │   │       ├── anatomia-de-uma-especificacao.html
+│   │       ├── ciclo-e-fases-do-sdd.html
 │   │       └── spec-driven-development-fundamentos.html
 │   └── refinamento-tecnico/                 # 📋 Documentação de Refinamento Técnico & Itaú Prep
 │       └── flowtask-plano-refinamento-itau.html # Versão estilizada e interativa em HTML
@@ -216,5 +217,6 @@ FlowTask-PDI/
 
 - 🌟 **[Hub Visual & Dashboard Interativo (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
 - 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)**
+- 📐 **[O Ciclo e as Fases do SDD](docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html)**
 - 📐 **[Anatomia de uma Especificação (Spec)](docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
