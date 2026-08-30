@@ -197,8 +197,7 @@ FlowTask-PDI/
 │   │   └── metodologias/
 │   │       └── spec-driven-development-fundamentos.html
 │   └── refinamento-tecnico/                 # 📋 Documentação de Refinamento Técnico & Itaú Prep
-│       ├── flowtask-plano-refinamento-itau.html # Versão estilizada e interativa em HTML
-│       └── flowtask-plano-refinamento-itau.md   # Versão base em Markdown
+│       └── flowtask-plano-refinamento-itau.html # Versão estilizada e interativa em HTML
 ├── flowtask/                                # Aplicação Spring Boot (Java 25)
 │   ├── src/main/java/br/com/flowtask/       # Controllers, Services, Models e Security
 │   ├── src/main/resources/                  # application.yaml e schema.sql
@@ -215,6 +214,6 @@ FlowTask-PDI/
 ## 📚 Documentações Complementares & GitHub Pages
 
 - 🌟 **[Hub Visual & Dashboard Interativo](docs/index.html)**
-- 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)** *(ou [Markdown](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.md))*
+- 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
 
