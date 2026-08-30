@@ -1,0 +1,43 @@
+{
+  "realm": "flowtask",
+  "enabled": true,
+  "users": [
+    {
+      "username": "joao@test.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      "email": "joao@test.com",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "senha123"
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "flowtask-api",
+      "name": "FlowTask API",
+      "description": "FlowTask API Client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "seu-secret-super-seguro-aqui-32-chars",
+      "redirectUris": [
+        "http://localhost:3000",
+        "http://localhost:3000/*",
+        "http://localhost:8081"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:8081"
+      ],
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false
+    }
+  ]
+}

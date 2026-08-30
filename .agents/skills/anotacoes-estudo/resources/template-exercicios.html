@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercícios: {{TITULO_DO_TEMA}}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              accent: '#38bdf8',
+              success: '#10b981',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-orange selection:text-white pb-20">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-md">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider">Lista de Exercícios</span>
+          <h1 class="text-sm font-bold text-white tracking-tight">{{TITULO_DO_TEMA}}</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Hub</span>
+        </a>
+        <a href="./{{TEMA}}.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="book-open" class="w-3.5 h-3.5 text-brand-orange"></i>
+          <span>Ver Anotação</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
+
+    <div class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800">
+      <h1 class="text-xl sm:text-2xl font-extrabold text-white mb-2">Desafios & Exercícios de Fixação: {{TITULO_DO_TEMA}}</h1>
+      <p class="text-xs sm:text-sm text-slate-400">
+        Responda as questões abaixo antes de expandir o gabarito ao final para validar seu aprendizado.
+      </p>
+    </div>
+
+    <!-- PARTE 1: TEÓRICA -->
+    <section class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2 text-brand-accent font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="file-text" class="w-5 h-5"></i>
+        <h2>Parte 1: Fixação Teórica & Cenários Conceituais</h2>
+      </div>
+      <div class="space-y-6 text-xs sm:text-sm text-slate-300">
+        {{QUESTOES_TEORICAS}}
+      </div>
+    </section>
+
+    <!-- PARTE 2: PRÁTICA -->
+    <section class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2 text-emerald-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="terminal" class="w-5 h-5"></i>
+        <h2>Parte 2: Desafios Práticos & Hands-on</h2>
+      </div>
+      <div class="space-y-6 text-xs sm:text-sm text-slate-300">
+        {{QUESTOES_PRATICAS}}
+      </div>
+    </section>
+
+    <!-- PARTE 3: GABARITO RETRÁTIL -->
+    <section class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800">
+      <details class="group cursor-pointer">
+        <summary class="flex items-center justify-between text-sm font-bold text-white select-none list-none">
+          <div class="flex items-center gap-2 text-brand-orange">
+            <i data-lucide="key" class="w-4 h-4"></i>
+            <span>👉 Clique aqui para expandir o Gabarito & Soluções Explicadas</span>
+          </div>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition"></i>
+        </summary>
+        
+        <div class="mt-6 pt-6 border-t border-slate-800/80 space-y-6 text-xs sm:text-sm text-slate-300 leading-relaxed">
+          {{SOLUCOES_GABARITO}}
+        </div>
+      </details>
+    </section>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
