@@ -50,12 +50,12 @@ O plano gerado deve contemplar:
 
 ## 🎨 Geração do Arquivo HTML
 
-Após a validação com o usuário, a skill gera o arquivo:
-📁 `docs/refinamento-tecnico/<slug-da-feature>-plan.html`
+Após a validação com o usuário, a skill gera o arquivo na subpasta do respectivo épico:
+📁 `docs/refinamento-tecnico/<epic-ou-area>/<slug-da-feature>-plan.html`
 
-Utilizando o template em [template-plan.html](./resources/template-plan.html).
+Utilizando o template em [template-plan.html](./resources/template-plan.html) com diagramas Mermaid, mapeamento de arquivos e matriz de decisões.
 
 ---
 
 ## 🔗 Registro Automático no Hub
-Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html` para que o novo plano técnico apareça no catálogo.
+Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html` com a categoria `refinamento` ("Refinamento & Specs") para indexação no Hub.

@@ -25,16 +25,21 @@ Seu objetivo é auditar o incremento implementado exclusivamente contra a **Espe
 ## 📋 Protocolo de Auditoria
 
 1. **Leitura dos Critérios de Aceite:**
-   - Carrega `docs/refinamento-tecnico/<feature>-spec.html`.
+   - Carrega `docs/refinamento-tecnico/<epic-ou-area>/<feature>-spec.html`.
 2. **Execução de Bateria de Testes:**
    - Testes unitários (JUnit / Mockito / Go testing).
    - Testes de integração com Testcontainers (Postgres, Mongo, Kafka).
 3. **Auditoria dos Requisitos Não-Funcionais:**
    - Métricas de latência, consumo de memória, persistência após reboot.
 4. **Geração do Relatório de Auditoria:**
-   - Salva em `docs/refinamento-tecnico/<feature>-relatorio-qa.html`.
+   - Salva em `docs/refinamento-tecnico/<epic-ou-area>/<feature>-relatorio-qa.html`.
 
 ---
 
 ## 🎨 Geração do Relatório HTML
 Utiliza o template [template-relatorio-qa.html](./resources/template-relatorio-qa.html) com badges de status (Aprovado/Reprovado), gráficos e logs de teste.
+
+---
+
+## 🔗 Registro Automático no Hub
+Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html` com a categoria `qa` ou `refinamento` para indexação no Hub.

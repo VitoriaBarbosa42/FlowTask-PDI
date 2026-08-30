@@ -48,12 +48,12 @@ Cada grupo de tarefas deve seguir:
 
 ## 🎨 Geração do Arquivo HTML
 
-Após a validação com o usuário, a skill gera o arquivo:
-📁 `docs/refinamento-tecnico/<slug-da-feature>-tasks.html`
+Após a validação com o usuário, a skill gera o arquivo na subpasta do respectivo épico:
+📁 `docs/refinamento-tecnico/<epic-ou-area>/<slug-da-feature>-tasks.html`
 
-Utilizando o template em [template-tasks.html](./resources/template-tasks.html).
+Utilizando o template em [template-tasks.html](./resources/template-tasks.html) com checklist persistente em `localStorage`, barra de progresso em tempo real e comandos de validação.
 
 ---
 
 ## 🔗 Registro Automático no Hub
-Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html`.
+Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html` com a categoria `refinamento` ("Refinamento & Specs") para indexação no Hub.

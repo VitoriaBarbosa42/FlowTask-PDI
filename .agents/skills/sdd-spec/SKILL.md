@@ -60,15 +60,15 @@ Após a resposta do usuário (ou quando todas as 5 dimensões canônicas estiver
 
 ## 🎨 Geração do Arquivo HTML
 
-Após a validação com o usuário, a skill gera o arquivo:
-📁 `docs/refinamento-tecnico/<slug-da-feature>-spec.html`
+Após a validação com o usuário, a skill gera o arquivo na subpasta do respectivo épico:
+📁 `docs/refinamento-tecnico/<epic-ou-area>/<slug-da-feature>-spec.html`
 
 Utilizando o template em [template-spec.html](./resources/template-spec.html) com:
 - Tailwind CSS Dark Mode, fontes `Plus Jakarta Sans` / `JetBrains Mono` e ícones Lucide.
 - Diagrama Mermaid de contexto do negócio.
-- Botão *"Voltar ao Hub"* (`../index.html`) e link para o próximo passo (`sdd-plan`).
+- Botão *"Voltar ao Hub"* (`../../index.html`), link *"Quadro Interativo"* e link para o próximo passo (`sdd-plan`).
 
 ---
 
 ## 🔗 Registro Automático no Hub
-Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html` para que a nova especificação apareça no catálogo da aba **"Anotações & Docs"**.
+Ao criar o arquivo, atualize a lista `libraryDocuments` no arquivo `docs/index.html` com a categoria `refinamento` ("Refinamento & Specs") para que a nova especificação apareça indexada na Home e na Central de Refinamento.
