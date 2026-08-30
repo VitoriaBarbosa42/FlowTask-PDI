@@ -1120,112 +1120,67 @@
               <span class="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded border border-blue-500/20">docs/refinamento-tecnico/</span>
               <span class="text-xs text-slate-400">Spec-Driven Development Suite</span>
             </div>
-            <h2 class="text-xl font-bold text-white mt-2">Central de Refinamento Técnico & Roadmap Itaú</h2>
+            <h2 class="text-xl font-bold text-white mt-2">Hub & Explorador Hierárquico de Pastas SDD</h2>
             <p class="text-xs text-slate-300 mt-1 max-w-3xl">
-              Nesta área estão centralizados os documentos de refinamento técnico, especificações canônicas, planos de arquitetura e checklists de micro-tarefas dos épicos.
+              Navegue pela estrutura real de diretórios do projeto, inspecione especificações, planos de arquitetura, micro-tarefas e relatórios de auditoria clicando nas pastas e arquivos abaixo.
             </p>
           </div>
 
-          <div class="flex items-center gap-2">
-            <a href="./refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html" target="_blank" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition">
-              <span>Abrir Plano Geral Completo</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Refinement Main Card: Plano Geral Itaú -->
-      <div class="glass-panel p-6 rounded-2xl border border-blue-500/30 bg-gradient-to-r from-blue-950/20 via-slate-900/40 to-transparent relative overflow-hidden">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase">Documento Macro</span>
-              <span class="text-xs font-mono text-slate-400">Sprints 1 a 10 • 6 Épicos</span>
-            </div>
-            <h3 class="text-base font-bold text-white mb-1">FlowTask — Plano de Refinamento Técnico & Preparação Itaú</h3>
-            <p class="text-xs text-slate-300 max-w-2xl">
-              Refinamento técnico de ponta a ponta com mapa de dependências em Mermaid, matriz de decisões de arquitetura e simulador de perguntas para entrevistas.
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0">
-            <button onclick="openDocPreview('./refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html', 'Plano de Refinamento Técnico — Itaú Prep')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-medium border border-slate-800 flex items-center gap-1 transition">
-              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-              <span>Pré-visualizar</span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="expandAllTreeNodes()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+              <i data-lucide="chevrons-down-up" class="w-3.5 h-3.5"></i>
+              <span>Expandir Tudo</span>
+            </button>
+            <button onclick="collapseAllTreeNodes()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+              <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i>
+              <span>Recolher Tudo</span>
             </button>
             <a href="./refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
-              <span>Abrir HTML</span>
+              <span>Plano Geral Itaú</span>
               <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             </a>
           </div>
         </div>
       </div>
 
-      <!-- Epics Refinement Directory Grid -->
-      <div>
-        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3">
-          <i data-lucide="folder" class="w-4 h-4 text-brand-orange"></i>
-          <span>Diretórios de Refinamento por Épico (3 Arquivos por Incremento: Spec, Plan, Tasks)</span>
-        </h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- EXPLORADOR HIERÁRQUICO SPLIT (Tree View + Content Inspector) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- COLUNA ESQUERDA: Árvore de Diretórios (4 colunas) -->
+        <div class="lg:col-span-4 glass-panel rounded-2xl border border-slate-800 p-4 space-y-3">
           
-          <div class="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded border border-brand-orange/20">Epic 1</span>
-              <span class="text-[10px] font-mono text-slate-400">Sprints 3-4</span>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <i data-lucide="folder-tree" class="w-4 h-4 text-brand-orange"></i>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider font-mono">Estrutura de Pastas</h3>
             </div>
-            <h4 class="text-xs font-bold text-white">Persistência Poliglota (PostgreSQL + MongoDB + Redis)</h4>
-            <p class="text-[11px] text-slate-400">Pasta: <code class="text-slate-300">docs/refinamento-tecnico/epic-01-persistencia/</code></p>
+            <span id="tree-total-count" class="text-[10px] font-mono bg-slate-900 px-2 py-0.5 rounded text-slate-400 border border-slate-800">12 pastas</span>
           </div>
 
-          <div class="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">Epic 2</span>
-              <span class="text-[10px] font-mono text-slate-400">Sprints 5-6</span>
-            </div>
-            <h4 class="text-xs font-bold text-white">Mensageria & Comunicação Assíncrona (Apache Kafka KRaft)</h4>
-            <p class="text-[11px] text-slate-400">Pasta: <code class="text-slate-300">docs/refinamento-tecnico/epic-02-mensageria/</code></p>
+          <!-- Quick Search Filter in Tree -->
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
+            <input 
+              type="text" 
+              id="treeSearchInput" 
+              oninput="filterTreeNodes()" 
+              placeholder="Filtrar pastas ou arquivos..." 
+              class="w-full pl-8 pr-3 py-1.5 bg-slate-900/90 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange/50 transition font-mono"
+            />
           </div>
 
-          <div class="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">Epic 3</span>
-              <span class="text-[10px] font-mono text-slate-400">Sprint 7</span>
-            </div>
-            <h4 class="text-xs font-bold text-white">Microsserviço Notifier em Go (Gin + Kafka Consumer)</h4>
-            <p class="text-[11px] text-slate-400">Pasta: <code class="text-slate-300">docs/refinamento-tecnico/epic-03-go-service/</code></p>
-          </div>
-
-          <div class="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Epic 4</span>
-              <span class="text-[10px] font-mono text-slate-400">Sprint 8</span>
-            </div>
-            <h4 class="text-xs font-bold text-white">Observabilidade & Métricas (Micrometer + Prometheus + Grafana)</h4>
-            <p class="text-[11px] text-slate-400">Pasta: <code class="text-slate-300">docs/refinamento-tecnico/epic-04-observabilidade/</code></p>
-          </div>
-
-          <div class="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">Epic 5</span>
-              <span class="text-[10px] font-mono text-slate-400">Sprints 1-2</span>
-            </div>
-            <h4 class="text-xs font-bold text-white">Infraestrutura como Código (Terraform Docker/LocalStack)</h4>
-            <p class="text-[11px] text-slate-400">Pasta: <code class="text-slate-300">docs/refinamento-tecnico/epic-05-iac-terraform/</code></p>
-          </div>
-
-          <div class="glass-panel p-4 rounded-xl border border-slate-800 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">Epic 6</span>
-              <span class="text-[10px] font-mono text-slate-400">Sprints 9-10</span>
-            </div>
-            <h4 class="text-xs font-bold text-white">CI/CD Pipeline, Testcontainers & Revisão SOLID</h4>
-            <p class="text-[11px] text-slate-400">Pasta: <code class="text-slate-300">docs/refinamento-tecnico/epic-06-cicd-qualidade/</code></p>
+          <!-- Tree Hierarchy Nodes Container -->
+          <div id="tree-hierarchy-container" class="space-y-1 max-h-[600px] overflow-y-auto pr-1">
+            <!-- Rendered Dynamically via JavaScript -->
           </div>
 
         </div>
+
+        <!-- COLUNA DIREITA: Inspetor da Pasta ou Arquivo Selecionado (8 colunas) -->
+        <div class="lg:col-span-8 space-y-4" id="folder-content-inspector">
+          <!-- Rendered Dynamically via JavaScript -->
+        </div>
+
       </div>
 
       <!-- SDD Refinement Skill Callout -->
@@ -1234,8 +1189,8 @@
           <i data-lucide="sparkles" class="w-4 h-4"></i>
         </div>
         <div>
-          <strong class="text-white block mb-0.5">Como refinar uma nova funcionalidade com as Skills SDD:</strong>
-          <span>Utilize o comando <code class="text-brand-orange font-mono">/sdd-refinar &lt;texto da funcionalidade&gt;</code> no chat. A IA fará a ingestão, preencherá lacunas de requisitos com você e gerará automaticamente os 3 arquivos HTML da pasta do épico (<code class="text-slate-200">spec.html</code>, <code class="text-slate-200">plan.html</code>, <code class="text-slate-200">tasks.html</code>).</span>
+          <strong class="text-white block mb-0.5">Como refinar uma nova funcionalidade e preencher as pastas:</strong>
+          <span>Utilize o comando <code class="text-brand-orange font-mono">/sdd-refinar &lt;texto da funcionalidade&gt;</code> no chat. A IA gerará automaticamente os 3 arquivos HTML (<code class="text-slate-200">spec.html</code>, <code class="text-slate-200">plan.html</code>, <code class="text-slate-200">tasks.html</code>) dentro da subpasta do épico correspondente e atualizará a árvore do Hub.</span>
         </div>
       </div>
 
@@ -2307,6 +2262,9 @@
       if (viewName === 'library') {
         renderLibrary();
       }
+      if (viewName === 'refinement') {
+        renderFolderExplorer();
+      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
       lucide.createIcons();
@@ -2496,6 +2454,727 @@
       if (modal) modal.classList.add('hidden');
       const frame = document.getElementById('doc-preview-frame');
       if (frame) frame.src = 'about:blank';
+    }
+
+    // =========================================================================
+    // HIERARCHICAL FOLDER TREE EXPLORER (SDD & DOCS REPOSITORY HUB)
+    // =========================================================================
+    const folderTreeData = [
+      {
+        id: "docs",
+        name: "docs",
+        path: "docs/",
+        type: "folder",
+        icon: "folder",
+        color: "text-brand-orange",
+        badge: "Raiz",
+        description: "Diretório raiz de toda a documentação, engenharia e estudos do FlowTask + PDI publicado no GitHub Pages.",
+        children: [
+          {
+            id: "refinamento-tecnico",
+            name: "refinamento-tecnico",
+            path: "docs/refinamento-tecnico/",
+            type: "folder",
+            icon: "folder-git-2",
+            color: "text-blue-400",
+            badge: "SDD Suite",
+            description: "Central de Refinamento Técnico e Arquitetural (SDD) contendo o plano geral de 10 sprints e as subpastas dos 6 épicos.",
+            children: [
+              {
+                id: "plano-geral",
+                name: "plano-geral",
+                path: "docs/refinamento-tecnico/plano-geral/",
+                type: "folder",
+                icon: "folder",
+                color: "text-blue-400",
+                badge: "Macro Plan",
+                description: "Planejamento macro de engenharia, mapa de dependências Mermaid, sequenciamento das 10 sprints e simulador Itaú.",
+                files: [
+                  {
+                    id: "plano-itau",
+                    name: "flowtask-plano-refinamento-itau.html",
+                    title: "Plano de Refinamento Técnico & Preparação Itaú",
+                    path: "docs/refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html",
+                    url: "./refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html",
+                    type: "Documento Macro",
+                    category: "Refinamento & Specs",
+                    badgeColor: "border-blue-500/30 text-blue-400 bg-blue-500/10",
+                    description: "Refinamento de ponta a ponta dos 6 épicos, matriz de decisões de arquitetura, trade-offs e simulador de perguntas para entrevistas técnicas.",
+                    tags: ["Refinamento", "PDI", "Itaú", "System Design", "Sprints", "Mermaid"],
+                    readTime: "20 min",
+                    date: "30 Ago 2026",
+                    isNew: false
+                  }
+                ]
+              },
+              {
+                id: "epic-01-persistencia",
+                name: "epic-01-persistencia",
+                path: "docs/refinamento-tecnico/epic-01-persistencia/",
+                type: "folder",
+                icon: "folder",
+                color: "text-brand-orange",
+                badge: "Sprints 3-4",
+                epicTitle: "Epic 1 — Persistência Poliglota",
+                techs: ["PostgreSQL 15", "MongoDB 7", "Redis 7", "Spring Data JPA"],
+                description: "Camada de persistência poliglota consciente: Kanban em PostgreSQL (JPA/ACID), metas de PDI em MongoDB (Documentos Schemaless) e cache em memória no Redis.",
+                files: []
+              },
+              {
+                id: "epic-02-mensageria",
+                name: "epic-02-mensageria",
+                path: "docs/refinamento-tecnico/epic-02-mensageria/",
+                type: "folder",
+                icon: "folder",
+                color: "text-purple-400",
+                badge: "Sprints 5-6",
+                epicTitle: "Epic 2 — Mensageria & Eventos Kafka KRaft",
+                techs: ["Apache Kafka KRaft", "Spring Kafka", "Event Schemas"],
+                description: "Arquitetura orientada a eventos (EDA) desacoplando a conclusão de tarefas no Kanban da atualização de progresso do PDI via tópicos Kafka.",
+                files: []
+              },
+              {
+                id: "epic-03-go-service",
+                name: "epic-03-go-service",
+                path: "docs/refinamento-tecnico/epic-03-go-service/",
+                type: "folder",
+                icon: "folder",
+                color: "text-cyan-400",
+                badge: "Sprint 7",
+                epicTitle: "Epic 3 — Microsserviço Notifier em Go",
+                techs: ["Go (Golang)", "Gin Engine", "Sarama Kafka", "Docker Multi-stage"],
+                description: "Microsserviço de alta performance em Go consumindo eventos Kafka com baixo consumo de memória (< 20MB) e disparo assíncrono de notificações.",
+                files: []
+              },
+              {
+                id: "epic-04-observabilidade",
+                name: "epic-04-observabilidade",
+                path: "docs/refinamento-tecnico/epic-04-observabilidade/",
+                type: "folder",
+                icon: "folder",
+                color: "text-emerald-400",
+                badge: "Sprint 8",
+                epicTitle: "Epic 4 — Observabilidade & Métricas",
+                techs: ["Micrometer", "Prometheus", "Grafana", "Datadog Concept"],
+                description: "Instrumentação com Micrometer no Spring Boot, métricas de latência e throughput no Prometheus e dashboards Grafana (de-para com Datadog Itaú).",
+                files: []
+              },
+              {
+                id: "epic-05-iac-terraform",
+                name: "epic-05-iac-terraform",
+                path: "docs/refinamento-tecnico/epic-05-iac-terraform/",
+                type: "folder",
+                icon: "folder",
+                color: "text-indigo-400",
+                badge: "Sprints 1-2",
+                epicTitle: "Epic 5 — Infraestrutura como Código (Terraform)",
+                techs: ["Terraform HCL", "Docker Provider", "LocalStack AWS"],
+                description: "Provisionamento declarativo e modularizado de todos os serviços locais (PostgreSQL, MongoDB, Redis, Kafka) substituindo configurações manuais.",
+                files: []
+              },
+              {
+                id: "epic-06-cicd-qualidade",
+                name: "epic-06-cicd-qualidade",
+                path: "docs/refinamento-tecnico/epic-06-cicd-qualidade/",
+                type: "folder",
+                icon: "folder",
+                color: "text-amber-400",
+                badge: "Sprints 9-10",
+                epicTitle: "Epic 6 — CI/CD, Testcontainers & SOLID",
+                techs: ["GitHub Actions", "Testcontainers", "JUnit 5", "Clean Architecture"],
+                description: "Pipeline automatizada no GitHub Actions, testes de integração reais contra containers descartáveis e auditoria de Clean Code.",
+                files: []
+              }
+            ]
+          },
+          {
+            id: "anotacoes",
+            name: "anotacoes",
+            path: "docs/anotacoes/",
+            type: "folder",
+            icon: "folder-heart",
+            color: "text-emerald-400",
+            badge: "Estudos & Didática",
+            description: "Central de Estudos Técnicos, Aulas, Artigos Didáticos, Diagramas Mermaid e Exercícios com Gabarito.",
+            children: [
+              {
+                id: "metodologias",
+                name: "metodologias",
+                path: "docs/anotacoes/metodologias/",
+                type: "folder",
+                icon: "folder",
+                color: "text-brand-orange",
+                badge: "3 Arquivos",
+                description: "Spec-Driven Development (SDD), Engenharia de Requisitos, Anatomia de Especificação e Ciclos Iterativos com IA.",
+                files: [
+                  {
+                    id: "sdd-ciclo-fases",
+                    name: "ciclo-e-fases-do-sdd.html",
+                    title: "O Ciclo e as Fases do SDD — Da Spec à Verificação",
+                    path: "docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html",
+                    url: "./anotacoes/metodologias/ciclo-e-fases-do-sdd.html",
+                    type: "Anotação Técnica",
+                    category: "Metodologias & SDD",
+                    badgeColor: "border-brand-orange/30 text-brand-orange bg-brand-orange/10",
+                    description: "As 6 fases do ciclo SDD (Princípios, Spec, Plan, Tasks, Impl, Verificação), separação entre pensar e fazer, loops de feedback e tamanho de ciclo.",
+                    tags: ["SDD", "Metodologia", "Ciclo Iterativo", "AI Agents", "Feedback Loop", "Mermaid"],
+                    readTime: "11 min",
+                    date: "30 Ago 2026",
+                    isNew: true
+                  },
+                  {
+                    id: "sdd-anatomia-spec",
+                    name: "anatomia-de-uma-especificacao.html",
+                    title: "Anatomia de uma Especificação (Spec) — O Que, Por Que e Requisitos",
+                    path: "docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html",
+                    url: "./anotacoes/metodologias/anatomia-de-uma-especificacao.html",
+                    type: "Anotação Técnica",
+                    category: "Metodologias & SDD",
+                    badgeColor: "border-brand-orange/30 text-brand-orange bg-brand-orange/10",
+                    description: "Os 5 elementos canônicos da spec: Objetivo, Escopo/Fora de Escopo, RF/RNF com métricas numéricas, Critérios de Aceite e a Regra de Ouro da especificação.",
+                    tags: ["SDD", "Spec", "Requisitos", "Qualidade", "Regra de Ouro", "Mermaid"],
+                    readTime: "10 min",
+                    date: "30 Ago 2026",
+                    isNew: false
+                  },
+                  {
+                    id: "sdd-fundamentos",
+                    name: "spec-driven-development-fundamentos.html",
+                    title: "Spec-Driven Development (SDD) — Fundamentos & Prática",
+                    path: "docs/anotacoes/metodologias/spec-driven-development-fundamentos.html",
+                    url: "./anotacoes/metodologias/spec-driven-development-fundamentos.html",
+                    type: "Anotação Técnica",
+                    category: "Metodologias & SDD",
+                    badgeColor: "border-brand-orange/30 text-brand-orange bg-brand-orange/10",
+                    description: "Guia didático sobre desenvolvimento orientado a especificações com Agentes de IA, arquitetura orientada a contratos, comparativo de custos e workflow passo a passo.",
+                    tags: ["SDD", "AI Agents", "OpenAPI", "Qualidade", "Mermaid"],
+                    readTime: "12 min",
+                    date: "30 Ago 2026",
+                    isNew: false
+                  }
+                ]
+              },
+              {
+                id: "backend-java",
+                name: "backend-java",
+                path: "docs/anotacoes/backend-java/",
+                type: "folder",
+                icon: "folder",
+                color: "text-blue-400",
+                badge: "Java 25",
+                topic: "Java 25 & Spring Boot",
+                description: "Anotações sobre Java moderno (Virtual Threads, Pattern Matching, Records), Spring Data JPA, Hibernate, Transações e Spring Security.",
+                suggestedTopics: ["Novidades do Java 25 & Virtual Threads", "Otimizações de Consultas JPA e N+1 Problem", "Configuração Stateless JWT no Spring Security"],
+                files: []
+              },
+              {
+                id: "backend-go",
+                name: "backend-go",
+                path: "docs/anotacoes/backend-go/",
+                type: "folder",
+                icon: "folder",
+                color: "text-cyan-400",
+                badge: "Go & Gin",
+                topic: "Go & Microsserviços",
+                description: "Anotações sobre a linguagem Go (Golang), concorrência nativa com Goroutines e Channels, Gin Engine e consumers Kafka.",
+                suggestedTopics: ["Concorrência com Goroutines & Select", "Construção de APIs REST com Gin", "Consumers Kafka resilientes em Go"],
+                files: []
+              },
+              {
+                id: "arquitetura-infra",
+                name: "arquitetura-infra",
+                path: "docs/anotacoes/arquitetura-infra/",
+                type: "folder",
+                icon: "folder",
+                color: "text-purple-400",
+                badge: "Kafka & IaC",
+                topic: "Arquitetura, Docker & Kafka",
+                description: "Estudos sobre sistemas distribuídos, Apache Kafka KRaft, particionamento e consumer groups, Redis Cache e Terraform IaC.",
+                suggestedTopics: ["Internals do Kafka KRaft & Particionamento", "Estratégias de Cache Invalidation com Redis", "Módulos Reutilizáveis no Terraform"],
+                files: []
+              },
+              {
+                id: "testes-qa",
+                name: "testes-qa",
+                path: "docs/anotacoes/testes-qa/",
+                type: "folder",
+                icon: "folder",
+                color: "text-emerald-400",
+                badge: "QA & Tests",
+                topic: "Testes & Qualidade",
+                description: "Material didático sobre pirâmide de testes, Testcontainers para testes de integração reais, JUnit 5, Mockito e Clean Code.",
+                suggestedTopics: ["Testcontainers com PostgreSQL e Kafka", "Padrões AAA e Nomenclatura de Testes", "Testes de Mutação e Cobertura de Código"],
+                files: []
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    let currentSelectedTreeNodeId = 'plano-geral';
+    let expandedTreeNodes = new Set(['docs', 'refinamento-tecnico', 'anotacoes', 'plano-geral', 'metodologias']);
+    let currentTreeSearch = '';
+
+    function findTreeNodeById(nodes, id) {
+      for (const node of nodes) {
+        if (node.id === id) return node;
+        if (node.files) {
+          const fileMatch = node.files.find(f => f.id === id);
+          if (fileMatch) return fileMatch;
+        }
+        if (node.children) {
+          const found = findTreeNodeById(node.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function countTotalFoldersAndFiles(nodes) {
+      let count = 0;
+      for (const node of nodes) {
+        count++;
+        if (node.files) count += node.files.length;
+        if (node.children) count += countTotalFoldersAndFiles(node.children);
+      }
+      return count;
+    }
+
+    function renderFolderExplorer() {
+      const treeContainer = document.getElementById('tree-hierarchy-container');
+      if (!treeContainer) return;
+
+      const totalCountEl = document.getElementById('tree-total-count');
+      if (totalCountEl) {
+        totalCountEl.innerText = `${countTotalFoldersAndFiles(folderTreeData)} itens`;
+      }
+
+      treeContainer.innerHTML = '';
+      renderTreeHierarchy(treeContainer, folderTreeData, 0, currentTreeSearch);
+      renderNodeInspector(currentSelectedTreeNodeId);
+      lucide.createIcons();
+    }
+
+    function renderTreeHierarchy(container, nodes, level, search) {
+      nodes.forEach(node => {
+        const hasChildren = (node.children && node.children.length > 0) || (node.files && node.files.length > 0);
+        const isExpanded = expandedTreeNodes.has(node.id) || !!search;
+        const isSelected = currentSelectedTreeNodeId === node.id;
+        
+        // Search filter matching
+        const matchesSearch = !search || 
+          node.name.toLowerCase().includes(search) || 
+          (node.description && node.description.toLowerCase().includes(search)) ||
+          (node.epicTitle && node.epicTitle.toLowerCase().includes(search)) ||
+          (node.topic && node.topic.toLowerCase().includes(search)) ||
+          (node.files && node.files.some(f => f.name.toLowerCase().includes(search) || f.title.toLowerCase().includes(search)));
+
+        if (!matchesSearch && !hasChildren) return;
+
+        const row = document.createElement('div');
+        row.className = "flex flex-col select-none";
+
+        const itemBtn = document.createElement('div');
+        itemBtn.className = `flex items-center justify-between px-2.5 py-1.5 rounded-xl cursor-pointer text-xs transition group ${
+          isSelected 
+            ? 'bg-blue-600/20 text-blue-300 font-bold border border-blue-500/40 shadow-sm' 
+            : 'text-slate-300 hover:bg-slate-900/80 hover:text-white border border-transparent'
+        }`;
+        itemBtn.style.paddingLeft = `${Math.max(8, level * 16)}px`;
+        itemBtn.onclick = () => selectTreeNode(node.id);
+
+        const leftGroup = document.createElement('div');
+        leftGroup.className = "flex items-center gap-1.5 min-w-0";
+
+        // Chevron Expand button
+        if (hasChildren) {
+          const chevron = document.createElement('button');
+          chevron.className = "p-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition";
+          chevron.innerHTML = `<i data-lucide="${isExpanded ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5"></i>`;
+          chevron.onclick = (e) => toggleTreeNode(node.id, e);
+          leftGroup.appendChild(chevron);
+        } else {
+          const spacer = document.createElement('span');
+          spacer.className = "w-4 h-4 inline-block";
+          leftGroup.appendChild(spacer);
+        }
+
+        // Folder Icon
+        const iconEl = document.createElement('span');
+        iconEl.className = `${node.color || 'text-slate-400'} shrink-0`;
+        const iconName = isExpanded ? 'folder-open' : (node.icon || 'folder');
+        iconEl.innerHTML = `<i data-lucide="${iconName}" class="w-3.5 h-3.5"></i>`;
+        leftGroup.appendChild(iconEl);
+
+        // Name
+        const label = document.createElement('span');
+        label.className = "truncate font-mono text-[11px]";
+        label.innerText = node.name;
+        leftGroup.appendChild(label);
+
+        itemBtn.appendChild(leftGroup);
+
+        // Right Badge
+        if (node.badge) {
+          const badge = document.createElement('span');
+          badge.className = `text-[9px] font-mono px-1.5 py-0.2 rounded shrink-0 ${
+            isSelected 
+              ? 'bg-blue-500/30 text-blue-200 border border-blue-400/30' 
+              : 'bg-slate-900 text-slate-400 border border-slate-800'
+          }`;
+          badge.innerText = node.badge;
+          itemBtn.appendChild(badge);
+        }
+
+        row.appendChild(itemBtn);
+
+        // Render Children & Files if expanded
+        if (hasChildren && isExpanded) {
+          const childrenContainer = document.createElement('div');
+          childrenContainer.className = "flex flex-col border-l border-slate-800/80 ml-3 pl-1";
+
+          if (node.children) {
+            renderTreeHierarchy(childrenContainer, node.children, level + 1, search);
+          }
+
+          if (node.files) {
+            node.files.forEach(file => {
+              const isFileSelected = currentSelectedTreeNodeId === file.id;
+              const fileBtn = document.createElement('div');
+              fileBtn.className = `flex items-center justify-between px-2.5 py-1 rounded-lg cursor-pointer text-[11px] transition ${
+                isFileSelected 
+                  ? 'bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+              }`;
+              fileBtn.style.paddingLeft = `${Math.max(16, (level + 1) * 16)}px`;
+              fileBtn.onclick = (e) => {
+                e.stopPropagation();
+                selectTreeNode(file.id);
+              };
+
+              fileBtn.innerHTML = `
+                <div class="flex items-center gap-1.5 truncate">
+                  <i data-lucide="file-code" class="w-3.5 h-3.5 text-blue-400 shrink-0"></i>
+                  <span class="truncate font-mono">${file.name}</span>
+                </div>
+                <span class="text-[9px] font-mono text-emerald-400">HTML</span>
+              `;
+              childrenContainer.appendChild(fileBtn);
+            });
+          }
+
+          row.appendChild(childrenContainer);
+        }
+
+        container.appendChild(row);
+      });
+    }
+
+    function renderNodeInspector(nodeId) {
+      const inspector = document.getElementById('folder-content-inspector');
+      if (!inspector) return;
+
+      const node = findTreeNodeById(folderTreeData, nodeId);
+      if (!node) return;
+
+      const isFile = !!node.url;
+
+      inspector.innerHTML = `
+        <!-- BREADCRUMBS & ACTIONS BAR -->
+        <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-1.5 text-xs font-mono text-slate-400 flex-wrap">
+            <i data-lucide="folder" class="w-3.5 h-3.5 text-brand-orange"></i>
+            <span>${node.path || node.name}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="copyPathToClipboard('${node.path || node.name}', this)" class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-mono border border-slate-800 flex items-center gap-1.5 transition" title="Copiar caminho relativo">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Copiar Caminho</span>
+            </button>
+            ${isFile ? `
+              <button onclick="openDocPreview('${node.url}', '${node.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white text-xs font-semibold border border-slate-800 flex items-center gap-1.5 transition">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                <span>Ver Modal</span>
+              </button>
+              <a href="${node.url}" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition">
+                <span>Abrir Completo</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- FOLDER / FILE HEADER HERO -->
+        <div class="glass-panel p-6 rounded-2xl border border-slate-800 bg-gradient-to-r from-slate-900/60 via-slate-900/30 to-transparent">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brand-orange/10 text-brand-orange border border-brand-orange/30 uppercase">
+              ${isFile ? 'Arquivo HTML' : (node.badge || 'Diretório')}
+            </span>
+            ${node.sprints ? `<span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">${node.sprints}</span>` : ''}
+            ${node.readTime ? `<span class="text-xs font-mono text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>${node.readTime}</span>` : ''}
+          </div>
+
+          <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <i data-lucide="${isFile ? 'file-text' : 'folder-open'}" class="w-5 h-5 ${node.color || 'text-brand-orange'}"></i>
+            <span>${node.title || node.epicTitle || node.name}</span>
+          </h2>
+
+          <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+            ${node.description || 'Navegue pelos arquivos e documentos deste diretório.'}
+          </p>
+
+          ${node.techs ? `
+            <div class="flex flex-wrap gap-1.5 mt-4">
+              ${node.techs.map(t => `<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">${t}</span>`).join('')}
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- CONTENT LIST SECTION -->
+        <div>
+          ${renderInspectorBody(node)}
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    function renderInspectorBody(node) {
+      // 1. If it has existing files (e.g. plano-geral, metodologias)
+      if (node.files && node.files.length > 0) {
+        return `
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="file-check" class="w-4 h-4 text-emerald-400"></i>
+              <span>Arquivos Disponíveis no Diretório (${node.files.length})</span>
+            </h3>
+
+            <div class="grid grid-cols-1 gap-3">
+              ${node.files.map(file => `
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                  <div class="space-y-1.5 max-w-xl">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${file.badgeColor}">${file.category}</span>
+                      <span class="text-[10px] font-mono text-slate-400 flex items-center gap-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        ${file.readTime}
+                      </span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white group-hover:text-brand-orange transition">${file.title}</h4>
+                    <p class="text-xs text-slate-300 leading-relaxed line-clamp-2">${file.description}</p>
+                    <div class="flex flex-wrap gap-1 pt-1">
+                      ${file.tags.map(t => `<span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-900 text-slate-400 border border-slate-800">${t}</span>`).join('')}
+                    </div>
+                  </div>
+
+                  <div class="flex sm:flex-col items-center gap-2 shrink-0">
+                    <button onclick="openDocPreview('${file.url}', '${file.title.replace(/'/g, "\\'")}')" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-medium border border-slate-800 flex items-center justify-center gap-1.5 transition">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                      <span>Pré-visualizar</span>
+                    </button>
+                    <a href="${file.url}" target="_blank" class="w-full px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                      <span>Abrir HTML</span>
+                      <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </a>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // 2. If it's an Epic awaiting SDD refinement (e.g. epic-01-persistencia)
+      if (node.id.startsWith('epic-')) {
+        const slug = node.id;
+        return `
+          <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  Pronto para Refinamento SDD
+                </span>
+                <span class="text-xs font-mono text-slate-400">Padrão de 3 Arquivos HTML por Incremento</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mb-1">Arquivos Planejados para este Épico:</h3>
+              <p class="text-xs text-slate-300">Ao executar a skill de refinamento, os seguintes documentos serão gerados nesta pasta:</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-1.5">
+                <div class="flex items-center gap-2 text-brand-orange">
+                  <i data-lucide="file-text" class="w-4 h-4"></i>
+                  <strong class="text-xs font-mono">1. Especificação (Spec)</strong>
+                </div>
+                <div class="text-[11px] font-mono text-slate-400 break-all">${slug}-spec.html</div>
+                <p class="text-[10px] text-slate-400">Objetivo, escopo delimitado, RFs e RNFs numéricos.</p>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-1.5">
+                <div class="flex items-center gap-2 text-blue-400">
+                  <i data-lucide="git-merge" class="w-4 h-4"></i>
+                  <strong class="text-xs font-mono">2. Plano Técnico (Plan)</strong>
+                </div>
+                <div class="text-[11px] font-mono text-slate-400 break-all">${slug}-plan.html</div>
+                <p class="text-[10px] text-slate-400">Decisões ADRs, arquivos afetados e diagrama Mermaid.</p>
+              </div>
+
+              <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl space-y-1.5">
+                <div class="flex items-center gap-2 text-emerald-400">
+                  <i data-lucide="list-checks" class="w-4 h-4"></i>
+                  <strong class="text-xs font-mono">3. Micro-Tarefas (Tasks)</strong>
+                </div>
+                <div class="text-[11px] font-mono text-slate-400 break-all">${slug}-tasks.html</div>
+                <p class="text-[10px] text-slate-400">Checklist sequencial atômico com salvamento de progresso.</p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800/80 flex items-center justify-between gap-3 flex-wrap">
+              <div class="text-xs text-slate-300">
+                <strong class="text-white block">Deseja iniciar o refinamento técnico deste épico agora?</strong>
+                <span class="text-slate-400">Peça no chat: <code class="text-brand-orange font-mono">/sdd-refinar ${node.epicTitle}</code></span>
+              </div>
+              <button onclick="copyPathToClipboard('/sdd-refinar ${node.epicTitle}', this)" class="px-3 py-1.5 rounded-lg bg-brand-orange hover:bg-brand-orangeHover text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copiar Comando</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. If it's a study topic folder (e.g. backend-java, backend-go)
+      if (node.suggestedTopics) {
+        return `
+          <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                Área de Aprendizado
+              </span>
+              <span class="text-xs font-mono text-slate-400">docs/anotacoes/${node.name}/</span>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-bold text-white mb-1">Tópicos de Estudo Sugeridos para esta Pasta:</h3>
+              <p class="text-xs text-slate-300">Gere anotações conceituais aprofundadas com diagramas Mermaid e exercícios:</p>
+            </div>
+
+            <div class="space-y-2">
+              ${node.suggestedTopics.map(topic => `
+                <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-2">
+                  <span class="text-xs text-slate-200 font-medium">${topic}</span>
+                  <button onclick="copyPathToClipboard('/anotacoes-estudo ${topic}', this)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono flex items-center gap-1 transition">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                    <span>Copiar /anotacoes-estudo</span>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // 4. If it has subdirectories (e.g. docs, refinamento-tecnico, anotacoes)
+      if (node.children && node.children.length > 0) {
+        return `
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="folder-tree" class="w-4 h-4 text-blue-400"></i>
+              <span>Subpastas Disponíveis (${node.children.length})</span>
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${node.children.map(child => `
+                <div onclick="selectTreeNode('${child.id}')" class="glass-card p-4 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer space-y-2 group transition">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-mono font-bold ${child.color || 'text-slate-300'} flex items-center gap-1.5">
+                      <i data-lucide="${child.icon || 'folder'}" class="w-3.5 h-3.5"></i>
+                      ${child.name}
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">${child.badge || 'Pasta'}</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 line-clamp-2">${child.description || child.epicTitle || ''}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      return `<div class="p-6 text-center text-xs text-slate-400">Nenhum detalhe adicional para esta pasta.</div>`;
+    }
+
+    function selectTreeNode(nodeId) {
+      currentSelectedTreeNodeId = nodeId;
+      
+      // Auto-expand parent folders
+      function expandParents(nodes, targetId) {
+        for (const n of nodes) {
+          if (n.id === targetId) return true;
+          if (n.files && n.files.some(f => f.id === targetId)) {
+            expandedTreeNodes.add(n.id);
+            return true;
+          }
+          if (n.children && expandParents(n.children, targetId)) {
+            expandedTreeNodes.add(n.id);
+            return true;
+          }
+        }
+        return false;
+      }
+      expandParents(folderTreeData, nodeId);
+
+      renderFolderExplorer();
+    }
+
+    function toggleTreeNode(nodeId, event) {
+      if (event) event.stopPropagation();
+      if (expandedTreeNodes.has(nodeId)) {
+        expandedTreeNodes.delete(nodeId);
+      } else {
+        expandedTreeNodes.add(nodeId);
+      }
+      renderFolderExplorer();
+    }
+
+    function expandAllTreeNodes() {
+      function addAll(nodes) {
+        nodes.forEach(n => {
+          expandedTreeNodes.add(n.id);
+          if (n.children) addAll(n.children);
+        });
+      }
+      addAll(folderTreeData);
+      renderFolderExplorer();
+    }
+
+    function collapseAllTreeNodes() {
+      expandedTreeNodes.clear();
+      expandedTreeNodes.add('docs');
+      renderFolderExplorer();
+    }
+
+    function filterTreeNodes() {
+      const input = document.getElementById('treeSearchInput');
+      currentTreeSearch = input ? input.value.trim().toLowerCase() : '';
+      renderFolderExplorer();
+    }
+
+    function copyPathToClipboard(path, btnEl) {
+      navigator.clipboard.writeText(path).then(() => {
+        if (btnEl) {
+          const originalHTML = btnEl.innerHTML;
+          btnEl.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span class="text-emerald-400">Copiado!</span>`;
+          lucide.createIcons();
+          setTimeout(() => {
+            btnEl.innerHTML = originalHTML;
+            lucide.createIcons();
+          }, 2000);
+        }
+      });
     }
 
     // =========================================================================
