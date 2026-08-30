@@ -206,4 +206,4 @@ FlowTask-PDI/
 
 ## 📚 Documentações Complementares
 - 📖 [Plano de Refinamento Técnico Completo](docs/flowtask-plano-refinamento-itau.md)
-- 📊 [Dashboard Interativo & System Design](docs/index.html)
+- 📊 [Dashboard Interativo & System Design](https://vitoriabarbosa42.github.io/FlowTask-PDI/)
