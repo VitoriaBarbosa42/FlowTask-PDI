@@ -12,20 +12,30 @@ Esta skill atua como **Arquiteto & Lead de Refinamento Ágil** para conduzir o c
 
 ---
 
-## 🎯 Fluxo de Execução do Refinamento SDD
+## 🎯 Fluxo de Execução do Refinamento SDD (3 Arquivos por Incremento)
 
-1. **Entrevista de Requisitos (`sdd-spec`):**
-   - Entrevista o usuário para extrair Objetivo (O Que e Por Que), Escopo, Fora do Escopo, RFs e RNFs (com números).
-   - Se houver dúvida, **pergunta ao usuário**.
-   - Gera `docs/refinamento-tecnico/<feature>-spec.html`.
+Para cada funcionalidade ou épico refinado, o ciclo gera **3 arquivos HTML separados e interconectados** dentro de `docs/refinamento-tecnico/`:
 
-2. **Planejamento Técnico & ADRs (`sdd-plan`):**
-   - Mapeia arquitetura, arquivos afetados, trade-offs técnicos e diagrama Mermaid.
-   - Gera `docs/refinamento-tecnico/<feature>-plan.html`.
+### 📄 1. Especificação Macro (`<slug>-spec.html`)
+- Ingestão do texto bruto ou transcrição fornecida pelo usuário.
+- Extração de Objetivo, Escopo e RFs.
+- Formulação de perguntas diretas para preencher lacunas de RNFs numéricos, Out-of-Scope e Critérios de Aceite.
+- **Saída:** `docs/refinamento-tecnico/<feature>-spec.html`.
 
-3. **Decomposição em Micro-Tarefas (`sdd-tasks`):**
-   - Quebra o plano em tarefas atômicas sequenciais e verificáveis com checklist persistente em `localStorage`.
-   - Gera `docs/refinamento-tecnico/<feature>-tasks.html`.
+### 📄 2. Planejamento Técnico & Arquitetura (`<slug>-plan.html`)
+- Mapeamento de todos os arquivos afetados (`[NOVO]`, `[ALTERAR]`, `[EXCLUIR]`).
+- Matriz de Decisões de Design (Mini-ADRs) e trade-offs fundamentados.
+- Diagrama arquitetural Mermaid.js e gestão de riscos.
+- **Saída:** `docs/refinamento-tecnico/<feature>-plan.html`.
 
-4. **Indexação no Hub Visual:**
-   - Adiciona os novos links no catálogo de `docs/index.html` e atualiza o `README.md`.
+### 📄 3. Decomposição em Micro-Tarefas (`<slug>-tasks.html`)
+- Lista ordenada de tarefas atômicas sequenciais e verificáveis com checklist persistente via `localStorage`.
+- Critérios de validação (comandos de teste e assertions) por tarefa.
+- **Saída:** `docs/refinamento-tecnico/<feature>-tasks.html`.
+
+---
+
+## 🔗 Registro Automático no Hub Visual
+Ao concluir a geração dos 3 arquivos:
+1. Registra os 3 documentos no array `libraryDocuments` em `docs/index.html`.
+2. Adiciona os links correspondentes no `README.md`.

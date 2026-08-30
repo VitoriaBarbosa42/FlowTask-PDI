@@ -24,32 +24,37 @@ Seu objetivo é extrair o **O Que** e o **Por Que** do negócio, blindar o incre
 
 ---
 
-## 📋 Protocolo de Entrevista de Requisitos (Passo a Passo)
+## 📋 Protocolo de Ingestão & Entrevista de Requisitos
 
-Ao ser acionada, se o usuário fornecer apenas uma ideia bruta ou parcial, a skill deve conduzir a entrevista cobrindo as 4 dimensões obrigatórias:
+A skill foi projetada para receber tanto prompts curtos quanto **textos brutos, transcrições de reuniões/aulas ou notas de voz**. O fluxo de trabalho segue 3 etapas:
 
-### 1. Objetivo & Propósito (O Por Que em 2 linhas)
-- Qual a dor real do usuário que este incremento resolve?
-- Quem é o usuário/consumidor dessa funcionalidade?
-- *Exemplo:* *"Permitir que o usuário filtre tarefas por tags para localizar rapidamente itens de alta prioridade."*
+### Etapa 1: Ingestão & Extração Automática
+Ao receber o texto bruto fornecido pelo usuário:
+1. Extraia e rascunhe automaticamente tudo o que já estiver explícito no texto (Objetivo, RFs, regras de negócio).
+2. **Identifique ativamente as lacunas**:
+   - Falta de métricas nos RNFs (ex: adjetivos como "rápido" ou "escalável" que precisam virar números).
+   - Ausência de itens explícitos no **Fora do Escopo (Out-of-Scope)**.
+   - Critérios de aceite vagos ou não verificáveis.
+   - Ambiguidade em regras de negócio ou fluxos de erro.
 
-### 2. Escopo & Fora do Escopo (Out-of-Scope)
-- **In-Scope:** O que será entregue obrigatoriamente neste ciclo.
-- **Out-of-Scope (Obrigatório):** O que está expressamente **fora** deste ciclo (impede crescimento descontrolado e suposições da IA).
+### Etapa 2: Perguntas Diretas para Preenchimento de Lacunas
+Apresente um resumo do que já foi extraído com sucesso e faça **perguntas diretas e pontuais** para o usuário resolver o que faltou, por exemplo:
+- *"Identifiquei que precisamos listar transações. Qual o tempo máximo de resposta tolerado (ex: < 300ms com 10k registros)?"*
+- *"Para blindar o escopo deste ciclo, podemos confirmar que a exportação em PDF e envio de e-mails estão Fora do Escopo (Out-of-Scope)?"*
+- *"Qual deve ser o código HTTP e mensagem de erro exata quando o valor for zero ou negativo (ex: 422 Unprocessable Entity)?"*
 
-### 3. Requisitos Funcionais (RF) — 1 Requisito por Linha
-- Cada RF deve descrever um comportamento observável único.
-- *Proibido agrupar requisitos:* Requisitos agrupados não podem ser aceitos ou rejeitados separadamente.
+### Etapa 3: Validação & Geração da Especificação
+Após a resposta do usuário (ou quando todas as 5 dimensões canônicas estiverem preenchidas sem ambiguidades), gere o documento formal.
 
-### 4. Requisitos Não-Funcionais (RNF) — O Antídoto do Adjetivo
-- **Proibido usar adjetivos vagos:** *"rápido"*, *"seguro"*, *"escalável"*, *"intuitivo"*.
-- **Todo adjetivo vira número/métrica:**
-  - *Desempenho:* `p95 < 200ms com 10.000 registros`
-  - *Segurança:* `JWT Bearer validado via JWKS, segredos injetados via ENV`
-  - *Persistência:* `dados persistem após reinício da instância`
+---
 
-### 5. Critérios de Aceite Verificáveis (Definition of Done)
-- Cenários caixa-preta objetivos (entradas inválidas, códigos de retorno HTTP, mensagens de erro, persistência).
+## 🧩 Os 5 Elementos Obrigatórios da Spec:
+
+1. **Objetivo & Propósito (O Por Que em 2 linhas):** Qual dor real resolve e para quem.
+2. **Escopo & Fora do Escopo (In-Scope vs. Out-of-Scope):** Delimitação estrita para conter o *Scope Creep*.
+3. **Requisitos Funcionais (RF):** Comportamentos observáveis (**1 requisito por linha**).
+4. **Requisitos Não-Funcionais (RNF):** Métricas objetivas (**todo adjetivo vira número**).
+5. **Critérios de Aceite Verificáveis:** Checklists de testes caixa-preta determinísticos.
 
 ---
 
