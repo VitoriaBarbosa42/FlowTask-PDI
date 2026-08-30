@@ -235,6 +235,9 @@ FlowTask-PDI/
 │       ├── epic-03-go-service/              # Specs, Plans e Tasks do Epic 3
 │       ├── epic-04-observabilidade/         # Specs, Plans e Tasks do Epic 4
 │       ├── epic-05-iac-terraform/           # Specs, Plans e Tasks do Epic 5
+│       │   ├── terraform-infra-spec.html    # 📝 1. Especificação Técnica Canônica & FinOps
+│       │   ├── terraform-infra-plan.html    # 📐 2. Planejamento Técnico, HCL & Mini-ADRs
+│       │   └── terraform-infra-tasks.html   # 📋 3. Micro-Tarefas & Checklist Interativo
 │       └── epic-06-cicd-qualidade/          # Specs, Plans e Tasks do Epic 6
 ├── flowtask/                                # Aplicação Spring Boot (Java 25)
 │   ├── src/main/java/br/com/flowtask/       # Controllers, Services, Models e Security
@@ -253,6 +256,10 @@ FlowTask-PDI/
 
 - 🌟 **[Portal Central & Hub Interativo (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
 - 📋 **[Plano de Refinamento Técnico & Itaú Prep](docs/refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html)**
+- 📦 **Epic 5 — Infraestrutura como Código (Terraform & LocalStack):**
+  - 📝 **[1. Especificação Técnica & Relatório FinOps](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-spec.html)**
+  - 📐 **[2. Planejamento Técnico, HCL & ADRs](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-plan.html)**
+  - 📋 **[3. Micro-Tarefas & Checklist de Implementação](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-tasks.html)**
 - 📐 **[O Ciclo e as Fases do SDD](docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html)**
 - 📐 **[Anatomia de uma Especificação (Spec)](docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
