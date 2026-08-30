@@ -37,9 +37,13 @@ Esta skill atua como um **Tutor e Mentor Técnico Especialista**, transformando 
 ---
 
 ### Passo 2: Estrutura de Diretórios e Verificação de Conflitos
-1. Verifique se a pasta `docs/anotacoes/` existe. Se não existir, crie-a.
-2. Identifique a categoria lógica e o nome do arquivo a partir do assunto (ex: `docs/anotacoes/kafka/particoes.html`, `docs/anotacoes/spring-boot/injecao-dependencias.html`, `docs/anotacoes/banco-de-dados/postgres-vs-mongo.html`).
-3. **Verificação de Arquivo Existente**:
+1. Verifique a categoria correta dentro de `docs/anotacoes/`:
+   - `docs/anotacoes/metodologias/` (SDD, Engenharia de Requisitos, Metodologias Ágeis)
+   - `docs/anotacoes/backend-java/` (Java 25, Spring Boot, JPA, Spring Security)
+   - `docs/anotacoes/backend-go/` (Go, Gin, Goroutines, Channels, Microsserviços)
+   - `docs/anotacoes/arquitetura-infra/` (Docker, Kafka, Redis, MongoDB, Terraform)
+   - `docs/anotacoes/testes-qa/` (Testcontainers, JUnit 5, Mockito, QA)
+2. **Verificação de Arquivo Existente**:
    - Se o arquivo de destino `.html` já existir no diretório, **pergunte ao usuário**:
      > *"Já existe uma anotação sobre este tema em `docs/anotacoes/<caminho>.html`. Você prefere que eu:*
      > 1. *Complemente a anotação existente com as novas informações.*
@@ -56,28 +60,35 @@ Gere o arquivo `.html` completo utilizando as bibliotecas CDN para visual modern
 - **Mermaid.js CDN**: `<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>` com inicialização no tema escuro.
 
 #### Estrutura Visual Obrigatória do Documento HTML:
-1. **Cabeçalho & Metadados**:
-   - Título principal, Badge de Categoria, Nível de Dificuldade, Data e Botão de Imprimir/Exportar.
-2. **📌 Resumo Rápido / Visão Geral**:
+1. **Cabeçalho & Navegação**:
+   - Botão *"Voltar ao Hub"* (`../../index.html`), link *"Quadro Interativo"* e botão *"Imprimir / PDF"*.
+2. **Metadados & Badges**:
+   - Título principal, Badge de Categoria, Nível de Dificuldade, Tempo Estimado de Leitura e Data.
+3. **📌 Resumo Rápido / Visão Geral**:
    - Caixa de destaque (Callout) com síntese de 2 a 3 frases sobre o que é o conceito e seu maior benefício.
-3. **💡 1. Por Que Isso Importa? (Contexto & Aplicação Prática)**:
+4. **💡 1. Por Que Isso Importa? (Contexto & Aplicação Prática)**:
    - Problema real que resolve, cenários de uso recomendados e trade-offs (quando NÃO usar).
-4. **🧩 2. Explicação Conceitual & Analogia**:
+5. **🧩 2. Explicação Conceitual & Analogia**:
    - Modelo mental intuitivo, analogia prática do mundo real e funcionamento interno por baixo dos panos.
-5. **📊 3. Representação Visual (Mermaid Diagram)**:
+6. **📊 3. Representação Visual (Mermaid Diagram)**:
    - Bloco `<pre class="mermaid">...</pre>` com fluxos, arquiteturas, ciclo de vida ou comparações.
-6. **💻 4. Exemplo Prático & Hands-on**:
+7. **💻 4. Exemplo Prático & Hands-on**:
    - Código, query SQL ou configuração comentada linha a linha, com botão de copiar código.
-7. **⚠️ 5. Erros Comuns, Boas Práticas & Dica para Entrevistas**:
+8. **⚠️ 5. Erros Comuns, Boas Práticas & Dica para Entrevistas**:
    - Armadilhas frequentes de iniciantes, padrões de mercado e como defender o assunto em entrevistas.
-8. **📌 6. TL;DR (Pontos-Chave para Revisão)**:
+9. **📌 6. TL;DR (Pontos-Chave para Revisão)**:
    - Lista resumida com os 3 a 5 pontos fundamentais para revisão rápida.
-9. **🔗 7. Referências & Material Complementar**:
+10. **🔗 7. Referências & Material Complementar**:
    - Links reais para documentações oficiais e RFCs.
 
 ---
 
-### Passo 4: Geração de Exercícios em HTML (Somente se Solicitado Explicitamente)
+### Passo 4: Registro Automático no Hub (`docs/index.html`)
+Ao gerar o novo material de estudo, adicione um novo objeto ao array `libraryDocuments` no arquivo `docs/index.html` contendo `id`, `title`, `category`, `categoryLabel`, `type`, `url`, `description`, `difficulty`, `readTime`, `tags`, `icon`, `badgeColor` e `date`.
+
+---
+
+### Passo 5: Geração de Exercícios em HTML (Somente se Solicitado Explicitamente)
 
 Quando o usuário pedir exercícios (ex: *"crie exercícios sobre esse tema"* ou *"faça exercícios para fixar"*), crie o arquivo `docs/anotacoes/<categoria>/<tema>-exercicios.html` contendo:
 
@@ -93,9 +104,11 @@ Quando o usuário pedir exercícios (ex: *"crie exercícios sobre esse tema"* ou
 ## 🔍 Checklist de Qualidade da Anotação HTML
 
 Antes de finalizar o arquivo, valide:
-- [ ] O arquivo foi salvo com extensão `.html` dentro da pasta `docs/anotacoes/` para publicação no GitHub Pages?
+- [ ] O arquivo foi salvo com extensão `.html` dentro da subpasta correta de `docs/anotacoes/` para publicação no GitHub Pages?
+- [ ] O link de retorno ao Hub aponta para `../../index.html` (2 níveis acima)?
 - [ ] O HTML é auto-contido e abre diretamente no navegador com Tailwind, fontes e ícones?
 - [ ] Contém pelo menos 1 diagrama visual em Mermaid válido renderizado via `mermaid.js`?
+- [ ] O documento foi indexado no array `libraryDocuments` de `docs/index.html`?
 - [ ] As explicações práticas, analogias e exemplos detalham o conceito com profundidade?
 - [ ] A seção de referências contém apenas URLs reais e confiáveis?
 - [ ] Se houver exercícios, o gabarito está interativo e protegido contra spoilers?

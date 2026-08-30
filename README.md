@@ -12,17 +12,19 @@
 
 ---
 
-## 🎯 Hub Visual de Sprints, Releases & Central de Conhecimento
+## 🎯 Hub Visual, Portal de Engenharia & Central de Conhecimento
 
-Para acompanhar o planejamento completo de sprints, checklists interativos, simulador de arquitetura e catálogo de anotações didáticas:
+O **FlowTask** conta com um portal visual rico publicado diretamente no **GitHub Pages**, estruturado como um hub central de engenharia e estudos:
 
-👉 **[Acessar Hub Visual Interativo no GitHub Pages](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
+👉 **[Acessar Portal Central & Hub de Documentação (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
 
-- 📋 **Quadro Kanban Interativo**: Com suporte a *drag & drop*, filtros por épicos e salvamento automático do progresso no navegador.
-- 📅 **Sprint Roadmap & Milestones**: Planejamento sequencial dos 6 ciclos de entrega e metas *Stretch*.
-- 🏛️ **System Design Explorer**: Diagrama visual interativo com simulação de eventos e justificativas de cada tecnologia para entrevistas técnicas.
-- ⚖️ **Matriz de Trade-offs & ADRs**: Comparativo prático de decisões (ex: Postgres vs Mongo, Kafka vs RabbitMQ, Go vs Java para workers).
-- 📚 **Central de Anotações & Docs**: Catálogo subdividido por categorias (Metodologias, Backend, Arquitetura, QA, etc.) com busca em tempo real e visualizador integrado.
+### 🌟 Módulos Disponíveis no Portal:
+- 🏠 **Home & Hub do Ecossistema**: Visão geral da arquitetura, stack tecnológica e atalhos rápidos em grade.
+- 📋 **Quadro Kanban Ágil (Tela Separada)**: Gestão interativa de tarefas dos 6 épicos com suporte a *drag & drop*, filtros avançados e persistência do progresso local.
+- 📁 **Explorador Hierárquico de Pastas & Documentação (`docs/`)**: Navegador visual interativo unificado para inspecionar specs SDD (`docs/refinamento-tecnico/`), planos de arquitetura, anotações de estudo (`docs/anotacoes/`) e relatórios técnicos.
+- 🏛️ **System Design Explorer**: Diagrama visual interativo da topologia com simulador em tempo real do ciclo de eventos Kafka.
+- ⚖️ **Matriz de Trade-offs & ADRs**: Comparativo técnico de decisões (Postgres vs Mongo, Kafka vs RabbitMQ, Go vs Java) e simulador de entrevistas Itaú.
+- 📅 **Sprint Roadmap & Releases**: Sequenciamento lógico dos 6 ciclos de entrega e metas *Stretch*.
 
 ---
 
@@ -96,6 +98,22 @@ flowchart TD
 
 ---
 
+## 🤖 Suíte de Skills SDD para Agentes de IA (`.agents/skills/`)
+
+O repositório possui uma suíte completa de habilidades operacionais para desenvolvimento orientado a especificações:
+
+| Skill | Comando | Descrição & Entregável |
+| :--- | :--- | :--- |
+| **Refinamento Geral** | `/sdd-refinar <tema>` | 🚀 Orquestrador mestre gerando os 3 arquivos HTML do incremento |
+| **Fase 1: Spec** | `/sdd-spec` | 📝 Entrevista de requisitos RF/RNF e geração de `<feature>-spec.html` |
+| **Fase 2: Plan** | `/sdd-plan` | 📐 Planejamento técnico, ADRs e diagramas em `<feature>-plan.html` |
+| **Fase 3: Tasks** | `/sdd-tasks` | 📋 Decomposição em micro-tarefas com checklist em `<feature>-tasks.html` |
+| **Fase 4: Impl** | `/sdd-implement` | 💻 Implementação com commits semânticos atômicos por tarefa |
+| **Fase 5: Verify** | `/sdd-verify` | 🧪 Auditoria de critérios de aceite e relatório em `<feature>-qa.html` |
+| **Anotações de Estudo** | `/anotacoes-estudo` | 📚 Geração de material didático em `docs/anotacoes/<categoria>/` |
+
+---
+
 ## 🚀 Como Rodar o Projeto
 
 ### Pré-requisitos
@@ -127,7 +145,7 @@ docker-compose ps
 - **PostgreSQL**: `localhost:5432` *(User: `postgres` | Senha: `postgres` | DB: `flowtask`)*
 - **pgAdmin 4**: [http://localhost:5050](http://localhost:5050) *(Login: `admin@flowtask.com` | Senha: `admin`)*
 - **Keycloak IAM**: [http://localhost:8080](http://localhost:8080) *(Login: `admin` | Senha: `admin`)*
-- **Hub Visual (Board & Docs)**: abra o arquivo [`docs/index.html`](docs/index.html) no navegador
+- **Portal Central (Hub & Docs)**: abra o arquivo [`docs/index.html`](docs/index.html) no navegador
 
 ---
 
@@ -189,15 +207,35 @@ docker-compose down -v
 
 ```text
 FlowTask-PDI/
-├── .agents/                                 # Configurações e Skills para Agentes de IA
-│   └── skills/anotacoes-estudo/             # Skill de geração de anotações didáticas em HTML
+├── .agents/                                 # Configurações e Suíte de Skills SDD para Agentes de IA
+│   └── skills/
+│       ├── sdd-refinar/                     # 🚀 Orquestrador de Refinamento Técnico Completo
+│       ├── sdd-spec/                        # 📝 Fase 1: Levantamento de Requisitos RF/RNF & Spec HTML
+│       ├── sdd-plan/                        # 📐 Fase 2: Planejamento Técnico, Arquitetura & ADRs HTML
+│       ├── sdd-tasks/                       # 📋 Fase 3: Micro-Tarefas Atômicas & Checklist Interativo
+│       ├── sdd-implement/                   # 💻 Fase 4: Execução com Commits Semânticos
+│       ├── sdd-verify/                      # 🧪 Fase 5: Auditoria de Critérios de Aceite & QA HTML
+│       └── anotacoes-estudo/                # 📚 Gerador de material didático em HTML
 ├── docs/                                    # 🌐 Publicação no GitHub Pages
-│   ├── index.html                           # 🌟 Hub Visual (Kanban, Sprints, System Design & Catálogo)
-│   ├── anotacoes/                           # 📚 Anotações didáticas categorizadas
-│   │   └── metodologias/
-│   │       └── spec-driven-development-fundamentos.html
-│   └── refinamento-tecnico/                 # 📋 Documentação de Refinamento Técnico & Itaú Prep
-│       └── flowtask-plano-refinamento-itau.html # Versão estilizada e interativa em HTML
+│   ├── index.html                           # 🌟 Portal Central & Hub de Módulos
+│   ├── anotacoes/                           # 📚 Central de Estudos & Didática (por Categoria)
+│   │   ├── metodologias/
+│   │   │   ├── anatomia-de-uma-especificacao.html
+│   │   │   ├── ciclo-e-fases-do-sdd.html
+│   │   │   └── spec-driven-development-fundamentos.html
+│   │   ├── backend-java/                    # Anotações e exercícios de Java & Spring Boot
+│   │   ├── backend-go/                      # Anotações e exercícios de Go
+│   │   ├── arquitetura-infra/               # Anotações de Docker, Kafka e Terraform
+│   │   └── testes-qa/                       # Anotações de Testcontainers e JUnit
+│   └── refinamento-tecnico/                 # 📋 Central de Refinamento Técnico & SDD (por Épico)
+│       ├── plano-geral/
+│       │   └── flowtask-plano-refinamento-itau.html # Visão macro de Sprints & Preparação Itaú
+│       ├── epic-01-persistencia/            # Specs, Plans e Tasks do Epic 1
+│       ├── epic-02-mensageria/              # Specs, Plans e Tasks do Epic 2
+│       ├── epic-03-go-service/              # Specs, Plans e Tasks do Epic 3
+│       ├── epic-04-observabilidade/         # Specs, Plans e Tasks do Epic 4
+│       ├── epic-05-iac-terraform/           # Specs, Plans e Tasks do Epic 5
+│       └── epic-06-cicd-qualidade/          # Specs, Plans e Tasks do Epic 6
 ├── flowtask/                                # Aplicação Spring Boot (Java 25)
 │   ├── src/main/java/br/com/flowtask/       # Controllers, Services, Models e Security
 │   ├── src/main/resources/                  # application.yaml e schema.sql
@@ -213,6 +251,8 @@ FlowTask-PDI/
 
 ## 📚 Documentações Complementares & GitHub Pages
 
-- 🌟 **[Hub Visual & Dashboard Interativo (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
-- 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)**
+- 🌟 **[Portal Central & Hub Interativo (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
+- 📋 **[Plano de Refinamento Técnico & Itaú Prep](docs/refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html)**
+- 📐 **[O Ciclo e as Fases do SDD](docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html)**
+- 📐 **[Anatomia de uma Especificação (Spec)](docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
