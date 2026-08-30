@@ -16,7 +16,7 @@
 
 Para acompanhar o planejamento completo de sprints, checklists interativos, simulador de arquitetura e catálogo de anotações didáticas:
 
-👉 **[Abrir Hub Visual Interativo (`docs/index.html`)](docs/index.html)**
+👉 **[Acessar Hub Visual Interativo no GitHub Pages](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
 
 - 📋 **Quadro Kanban Interativo**: Com suporte a *drag & drop*, filtros por épicos e salvamento automático do progresso no navegador.
 - 📅 **Sprint Roadmap & Milestones**: Planejamento sequencial dos 6 ciclos de entrega e metas *Stretch*.
@@ -213,7 +213,6 @@ FlowTask-PDI/
 
 ## 📚 Documentações Complementares & GitHub Pages
 
-- 🌟 **[Hub Visual & Dashboard Interativo](docs/index.html)**
+- 🌟 **[Hub Visual & Dashboard Interativo (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
 - 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
-
