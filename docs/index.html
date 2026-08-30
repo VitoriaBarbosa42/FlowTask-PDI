@@ -1503,13 +1503,13 @@
     // =========================================================================
     const libraryCategories = [
       { id: "all", label: "Todos", icon: "layers" },
+      { id: "refinamento", label: "Refinamento & Specs", icon: "clipboard-list", color: "blue" },
       { id: "metodologias", label: "Metodologias & SDD", icon: "git-merge", color: "orange" },
-      { id: "backend", label: "Backend & Go", icon: "server", color: "go" },
       { id: "spring", label: "Java & Spring Boot", icon: "coffee", color: "blue" },
+      { id: "backend", label: "Go & Microsserviços", icon: "server", color: "go" },
       { id: "arquitetura", label: "Arquitetura & Infra", icon: "network", color: "purple" },
-      { id: "review", label: "Code Reviews & SOLID", icon: "code-2", color: "emerald" },
       { id: "qa", label: "Testes & QA", icon: "check-circle-2", color: "accent" },
-      { id: "docs", label: "Documentação & PDI", icon: "book-open", color: "amber" }
+      { id: "docs", label: "PDI & Entrevistas", icon: "book-open", color: "amber" }
     ];
 
     const libraryDocuments = [
@@ -1564,10 +1564,10 @@
       {
         id: "plano-refinamento-itau",
         title: "Plano de Refinamento Técnico & Preparação Itaú",
-        category: "docs",
-        categoryLabel: "Documentação & PDI",
+        category: "refinamento",
+        categoryLabel: "Refinamento & Specs",
         type: "Refinamento Técnico",
-        url: "./refinamento-tecnico/flowtask-plano-refinamento-itau.html",
+        url: "./refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html",
         description: "Refinamento completo de 6 épicos, mapa de dependências com Mermaid, distribuição em 10 sprints e simulador de perguntas para entrevistas técnicas.",
         difficulty: "Avançado",
         readTime: "20 min",

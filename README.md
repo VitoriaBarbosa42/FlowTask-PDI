@@ -200,13 +200,24 @@ FlowTask-PDI/
 │       └── anotacoes-estudo/                # 📚 Gerador de material didático em HTML
 ├── docs/                                    # 🌐 Publicação no GitHub Pages
 │   ├── index.html                           # 🌟 Hub Visual (Kanban, Sprints, System Design & Catálogo)
-│   ├── anotacoes/                           # 📚 Anotações didáticas categorizadas
-│   │   └── metodologias/
-│   │       ├── anatomia-de-uma-especificacao.html
-│   │       ├── ciclo-e-fases-do-sdd.html
-│   │       └── spec-driven-development-fundamentos.html
-│   └── refinamento-tecnico/                 # 📋 Documentação de Refinamento Técnico & Itaú Prep
-│       └── flowtask-plano-refinamento-itau.html # Versão estilizada e interativa em HTML
+│   ├── anotacoes/                           # 📚 Central de Estudos & Didática (por Categoria)
+│   │   ├── metodologias/
+│   │   │   ├── anatomia-de-uma-especificacao.html
+│   │   │   ├── ciclo-e-fases-do-sdd.html
+│   │   │   └── spec-driven-development-fundamentos.html
+│   │   ├── backend-java/                    # Anotações e exercícios de Java & Spring Boot
+│   │   ├── backend-go/                      # Anotações e exercícios de Go
+│   │   ├── arquitetura-infra/               # Anotações de Docker, Kafka e Terraform
+│   │   └── testes-qa/                       # Anotações de Testcontainers e JUnit
+│   └── refinamento-tecnico/                 # 📋 Central de Refinamento Técnico & SDD (por Épico)
+│       ├── plano-geral/
+│       │   └── flowtask-plano-refinamento-itau.html # Visão macro de Sprints & Preparação Itaú
+│       ├── epic-01-persistencia/            # Specs, Plans e Tasks do Epic 1
+│       ├── epic-02-mensageria/              # Specs, Plans e Tasks do Epic 2
+│       ├── epic-03-go-service/              # Specs, Plans e Tasks do Epic 3
+│       ├── epic-04-observabilidade/         # Specs, Plans e Tasks do Epic 4
+│       ├── epic-05-iac-terraform/           # Specs, Plans e Tasks do Epic 5
+│       └── epic-06-cicd-qualidade/          # Specs, Plans e Tasks do Epic 6
 ├── flowtask/                                # Aplicação Spring Boot (Java 25)
 │   ├── src/main/java/br/com/flowtask/       # Controllers, Services, Models e Security
 │   ├── src/main/resources/                  # application.yaml e schema.sql
@@ -223,7 +234,7 @@ FlowTask-PDI/
 ## 📚 Documentações Complementares & GitHub Pages
 
 - 🌟 **[Hub Visual & Dashboard Interativo (GitHub Pages)](https://vitoriabarbosa42.github.io/FlowTask-PDI/)** *(ou localmente em [`docs/index.html`](docs/index.html))*
-- 📋 **[Plano de Refinamento Técnico (HTML Interativo)](docs/refinamento-tecnico/flowtask-plano-refinamento-itau.html)**
+- 📋 **[Plano de Refinamento Técnico & Itaú Prep](docs/refinamento-tecnico/plano-geral/flowtask-plano-refinamento-itau.html)**
 - 📐 **[O Ciclo e as Fases do SDD](docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html)**
 - 📐 **[Anatomia de uma Especificação (Spec)](docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
