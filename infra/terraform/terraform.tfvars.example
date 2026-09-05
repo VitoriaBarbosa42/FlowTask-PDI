@@ -1,0 +1,25 @@
+# Template de exemplo para substituição de valores locais
+# Para usar, copie este arquivo como "terraform.tfvars":
+# cp terraform.tfvars.example terraform.tfvars
+
+# Portas Customizadas (opcional)
+postgres_port      = 5432
+pgadmin_port       = 5050
+mongo_port         = 27017
+mongo_express_port = 8081
+redis_port         = 6379
+kafka_port         = 9092
+keycloak_port      = 8080
+localstack_port    = 4566
+
+# Credenciais Locais (opcional)
+postgres_user      = "postgres"
+postgres_password  = "postgres"
+postgres_db        = "flowtask"
+
+mongo_user         = "root"
+mongo_password     = "root"
+mongo_db           = "pdi"
+
+# Persistência
+clear_data_on_destroy = false

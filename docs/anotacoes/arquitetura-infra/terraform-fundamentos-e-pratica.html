@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terraform HCL, Redes Bridge & Terminal Linux — Fundamentos & Prática | FlowTask PDI</title>
+  <meta name="description" content="Guia didático de estudo sobre Infraestrutura como Código com Terraform, Providers, Statefile, Redes Bridge no Docker, Sockets e comandos essenciais de Linux (touch, echo, cat).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#8b5cf6',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#FF6200',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(139, 92, 246, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-purple selection:text-white pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-600/25">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Arquitetura & Infraestrutura</span>
+            <span class="text-slate-500">•</span>
+            <span>IaC & Linux</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Terraform HCL, Redes Bridge & Terminal Linux</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Voltar ao Hub</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Imprimir / PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN ARTICLE CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO / TITLE BLOCK -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center gap-2.5 mb-4">
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center gap-1.5">
+          <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+          DevOps & IaC
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          Iniciante ao Intermediário
+        </span>
+        <span class="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+          Estudo Prático • 15 min de leitura
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          04 Set 2026
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">
+        Terraform HCL, Redes Bridge no Docker & Manipulação de Arquivos no Linux
+      </h1>
+      <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-6">
+        Guia didático consolidado da Fase 1 da Epic 5: os fundamentos de Infraestrutura como Código (IaC), ciclo de vida dos comandos Terraform, o papel dos Sockets e Redes Bridge, além de técnicas e armadilhas do terminal Linux/Bash.
+      </p>
+
+      <!-- Quick Summary Box -->
+      <div class="bg-slate-950/80 border-l-4 border-l-purple-500 p-4 sm:p-5 rounded-r-2xl space-y-2">
+        <div class="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase tracking-wider font-mono">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span>Resumo Rápido em 3 Frases</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+          O <strong>Terraform</strong> substitui scripts imperativos manuais por uma declaração arquitetural <strong>idempotente</strong> onde o arquivo de estado (<code class="font-mono text-purple-300">terraform.tfstate</code>) atua como fonte da verdade. Ele gerencia containers Docker falando diretamente com o daemon pelo <strong>Unix Socket</strong> (<code class="font-mono text-purple-300">/var/run/docker.sock</code>) e orquestra a comunicação entre serviços por meio de uma <strong>Rede Bridge customizada</strong>, que fornece DNS interno automático. No terminal Linux, comandos como <code class="font-mono text-purple-300">touch</code>, <code class="font-mono text-purple-300">echo</code> e <code class="font-mono text-purple-300">cat</code> aceleram a criação de arquivos, exigindo atenção com a expansão de histórico do Bash (<code class="font-mono text-amber-300">!</code>).
+        </p>
+      </div>
+    </div>
+
+    <!-- 1. POR QUE ISSO IMPORTA? -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-5">
+      <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="lightbulb" class="w-5 h-5"></i>
+        <h2>1. Por Que Isso Importa? (Contexto & Problema Real)</h2>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p>
+          Em ambientes de desenvolvimento de microsserviços modernos (como o FlowTask, que reúne PostgreSQL, MongoDB, Redis, Kafka e Keycloak), existem três formas históricas de gerenciar a infraestrutura local:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-rose-500 space-y-2">
+            <span class="text-xs font-mono font-bold text-rose-400 uppercase flex items-center gap-1.5">
+              <i data-lucide="x-circle" class="w-4 h-4"></i> 1. Manual no Terminal
+            </span>
+            <p class="text-slate-400 text-xs">
+              Rodar comandos soltos como <code>docker run ...</code> manualmente. Propenso a erros humanos, esquecimento de flags, IPs mutáveis e impossível de reproduzir exatamente na máquina de outro colega.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-amber-500 space-y-2">
+            <span class="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-1.5">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i> 2. Docker Compose Puro
+            </span>
+            <p class="text-slate-400 text-xs">
+              Melhora a repetibilidade através de um arquivo <code>yaml</code>, mas não possui <strong>gerenciamento de estado (statefile)</strong>, não provisiona recursos de nuvem (AWS S3, SQS no LocalStack) com a mesma linguagem e tem modularização limitada.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-500 space-y-2">
+            <span class="text-xs font-mono font-bold text-emerald-400 uppercase flex items-center gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4"></i> 3. Terraform (IaC)
+            </span>
+            <p class="text-slate-400 text-xs">
+              <strong>Padrão da indústria</strong>: Código declarativo HCL, módulos reutilizáveis e isolados, planejamento com preview antes de aplicar (<code>terraform plan</code>) e paridade total entre ambiente local e nuvem real.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. EXPLICAÇÃO CONCEITUAL: TERRAFORM, SOCKETS E REDES BRIDGE -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="cpu" class="w-5 h-5"></i>
+        <h2>2. Explicação Conceitual & Modelos Mentais</h2>
+      </div>
+
+      <!-- Tópico 1: O que é o Terraform State & Ciclo de Vida -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-mono text-xs">A</span>
+          <span>O Ciclo de Vida do Terraform e a "Fonte da Verdade" (State)</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          Diferente de scripts Bash comuns que executam comandos sequenciais sem memória, o Terraform opera por **Convergência de Estado**. Ele compara constantemente 3 entidades:
+        </p>
+
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <span class="text-purple-400 font-bold block mb-1">1. Código Desejado</span>
+            <p class="text-slate-400 font-sans">O que você escreveu nos arquivos <code>.tf</code> (ex: quero uma rede bridge com nome flowtask-network).</p>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <span class="text-indigo-400 font-bold block mb-1">2. terraform.tfstate</span>
+            <p class="text-slate-400 font-sans">O registro em JSON com IDs, gateways e propriedades que o Terraform já provisionou no passado.</p>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <span class="text-emerald-400 font-bold block mb-1">3. Mundo Real (Docker)</span>
+            <p class="text-slate-400 font-sans">O que de fato existe ativo dentro do daemon do Docker na sua máquina.</p>
+          </div>
+        </div>
+
+        <div class="text-xs text-slate-300 space-y-1 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+          <span class="font-bold text-slate-200">Comandos Fundamentais na Prática:</span>
+          <ul class="list-disc list-inside space-y-1 text-slate-400">
+            <li><code class="text-purple-300 font-mono">terraform init</code>: Inicializa o diretório de trabalho, baixa os providers declarados e gera o <code class="text-slate-300">.terraform.lock.hcl</code>.</li>
+            <li><code class="text-purple-300 font-mono">terraform validate</code>: Faz verificação estática de sintaxe e consistência de tipos sem criar nada.</li>
+            <li><code class="text-purple-300 font-mono">terraform plan</code>: Calcula o diferencial (delta) entre o código, o estado e o mundo real, gerando um preview do que será adicionado (+), alterado (~) ou destruído (-).</li>
+            <li><code class="text-purple-300 font-mono">terraform apply</code>: Aplica as mudanças no provedor (Docker/AWS) e atualiza atomicamente o <code class="text-slate-300">terraform.tfstate</code>.</li>
+            <li><code class="text-purple-300 font-mono">terraform destroy</code>: Destrói de forma limpa e na ordem inversa de dependências todos os recursos criados.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tópico 2: Sockets -->
+      <div class="space-y-3 pt-4 border-t border-slate-800/60">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-mono text-xs">B</span>
+          <span>O que é um Socket e por que usamos <code class="font-mono text-indigo-300 text-xs">/var/run/docker.sock</code>?</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          A palavra <strong>socket</strong> significa literalmente <em>"tomada"</em> ou <em>"encaixe"</em>. Na computação, é o ponto final de um canal bidirecional de comunicação entre dois programas.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-2">
+            <span class="font-bold text-cyan-400 font-mono flex items-center gap-1.5">
+              <i data-lucide="globe" class="w-4 h-4"></i> Socket de Rede (TCP/IP)
+            </span>
+            <p class="text-slate-400 leading-relaxed">
+              Comunicação via placa de rede (ou localhost) usando <strong>IP + Porta</strong> (ex: <code class="text-slate-300">127.0.0.1:5432</code>). Usado por clientes web, navegadores e conexões externas. Possui overhead de empacotamento TCP/IP.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-2">
+            <span class="font-bold text-purple-400 font-mono flex items-center gap-1.5">
+              <i data-lucide="hard-drive" class="w-4 h-4"></i> Unix Domain Socket (IPC)
+            </span>
+            <p class="text-slate-400 leading-relaxed">
+              Comunicação entre processos que vivem dentro do <strong>mesmo sistema operacional Linux</strong>. Representado como um arquivo especial (<code class="text-slate-300">/var/run/docker.sock</code>). Troca dados direto na memória RAM do kernel: é ultrarrápido e seguro por usar permissões de arquivo comuns do Linux.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tópico 3: O que é uma Rede Bridge? -->
+      <div class="space-y-3 pt-4 border-t border-slate-800/60">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-mono text-xs">C</span>
+          <span>O que é uma Rede Bridge (Ponte) no Docker?</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          No mundo físico das redes, uma <strong>bridge (ponte)</strong> é um dispositivo que interliga dois segmentos de rede no nível de enlace (Camada 2 do Modelo OSI), comportando-se como um switch inteligente que encaminha pacotes com base nos endereços MAC.
+        </p>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          No Docker, o driver <strong>bridge</strong> cria uma <strong>ponte de rede de software (switch virtual)</strong> dentro do kernel do Linux na sua máquina. Todos os containers conectados a essa bridge recebem seus próprios IPs virtuais em uma mesma sub-rede privada (ex: <code class="font-mono text-slate-200">172.23.0.0/16</code>).
+        </p>
+
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+          <span class="text-amber-400 font-bold font-mono uppercase tracking-wider block">
+            ⚡ A Diferença Crucial: Default Bridge vs. User-Defined Bridge
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-rose-400 font-bold block mb-1">Default Bridge (Padrão do Docker)</span>
+              <ul class="text-slate-400 space-y-1 list-disc list-inside">
+                <li>Todos os containers sem rede caem nela.</li>
+                <li><strong>Não tem DNS embutido</strong>: um container não acha o outro pelo nome! Você é forçado a usar IPs fixos ou links legados.</li>
+                <li>Sem isolamento entre projetos diferentes.</li>
+              </ul>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-emerald-400 font-bold block mb-1">User-Defined Bridge (Criada por nós no Terraform)</span>
+              <ul class="text-slate-400 space-y-1 list-disc list-inside">
+                <li>Nomeada como <code class="text-emerald-300">flowtask-network</code>.</li>
+                <li><strong>DNS Automático Ativo</strong>: o container do Keycloak conecta no Postgres usando simplesmente a URL <code class="text-emerald-300">postgres:5432</code>!</li>
+                <li>Total isolamento contra outros containers da máquina.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. DIAGRAMAS VISUAIS MERMAID -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2.5 text-brand-orange font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="network" class="w-5 h-5"></i>
+        <h2>3. Representação Visual (Topologia & Fluxos)</h2>
+      </div>
+
+      <!-- Diagrama 1: Arquitetura da Fase 1 -->
+      <div class="space-y-2">
+        <span class="text-xs font-mono font-bold text-slate-300 block">
+          Diagrama 1: Do Código HCL ao Docker Daemon via Unix Socket
+        </span>
+        <div class="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 overflow-x-auto">
+          <div class="mermaid text-center">
+flowchart LR
+    subgraph DevMachine ["Terminal Linux / WSL 2"]
+        HCL["Arquivos HCL<br/>(providers.tf, main.tf, variables.tf)"]
+        TFCLI["Terraform Engine<br/>(v1.14.1)"]
+        LockFile[".terraform.lock.hcl<br/>(Lockfile Criptográfico)"]
+        State[".terraform.tfstate<br/>(Fonte da Verdade)"]
+    end
+
+    subgraph OSKernel ["Kernel Linux / IPC"]
+        Socket["Unix Domain Socket<br/>/var/run/docker.sock"]
+    end
+
+    subgraph DockerEngine ["Docker Desktop Daemon"]
+        NetRec["docker_network.flowtask_net<br/>(flowtask-network: 172.23.0.0/16)"]
+        DNS["Servidor DNS Interno<br/>(Resolução Automática de Nomes)"]
+    end
+
+    HCL --> TFCLI
+    LockFile -.-> TFCLI
+    TFCLI -->|Chamadas IPC ultrarrápidas| Socket
+    Socket --> DockerEngine
+    DockerEngine --> NetRec
+    NetRec --- DNS
+    TFCLI -->|Atualiza após o apply| State
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagrama 2: Rede Bridge e DNS Interno -->
+      <div class="space-y-2 pt-4">
+        <span class="text-xs font-mono font-bold text-slate-300 block">
+          Diagrama 2: Como a Rede Bridge Interliga Containers com DNS Automático
+        </span>
+        <div class="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 overflow-x-auto">
+          <div class="mermaid text-center">
+flowchart TD
+    subgraph BridgeNetwork ["Rede Virtual: flowtask-network (172.23.0.0/16)"]
+        Switch["Switch Virtual Linux (Bridge)"]
+        DNSBridge["DNS Interno do Docker"]
+        
+        C_Postgres["Container: postgres<br/>IP: 172.23.0.2:5432"]
+        C_Keycloak["Container: keycloak<br/>IP: 172.23.0.3:8080"]
+        C_Mongo["Container: mongo<br/>IP: 172.23.0.4:27017"]
+        C_LocalStack["Container: localstack<br/>IP: 172.23.0.5:4566"]
+        
+        Switch --- C_Postgres
+        Switch --- C_Keycloak
+        Switch --- C_Mongo
+        Switch --- C_LocalStack
+        Switch --- DNSBridge
+    end
+
+    C_Keycloak -->|Resolve 'postgres' via DNS interno| C_Postgres
+    HostMachine["Sua Máquina Física (Host)"] -->|Acessa via portas mapeadas: localhost:5432, 8080| Switch
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. GUIA HANDS-ON: LINUX & TERMINAL ESSENCIAL -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2.5 text-cyan-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="terminal-square" class="w-5 h-5"></i>
+        <h2>4. Guia Hands-on: Comandos Linux para Criação e Manipulação de Arquivos</h2>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        Durante o desenvolvimento de infraestrutura no terminal Linux (Ubuntu/WSL), frequentemente precisamos criar arquivos de configuração, diretórios e scripts. A seguir, os principais métodos compilados com seus prós e contras:
+      </p>
+
+      <!-- Métodos de criação de arquivos -->
+      <div class="space-y-4 text-xs font-mono">
+
+        <!-- touch -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-indigo-400 flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs">touch</span>
+              <span>Criar arquivo vazio ou atualizar data de modificação</span>
+            </span>
+            <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Mais Comum</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            É o comando padrão para criar arquivos vazios instantaneamente. Se o arquivo já existir, ele não apaga nem modifica o conteúdo: apenas atualiza o carimbo de data e hora (timestamp) de acesso e modificação.
+          </p>
+          <div class="p-3 bg-slate-900 rounded-xl text-slate-200 border border-slate-800/80">
+            <code>touch providers.tf variables.tf main.tf</code>
+          </div>
+        </div>
+
+        <!-- echo e Redirecionamento -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-cyan-400 flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-xs">echo</span>
+              <span>Exibir mensagens e criar arquivos com texto</span>
+            </span>
+            <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Redirecionamento</span>
+          </div>
+          <p class="text-slate-300 font-sans">
+            O nome vem de <em>"ecoar"</em>, pois ele imprime na tela (saída padrão / <code>stdout</code>) os textos ou variáveis de ambiente passadas. Quando combinado com operadores de redirecionamento, grava diretamente em arquivos:
+          </p>
+          <div class="space-y-2 pt-1 text-slate-200">
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] font-sans mb-1">1. Operador `>` (Sobrescreve ou cria o arquivo do zero):</span>
+              <code>echo "valor_inicial" > config.txt</code>
+            </div>
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] font-sans mb-1">2. Operador `>>` (Adiciona texto ao final sem apagar o que já existe — Append):</span>
+              <code>echo "nova_linha" >> config.txt</code>
+            </div>
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] font-sans mb-1">3. Flags Úteis do `echo`:</span>
+              <ul class="list-disc list-inside text-slate-300 space-y-1 font-sans text-xs">
+                <li><code class="font-mono text-cyan-300">-n</code>: Omite a quebra de linha final automática.</li>
+                <li><code class="font-mono text-cyan-300">-e</code>: Habilita a interpretação de caracteres especiais de escape (como <code class="font-mono text-slate-200">\n</code> para nova linha ou <code class="font-mono text-slate-200">\t</code> para tabulação).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- nano e cat -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <span class="text-sm font-bold text-emerald-400 flex items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-xs">nano</span>
+              <span>Editor no Terminal</span>
+            </span>
+            <p class="text-slate-300 font-sans">
+              Abre um editor visual simples direto na janela do terminal. Cria o arquivo se ele não existir. Salva com <code class="font-mono text-slate-200">Ctrl + O</code> e sai com <code class="font-mono text-slate-200">Ctrl + X</code>.
+            </p>
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+              <code>nano terraform.tfvars</code>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <span class="text-sm font-bold text-amber-400 flex items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-xs">cat > arquivo</span>
+              <span>Digitar antes de salvar</span>
+            </span>
+            <p class="text-slate-300 font-sans">
+              Permite digitar ou colar blocos de texto contínuos no terminal. Para finalizar a gravação e fechar o arquivo, basta apertar o atalho <code class="font-mono text-slate-200">Ctrl + D</code> (End of File).
+            </p>
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+              <code>cat > notas.txt</code>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. ERROS COMUNS & ARMADILHAS DE ESTAGIÁRIA -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-5">
+      <div class="flex items-center gap-2.5 text-rose-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="shield-alert" class="w-5 h-5"></i>
+        <h2>5. Armadilhas Comuns & Como Defender em Entrevistas</h2>
+      </div>
+
+      <div class="space-y-4 text-xs">
+
+        <!-- Armadilha 1: Bash History Expansion (!) -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white text-sm flex items-center gap-2">
+              <span class="text-rose-400 font-mono">Armadilha 1:</span>
+              <span>O erro <code>-bash: !.gitignore: event not found</code></span>
+            </span>
+            <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 font-mono text-[10px]">Bash Interativo</span>
+          </div>
+          <p class="text-slate-300 font-sans leading-relaxed">
+            <strong>O que aconteceu:</strong> No terminal interativo do Bash, o ponto de exclamação <code class="font-mono text-amber-300">!</code> é reservado para <em>History Expansion</em> (ex: <code class="font-mono text-slate-200">!ls</code> repete o último comando de listagem). Quando colocado dentro de aspas duplas <code class="font-mono text-slate-200">"..."</code>, o Bash tenta procurar um comando anterior chamado <code class="font-mono text-slate-200">.gitignore</code> no histórico!
+          </p>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 font-mono space-y-1">
+            <div class="text-rose-400">❌ Incorreto: <code>echo -e "*\n!.gitignore" > .docker/data/.gitignore</code></div>
+            <div class="text-emerald-400">✅ Correto (aspas simples protegem caracteres especiais): <code>printf "*\n!.gitignore\n" > .docker/data/.gitignore</code></div>
+            <div class="text-emerald-400">✅ Ou em duas linhas: <code>echo '*' > .gitignore && echo '!.gitignore' >> .gitignore</code></div>
+          </div>
+        </div>
+
+        <!-- Armadilha 2: terraform init em arquivo vazio -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white text-sm flex items-center gap-2">
+              <span class="text-rose-400 font-mono">Armadilha 2:</span>
+              <span><code>terraform init</code> diz que teve sucesso, mas não baixou nada!</span>
+            </span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono text-[10px]">Pegadinha HCL</span>
+          </div>
+          <p class="text-slate-300 font-sans leading-relaxed">
+            Se o arquivo <code class="font-mono text-slate-200">providers.tf</code> for criado com tamanho 0 bytes (vazio / não salvo no VS Code), o Terraform roda e exibe <em>"Terraform has been successfully initialized!"</em>, porém sem baixar nenhum provider!
+          </p>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-slate-300 font-sans space-y-1">
+            <span class="font-bold text-slate-200 block font-mono text-xs">Como diagnosticar:</span>
+            <p>Sempre observe se apareceram as linhas de download (<code class="font-mono text-indigo-300">Installing kreuzwerker/docker...</code>) e verifique se o arquivo de trava <code class="font-mono text-purple-300">.terraform.lock.hcl</code> foi criado na pasta.</p>
+          </div>
+        </div>
+
+        <!-- Dica de Entrevista -->
+        <div class="bg-gradient-to-r from-purple-950/30 to-indigo-950/30 p-5 rounded-2xl border border-purple-500/30 space-y-2">
+          <span class="text-purple-400 font-bold font-mono uppercase tracking-wider text-xs flex items-center gap-1.5">
+            <i data-lucide="award" class="w-4 h-4"></i> Dica de Ouro para Entrevistas de Estágio / Júnior
+          </span>
+          <p class="text-slate-200 font-sans text-xs sm:text-sm leading-relaxed">
+            Quando te perguntarem: <em>"Por que usar Terraform para subir Docker local em vez de apenas Docker Compose?"</em>, responda com segurança:
+          </p>
+          <blockquote class="italic text-slate-300 border-l-2 border-purple-400 pl-3 py-1 font-sans">
+            "O Terraform introduz <strong>idempotência e controle estrito de estado</strong> através do <code class="font-mono text-purple-300">statefile</code>, modularização HCL reutilizável e, principalmente, <strong>habilita o provisionamento dos recursos de nuvem simulados (AWS S3, SQS e Secrets Manager no LocalStack)</strong> usando exatamente os mesmos providers que utilizaremos na AWS real em produção, garantindo paridade total entre a máquina local e a nuvem corporativa."
+          </blockquote>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6. TL;DR (REVISÃO RÁPIDA) -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="check-check" class="w-5 h-5"></i>
+        <h2>6. TL;DR — Pontos-Chave para Revisão em 1 Minuto</h2>
+      </div>
+
+      <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>IaC Declarativo:</strong> No Terraform, você declara o <em>"o que deseja"</em>, e ele calcula os passos necessários para atingir o estado desejado.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Statefile é Sagrado:</strong> O <code class="font-mono text-purple-300">terraform.tfstate</code> guarda a correspondência entre código e o mundo real. Nunca deve ser editado manualmente.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Unix Socket:</strong> O Terraform fala com o Docker local via <code class="font-mono text-purple-300">/var/run/docker.sock</code>, dispensando rede TCP/IP e operando diretamente pela memória do kernel.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>User-Defined Bridge:</strong> Redes bridge customizadas fornecem <strong>resolução DNS automática</strong> por nome de container, essencial para conectar Keycloak ao Postgres sem IPs manuais.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Terminal Linux:</strong> Use <code class="font-mono text-cyan-300">touch</code> para arquivos vazios, <code class="font-mono text-cyan-300">echo '...' > arq</code> com aspas simples para evitar problemas com <code class="font-mono text-amber-300">!</code>, e <code class="font-mono text-cyan-300">nano</code> para edição rápida.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 7. REFERÊNCIAS CANÔNICAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-slate-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="book-marked" class="w-4 h-4"></i>
+        <h2>7. Referências & Documentação Oficial</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+        <a href="https://developer.hashicorp.com/terraform/docs" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-purple-500/50 hover:text-purple-300 flex items-center justify-between transition">
+          <span>HashiCorp Terraform Documentation</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-purple-500/50 hover:text-purple-300 flex items-center justify-between transition">
+          <span>kreuzwerker/docker Provider Registry</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://docs.docker.com/network/drivers/bridge/" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-cyan-500/50 hover:text-cyan-300 flex items-center justify-between transition">
+          <span>Docker Documentation — Bridge Network Driver</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://www.gnu.org/software/bash/manual/html_node/Event-Designators.html" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-amber-500/50 hover:text-amber-300 flex items-center justify-between transition">
+          <span>GNU Bash Manual — History Expansion (!)</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 text-center text-xs text-slate-500 border-t border-slate-800/80 pt-8">
+    <p>FlowTask PDI • Engenharia de Software & Aprendizado Técnico Contínuo</p>
+    <p class="mt-1">Gerado pelo Agente SDD com a skill <code class="font-mono text-purple-400">anotacoes-estudo</code></p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
