@@ -131,23 +131,50 @@ cd FlowTask-PDI
 
 ---
 
-### 2. Subir a infraestrutura (PostgreSQL, pgAdmin e Keycloak)
+### 2. Subir a Infraestrutura dos Serviços
+
+Você pode subir a infraestrutura completa de bancos, mensageria, IAM e nuvem simulada através do **Terraform (Recomendado)** ou via **Docker Compose**:
+
+#### Opção A: Provisionamento Declarativo com Terraform (Recomendado) 🚀
+O ecossistema conta com provisionamento modular em IaC gerenciado pelo Terraform e Docker Provider local:
+
 ```bash
-docker-compose up -d
+cd infra/terraform
+
+# Inicializa os providers (Docker & AWS) e módulos
+terraform init
+
+# Visualiza o plano de execução
+terraform plan
+
+# Provisiona todos os 8 módulos automaticamente
+terraform apply
 ```
 
-Verifique o status dos containers:
+Ao final da execução, o Terraform exibirá o painel consolidado (`outputs`):
+
+| Módulo / Serviço | Host / Porta | Credenciais / Contexto | Finalidade |
+| :--- | :--- | :--- | :--- |
+| **PostgreSQL 15** | `localhost:5432` | `postgres` / `postgres` (DB: `flowtask`) | Persistência Relacional ACID (Kanban) |
+| **pgAdmin 4 (GUI)** | [http://localhost:5050](http://localhost:5050) | `admin@flowtask.com` / `admin` | Painel visual de administração do Postgres |
+| **MongoDB 7.0** | `localhost:27017` | `root` / `root` (DB: `pdi`) | Banco NoSQL orientado a documentos (PDI) |
+| **Mongo Express (GUI)** | [http://localhost:8081](http://localhost:8081) | Acesso direto | Interface visual para coleções MongoDB |
+| **Redis 7** | `localhost:6379` | Porta padrão, persistência AOF | Cache em memória de alta performance |
+| **Apache Kafka (KRaft)** | `localhost:9092` | Cluster ID: `MkU3OEVBNTcwNTJENDM2Qk` | Streaming de eventos sem ZooKeeper |
+| **Keycloak 24+ IAM** | [http://localhost:8080](http://localhost:8080) | `admin` / `admin` (Realm: `flowtask`) | Provedor OIDC/OAuth2 com import automático |
+| **LocalStack 3.8 AWS** | `http://localhost:4566` | S3, SQS DLQ e Secrets Manager | Simulação local de serviços de nuvem AWS |
+
+Para verificar os outputs a qualquer momento:
 ```bash
+terraform output
+```
+
+#### Opção B: Docker Compose (Legado / Básico)
+```bash
+docker-compose up -d
 docker-compose ps
 ```
 
-#### 🌐 Serviços e Portas Locais:
-- **PostgreSQL**: `localhost:5432` *(User: `postgres` | Senha: `postgres` | DB: `flowtask`)*
-- **pgAdmin 4**: [http://localhost:5050](http://localhost:5050) *(Login: `admin@flowtask.com` | Senha: `admin`)*
-- **Keycloak IAM**: [http://localhost:8080](http://localhost:8080) *(Login: `admin` | Senha: `admin`)*
-- **Portal Central (Hub & Docs)**: abra o arquivo [`docs/index.html`](docs/index.html) no navegador
-
----
 
 ### 3. Executar o Backend Spring Boot
 
@@ -178,13 +205,20 @@ java -jar target/*.jar
 
 ### 4. Parar e limpar o ambiente
 
-Para pausar os containers:
+#### Se utilizou Terraform:
 ```bash
-docker-compose down
+cd infra/terraform
+
+# Destrói todos os containers, recursos AWS simulados e a rede bridge
+terraform destroy
 ```
 
-Para remover os volumes persistentes e resetar a base de dados:
+#### Se utilizou Docker Compose:
 ```bash
+# Para pausar os containers:
+docker-compose down
+
+# Para remover volumes persistentes e resetar a base:
 docker-compose down -v
 ```
 
@@ -244,9 +278,20 @@ FlowTask-PDI/
 │   ├── src/main/resources/                  # application.yaml e schema.sql
 │   ├── mvnw / mvnw.cmd                      # Maven Wrapper
 │   └── pom.xml                              # Dependências do projeto
+├── infra/                                   # 🏗️ Infraestrutura como Código (IaC) com Terraform
+│   └── terraform/                           # Root module (main.tf, providers.tf, variables.tf, outputs.tf)
+│       └── modules/                         # 8 Módulos HCL encapsulados
+│           ├── postgres/                    # PostgreSQL 15 + upload script keycloak db
+│           ├── pgadmin/                     # Interface Web pgAdmin 4
+│           ├── mongo/                       # MongoDB 7.0 + volume dedicado
+│           ├── mongo-express/               # Interface Web Mongo Express
+│           ├── redis/                       # Redis 7 In-Memory + AOF
+│           ├── kafka/                       # Apache Kafka 7.5 em modo KRaft standalone
+│           ├── keycloak/                    # Keycloak IAM com import automático de realm
+│           └── localstack/                  # LocalStack 3.8 + S3 Bucket, SQS DLQ e Secrets Manager
 ├── keycloak-config/
 │   └── flowtask-realm.json                  # Realm pré-configurado do Keycloak
-├── docker-compose.yaml                      # Orquestração local dos containers
+├── docker-compose.yaml                      # Orquestração local básica
 └── README.md                                # Documentação principal
 ```
 
@@ -260,6 +305,9 @@ FlowTask-PDI/
   - 📝 **[1. Especificação Técnica & Relatório FinOps](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-spec.html)**
   - 📐 **[2. Planejamento Técnico, HCL & ADRs](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-plan.html)**
   - 📋 **[3. Micro-Tarefas & Checklist de Implementação](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-tasks.html)**
+  - 📚 **[Material de Estudo 1: Terraform Fundamentos & Prática](docs/anotacoes/arquitetura-infra/terraform-fundamentos-e-pratica.html)**
+  - 📚 **[Material de Estudo 2: Módulos de Persistência Poliglota](docs/anotacoes/arquitetura-infra/terraform-modulos-persistencia-poliglota.html)**
 - 📐 **[O Ciclo e as Fases do SDD](docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html)**
 - 📐 **[Anatomia de uma Especificação (Spec)](docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**
+
