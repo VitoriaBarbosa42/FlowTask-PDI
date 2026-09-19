@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terraform — Módulos HCL, Persistência Poliglota & Interfaces Visuais | FlowTask PDI</title>
+  <meta name="description" content="Guia didático de estudo sobre a Fase 2 do Terraform: Submódulos HCL, PostgreSQL 15, pgAdmin 4, MongoDB 7, Mongo Express, Redis 7 AOF, Named Volumes e permissões NTFS vs Linux.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              emerald: '#10b981',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#10b981',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#FF6200',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #374151; }
+
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-emerald selection:text-white pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-600/25">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Arquitetura & Infraestrutura (IaC)</span>
+            <span class="text-slate-500">•</span>
+            <span>Fase 2 • Parte 2</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Módulos HCL, Persistência Poliglota & Interfaces Visuais</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="./terraform-fundamentos-e-pratica.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition" title="Ver Parte 1: Fundamentos, Sockets e Rede Bridge">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Parte 1 (Fundamentos)</span>
+        </a>
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+          <span>Hub</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN ARTICLE CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO / TITLE BLOCK -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center gap-2.5 mb-4">
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          Fase 2: Persistência & GUIs
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          Intermediário
+        </span>
+        <span class="text-xs font-mono text-teal-400 bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">
+          Estudo Prático • 18 min de leitura
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          19 Set 2026
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">
+        Submódulos HCL Encapsulados, Bancos de Dados Poliglotas & Estratégias de Persistência
+      </h1>
+      <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-6">
+        Guia didático detalhado sobre a implementação da Fase 2 da Epic 5: arquitetura de submódulos HCL, PostgreSQL 15 com inicialização multi-database, pgAdmin 4, MongoDB 7, Mongo Express, Redis 7 com AOF e o choque de permissões NTFS vs ext4 no Windows/WSL.
+      </p>
+
+      <!-- Context Callout -->
+      <div class="bg-slate-950/80 border-l-4 border-l-emerald-500 p-4 sm:p-5 rounded-r-2xl space-y-2">
+        <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider font-mono">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Continuação da Parte 1</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+          Na <a href="./terraform-fundamentos-e-pratica.html" class="text-brand-orange hover:underline font-bold">Parte 1: Fundamentos & Rede Bridge</a>, criamos a base: providers Docker/AWS, variáveis globais e a rede privada <code class="font-mono text-emerald-300">flowtask-network</code>. Aqui na <strong>Parte 2</strong>, conectamos a essa rede uma infraestrutura poliglota completa de 5 serviços de dados e interfaces gráficas, estruturada sob módulos reutilizáveis e idempotentes.
+        </p>
+      </div>
+    </div>
+
+    <!-- 1. O CONCEITO ARQUITETURAL: SUBMÓDULOS HCL -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="package" class="w-5 h-5"></i>
+        <h2>1. Arquitetura de Submódulos HCL Encapsulados</h2>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p>
+          Em projetos de porte corporativo, colocar toda a infraestrutura em um único arquivo <code class="font-mono text-slate-200">main.tf</code> cria um antipadrão conhecido como <em>"Monólito de Infraestrutura"</em>. 
+          Para garantir **alta coesão e baixo acoplamento**, cada serviço nesta fase foi encapsulado em um submódulo próprio dentro de <code class="font-mono text-emerald-300">infra/terraform/modules/&lt;serviço&gt;/</code>.
+        </p>
+
+        <h3 class="text-sm font-bold text-white font-mono flex items-center gap-2 pt-2">
+          <i data-lucide="file-code" class="w-4 h-4 text-emerald-400"></i> A Tríade Canônica de um Módulo Terraform
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-sky-500 space-y-2">
+            <span class="text-xs font-mono font-bold text-sky-400 uppercase flex items-center gap-1.5">
+              <i data-lucide="log-in" class="w-4 h-4"></i> variables.tf (Inputs)
+            </span>
+            <p class="text-slate-400 text-xs">
+              Define os parâmetros que o módulo <strong>espera receber</strong> de quem o chamar (portas, nomes de banco, credenciais e IDs de rede). Atua como a lista de argumentos de uma função.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-500 space-y-2">
+            <span class="text-xs font-mono font-bold text-emerald-400 uppercase flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-4 h-4"></i> main.tf (Recursos)
+            </span>
+            <p class="text-slate-400 text-xs">
+              Contém a declaração dos recursos reais (<code class="font-mono text-slate-300">docker_image</code>, <code class="font-mono text-slate-300">docker_container</code>, <code class="font-mono text-slate-300">docker_volume</code>). É onde a tecnologia é instanciada e configurada.
+            </p>
+          </div>
+
+          <div class="glass-card p-4 rounded-2xl border-l-4 border-l-purple-500 space-y-2">
+            <span class="text-xs font-mono font-bold text-purple-400 uppercase flex items-center gap-1.5">
+              <i data-lucide="log-out" class="w-4 h-4"></i> outputs.tf (Retornos)
+            </span>
+            <p class="text-slate-400 text-xs">
+              Exporta informações computadas pelo container após a criação (IDs, URLs JDBC, URLs de acesso web HTTP e connection strings) para uso de outros módulos ou exibição no terminal.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-amber-400 font-bold font-mono text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i> O Princípio do Isolamento de Providers em Submódulos
+          </span>
+          <p class="text-xs text-slate-300 font-sans leading-relaxed">
+            No Terraform 0.13+, cada submódulo é um namespace isolado. Se o submódulo usa recursos como <code class="font-mono text-slate-200">docker_container</code> sem declarar seu provider, o Terraform tenta buscar por padrão o inexistente <code class="font-mono text-rose-300">hashicorp/docker</code>. Por isso, todo submódulo deve conter explicitamente em seu topo:
+          </p>
+          <pre class="bg-slate-900 p-3 rounded-xl text-slate-200 font-mono text-[11px] border border-slate-800/80"><code>terraform {
+  required_providers {
+    docker = {
+      source = "kreuzwerker/docker"
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DIAGRAMA VISUAL MERMAID DA FASE 2 -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2.5 text-teal-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="network" class="w-5 h-5"></i>
+        <h2>2. Diagrama de Topologia de Dados e GUIs (Mermaid)</h2>
+      </div>
+
+      <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+        <div class="mermaid text-center">
+flowchart TD
+    subgraph HostPorts ["Portas Expostas no Host (Seu Computador)"]
+        P5432["localhost:5432"]
+        P5050["localhost:5050 (Web GUI)"]
+        P27017["localhost:27017"]
+        P8081["localhost:8081 (Web GUI)"]
+        P6379["localhost:6379"]
+    end
+
+    subgraph BridgeNet ["Rede Docker Privada: flowtask-network (172.23.0.0/16)"]
+        DNS["DNS Interno do Docker"]
+
+        subgraph RelationalCluster ["Cluster Relacional"]
+            C_PG["flowtask-postgres<br/>(PostgreSQL 15)<br/>Alias: postgres:5432"]
+            C_PGA["flowtask-pgadmin<br/>(pgAdmin 4)<br/>Alias: pgadmin:80"]
+        end
+
+        subgraph DocumentCluster ["Cluster NoSQL Documental"]
+            C_MGO["flowtask_mongo<br/>(MongoDB 7.0)<br/>Alias: mongo:27017"]
+            C_EXP["flowtask-mongo-express<br/>(Mongo Express)<br/>Alias: mongo-express:8081"]
+        end
+
+        subgraph CacheCluster ["Cluster de Cache In-Memory"]
+            C_RDS["flowtask-redis<br/>(Redis 7 AOF)<br/>Alias: redis:6379"]
+        end
+    end
+
+    subgraph DockerVolumes ["Persistência Segura (Docker Named Volumes)"]
+        V_PG[("flowtask-postgres-data<br/>/var/lib/postgresql/data")]
+        V_MGO[("flowtask_mongo_data<br/>/data/db")]
+        V_RDS[("flowtask-redis-data<br/>/data")]
+    end
+
+    P5432 --> C_PG
+    P5050 --> C_PGA
+    P27017 --> C_MGO
+    P8081 --> C_EXP
+    P6379 --> C_RDS
+
+    C_PGA -->|Conexão Web/Admin via DNS| C_PG
+    C_EXP -->|Conexão Web/BSON via DNS| C_MGO
+
+    C_PG --- V_PG
+    C_MGO --- V_MGO
+    C_RDS --- V_RDS
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. OS 5 SERVIÇOS EM DETALHES -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="server" class="w-5 h-5"></i>
+        <h2>3. Detalhamento Técnico dos 5 Módulos Implementados</h2>
+      </div>
+
+      <div class="space-y-6 text-xs sm:text-sm text-slate-300">
+
+        <!-- 3.1 PostgreSQL 15 -->
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="font-bold text-sm text-white flex items-center gap-2 font-mono">
+              <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs">2.1</span>
+              <span>PostgreSQL 15 Alpine (Banco Relacional Core)</span>
+            </span>
+            <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Porta 5432</span>
+          </div>
+
+          <p class="text-slate-300 leading-relaxed font-sans">
+            O PostgreSQL atua como o banco de dados relacional primário do ecossistema FlowTask, armazenando tabelas de usuários, perfis, tarefas e também a base de dados dedicada do servidor de autenticação Keycloak.
+          </p>
+
+          <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-2 font-mono text-xs">
+            <span class="text-indigo-400 font-bold block font-sans">💡 A Técnica de Inicialização de Múltiplos Bancos (`upload`):</span>
+            <p class="text-slate-400 font-sans text-[11px]">
+              A imagem oficial do Postgres só cria nativamente um banco via variável <code class="text-slate-200">POSTGRES_DB=flowtask</code>. Para criar o segundo banco exigido pelo Keycloak (<code class="text-slate-200">flowtask_keycloak</code>), utilizamos o gancho nativo do entrypoint: qualquer arquivo SQL dentro de <code class="text-indigo-300">/docker-entrypoint-initdb.d/</code> é executado na primeira inicialização.
+            </p>
+            <pre class="text-[11px] text-emerald-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800/80"><code>upload {
+  content = "CREATE DATABASE flowtask_keycloak;\n"
+  file    = "/docker-entrypoint-initdb.d/init-keycloak.sql"
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- 3.2 pgAdmin 4 -->
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="font-bold text-sm text-white flex items-center gap-2 font-mono">
+              <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-300 flex items-center justify-center text-xs">2.2</span>
+              <span>pgAdmin 4 (Interface Visual Web para PostgreSQL)</span>
+            </span>
+            <span class="text-[11px] font-mono text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/20">Porta 5050 (HTTP)</span>
+          </div>
+
+          <p class="text-slate-300 leading-relaxed font-sans">
+            Interface visual completa para gerenciar tabelas, rodar queries SQL e inspecionar índices sem precisar instalar softwares pesados na máquina do desenvolvedor.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-sky-400 font-bold block mb-1">Mapeamento de Portas (80 -> 5050)</span>
+              <p class="text-slate-400 font-sans text-[11px]">
+                Internamente no container, o servidor web roda na porta HTTP padrão <strong>80</strong>. O Terraform mapeia para a porta externa <strong>5050</strong> para não disputar portas do host.
+              </p>
+            </div>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-sky-400 font-bold block mb-1">Variáveis de Bootstrap</span>
+              <p class="text-slate-400 font-sans text-[11px]">
+                <code>PGADMIN_DEFAULT_EMAIL</code> e <code>PGADMIN_DEFAULT_PASSWORD</code> definem a conta administrativa inicial criada no boot.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3.3 MongoDB 7.0 -->
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="font-bold text-sm text-white flex items-center gap-2 font-mono">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">2.3</span>
+              <span>MongoDB 7.0 (Banco NoSQL Documental)</span>
+            </span>
+            <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Porta 27017</span>
+          </div>
+
+          <p class="text-slate-300 leading-relaxed font-sans">
+            Banco NoSQL orientado a documentos JSON/BSON. No FlowTask, é utilizado para armazenar dados dinâmicos, auditorias e logs de transações sem esquema rígido (schemaless).
+          </p>
+
+          <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1.5 font-mono text-xs">
+            <span class="text-emerald-400 font-bold block font-sans">🍃 Parâmetros Chave:</span>
+            <ul class="text-slate-400 space-y-1 font-sans text-[11px] list-disc list-inside">
+              <li>Pasta de persistência do motor WiredTiger: <code class="font-mono text-slate-200">/data/db</code>.</li>
+              <li>Variáveis <code class="font-mono text-slate-200">MONGO_INITDB_ROOT_USERNAME</code> e <code class="font-mono text-slate-200">MONGO_INITDB_ROOT_PASSWORD</code> habilitam autenticação estrita no banco <code class="font-mono text-slate-200">admin</code>.</li>
+              <li>Comando de auditoria rápida: <code class="font-mono text-slate-200">mongosh -u root -p root --eval "db.adminCommand({ping: 1})"</code> retornando <code class="font-mono text-emerald-400">{ ok: 1 }</code>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 3.4 Mongo Express -->
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="font-bold text-sm text-white flex items-center gap-2 font-mono">
+              <span class="w-7 h-7 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center text-xs">2.4</span>
+              <span>Mongo Express (Interface Visual Web para MongoDB)</span>
+            </span>
+            <span class="text-[11px] font-mono text-teal-400 bg-teal-500/10 px-2.5 py-0.5 rounded-full border border-teal-500/20">Porta 8081 (HTTP)</span>
+          </div>
+
+          <p class="text-slate-300 leading-relaxed font-sans">
+            Aplicação web leve em Node.js/Express para visualização e edição de documentos BSON direto no navegador.
+          </p>
+
+          <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1 font-mono text-xs">
+            <span class="text-teal-400 font-bold block font-sans">⚙️ Variável Crucial para Conexão em Rede Privada:</span>
+            <p class="text-slate-400 font-sans text-[11px]">
+              <code class="text-slate-200">ME_CONFIG_MONGODB_SERVER=mongo</code> faz o Mongo Express resolver o IP do container MongoDB via DNS interno da rede bridge. A flag <code class="text-slate-200">ME_CONFIG_BASICAUTH=false</code> desativa o diálogo HTTP de autenticação básica em desenvolvimento, permitindo acesso imediato ao painel.
+            </p>
+          </div>
+        </div>
+
+        <!-- 3.5 Redis 7 -->
+        <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="font-bold text-sm text-white flex items-center gap-2 font-mono">
+              <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center text-xs">2.5</span>
+              <span>Redis 7 Alpine (Cache In-Memory & Estrutura Chave-Valor)</span>
+            </span>
+            <span class="text-[11px] font-mono text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">Porta 6379</span>
+          </div>
+
+          <p class="text-slate-300 leading-relaxed font-sans">
+            Banco de dados chave-valor residente em memória RAM, com tempos de resposta sub-milissegundo (< 1ms). Utilizado para caching de sessões, contadores e invalidação rápida.
+          </p>
+
+          <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800 space-y-2 font-mono text-xs">
+            <span class="text-rose-400 font-bold block font-sans">⚡ O que é o modo AOF (`--appendonly yes`)?</span>
+            <p class="text-slate-400 font-sans text-[11px]">
+              O Redis possui duas estratégias de persistência: <strong>RDB (Snapshots pontuais)</strong> e <strong>AOF (Append Only File)</strong>. Com <code class="text-slate-200">command = ["redis-server", "--appendonly", "yes"]</code>, cada operação de escrita é gravada sequencialmente em disco na pasta <code class="text-slate-200">/data</code>. Se o container reiniciar, nenhum dado de cache é perdido!
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. O DILEMA DE SISTEMAS DE ARQUIVOS: NTFS VS EXT4 -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-5">
+      <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="hard-drive" class="w-5 h-5"></i>
+        <h2>4. O Dilema de Sistemas de Arquivos: NTFS do Windows vs. POSIX ext4 do Linux</h2>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p>
+          Um dos momentos mais valiosos de aprendizado prático desta fase ocorreu quando o container do PostgreSQL entrou em loop de reinicialização (<code class="font-mono text-amber-300">Restarting</code>) com o erro:
+        </p>
+
+        <div class="bg-rose-950/30 border border-rose-500/40 p-3.5 rounded-xl font-mono text-rose-300 text-xs">
+          chmod: /var/lib/postgresql/data: Operation not permitted<br/>
+          initdb: error: could not change permissions of directory "/var/lib/postgresql/data": Operation not permitted
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+            <span class="font-bold text-rose-400 font-mono text-xs flex items-center gap-1.5">
+              <i data-lucide="x-circle" class="w-4 h-4"></i> Por que o Bind Mount Falhou no Windows?
+            </span>
+            <p class="text-slate-400 text-xs font-sans">
+              O sistema de arquivos <strong>NTFS do Windows</strong> (montado no WSL via driver drvfs em <code class="font-mono text-slate-200">/mnt/c/</code>) não implementa permissões POSIX nativas de propriedade e controle de acesso Unix. Como o PostgreSQL <strong>exige obrigatoriamente permissão estrita 0700</strong> (para evitar que outros usuários do SO leiam arquivos do banco), o script <code class="font-mono text-slate-200">initdb</code> aborta imediatamente.
+            </p>
+          </div>
+
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+            <span class="font-bold text-emerald-400 font-mono text-xs flex items-center gap-1.5">
+              <i data-lucide="check-circle" class="w-4 h-4"></i> Por que o Docker Named Volume é a Solução?
+            </span>
+            <p class="text-slate-400 text-xs font-sans">
+              O recurso <code class="font-mono text-emerald-300">docker_volume</code> aloca espaço dentro da <strong>máquina virtual Linux interna (ext4) do Docker Desktop</strong>. Como o ext4 é um sistema de arquivos Linux nativo, comandos como <code class="font-mono text-slate-200">chmod 0700</code> e <code class="font-mono text-slate-200">chown postgres:postgres</code> funcionam instantaneamente com 100% de conformidade de segurança!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. CADERNO DE ERROS & LIÇÕES APRENDIDAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-5">
+      <div class="flex items-center gap-2.5 text-rose-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="bookmark" class="w-5 h-5"></i>
+        <h2>5. O Caderno de Erros da Fase 2 (Diagnóstico & Solução Rápida)</h2>
+      </div>
+
+      <div class="space-y-4 text-xs font-mono">
+
+        <!-- Erro 1: Submódulo executado direto -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-white font-bold text-sm">1. Executar <code>terraform apply</code> dentro da pasta do submódulo</span>
+            <span class="text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded text-[10px] border border-amber-500/20">Erro de Escopo</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            <strong>Sintoma:</strong> O Terraform faz perguntas interativas no terminal sobre variáveis sem default (ex: <code class="text-slate-200">var.network_id: Enter a value:</code>). Ao digitar <code class="text-slate-200">yes</code>, o container falha com <code class="text-rose-400">network yes not found</code>!
+          </p>
+          <p class="text-emerald-400 font-sans">
+            <strong>Solução:</strong> Submódulos nunca devem ser executados isoladamente. Comandos como <code class="text-slate-200">terraform plan/apply</code> são executados <strong>exclusivamente na raiz</strong> (<code class="text-slate-200">infra/terraform/</code>), que passa as variáveis certas aos módulos filhos.
+          </p>
+        </div>
+
+        <!-- Erro 2: Aspas em referências HCL -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-white font-bold text-sm">2. Aspas em referências de atributos HCL</span>
+            <span class="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded text-[10px] border border-rose-500/20">Sintaxe HCL</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            <strong>Incorreto:</strong> <code class="text-rose-400">image = "docker_image.postgres.image_id"</code> (o Terraform trata como texto literal).<br/>
+            <strong>Correto:</strong> <code class="text-emerald-400">image = docker_image.postgres.image_id</code> (sem aspas, avaliado dinamicamente como ponteiro para o recurso).
+          </p>
+        </div>
+
+        <!-- Erro 3: Volume não declarado -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-white font-bold text-sm">3. <code>Reference to undeclared resource docker_volume</code></span>
+            <span class="text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded text-[10px] border border-rose-500/20">Validação Estática</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            <strong>Causa:</strong> Usar <code class="text-slate-200">docker_volume.redis_data.name</code> dentro do container sem ter criado o bloco <code class="text-slate-200">resource "docker_volume" "redis_data"</code> no mesmo arquivo.<br/>
+            <strong>Dica:</strong> Sempre declare o recurso antes de tentar ler seus atributos.
+          </p>
+        </div>
+
+        <!-- Erro 4: Nomes literais no Docker -->
+        <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-white font-bold text-sm">4. Hífen vs. Underline (`flowtask-mongo` vs. `flowtask_mongo`)</span>
+            <span class="text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded text-[10px] border border-sky-500/20">Docker Daemon</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            O Docker Daemon é estritamente literal. Se o container foi nomeado com <code class="text-slate-200">flowtask_mongo</code>, qualquer comando com <code class="text-slate-200">flowtask-mongo</code> retornará <code class="text-rose-400">No such container</code>. Em times de engenharia, padronize todos os nomes usando kebab-case (<code class="text-emerald-400">flowtask-servico</code>).
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6. TL;DR (REVISÃO EM 1 MINUTO) -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="check-check" class="w-5 h-5"></i>
+        <h2>6. TL;DR — Resumo da Fase 2 para Revisão Rápida</h2>
+      </div>
+
+      <ul class="space-y-2.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Tríade HCL:</strong> Todo submódulo possui <code class="font-mono text-emerald-300">variables.tf</code> (inputs), <code class="font-mono text-emerald-300">main.tf</code> (recursos) e <code class="font-mono text-emerald-300">outputs.tf</code> (retornos).</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Docker Named Volumes no Windows:</strong> Para evitar erros de <code class="font-mono text-rose-300">chmod 0700 Operation not permitted</code> do PostgreSQL no NTFS, utiliza-se <code class="font-mono text-emerald-300">docker_volume</code> gerenciado na partição ext4 do Docker Desktop.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Initdb Automatizado:</strong> O bloco <code class="font-mono text-emerald-300">upload</code> do Terraform injeta scripts em <code class="font-mono text-slate-200">/docker-entrypoint-initdb.d/</code>, criando o banco auxiliar <code class="font-mono text-slate-200">flowtask_keycloak</code> na primeira subida.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Interfaces Web:</strong> pgAdmin na porta 5050 e Mongo Express na porta 8081 conectam-se aos respectivos bancos via DNS interno (<code class="font-mono text-slate-200">postgres:5432</code> e <code class="font-mono text-slate-200">mongo:27017</code>).</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Redis AOF:</strong> A flag <code class="font-mono text-emerald-300">--appendonly yes</code> ativa durabilidade transacional em disco na pasta <code class="font-mono text-slate-200">/data</code>.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 7. REFERÊNCIAS & MATERIAIS COMPLEMENTARES -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-slate-400 font-bold text-base border-b border-slate-800/80 pb-2">
+        <i data-lucide="book-marked" class="w-4 h-4"></i>
+        <h2>7. Referências Canônicas & Leitura Complementar</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+        <a href="https://developer.hashicorp.com/terraform/language/modules/develop" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-300 flex items-center justify-between transition">
+          <span>HashiCorp — Standard Module Structure</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://hub.docker.com/_/postgres" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-300 flex items-center justify-between transition">
+          <span>PostgreSQL Docker Official — Initialization Scripts</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-300 flex items-center justify-between transition">
+          <span>Redis Documentation — Persistence (AOF vs RDB)</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://www.mongodb.com/docs/manual/core/wiredtiger/" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-emerald-500/50 hover:text-emerald-300 flex items-center justify-between transition">
+          <span>MongoDB Manual — WiredTiger Storage Engine</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="https://docs.docker.com/engine/storage/volumes/" target="_blank" rel="noopener noreferrer" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-teal-500/50 hover:text-teal-300 flex items-center justify-between transition">
+          <span>Docker Documentation — Manage Data in Volumes</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <a href="./terraform-fundamentos-e-pratica.html" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-brand-orange/50 hover:text-brand-orange flex items-center justify-between transition">
+          <span>Parte 1 — Fundamentos, Sockets & Rede Bridge</span>
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 text-center text-xs text-slate-500 border-t border-slate-800/80 pt-8">
+    <p>FlowTask PDI • Engenharia de Software & Aprendizado Técnico Contínuo</p>
+    <p class="mt-1">Gerado com a skill <code class="font-mono text-emerald-400">anotacoes-estudo</code></p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
