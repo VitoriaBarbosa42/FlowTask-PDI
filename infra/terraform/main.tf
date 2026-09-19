@@ -69,3 +69,22 @@ module "kafka" {
   host_port  = var.kafka_port
   network_id = docker_network.flowtask_net.name
 }
+
+# ==============================================================================
+# MÓDULO: KEYCLOAK IAM (COM IMPORT DE REALM)
+# ==============================================================================
+
+module "keycloak" {
+  source            = "./modules/keycloak"
+  host_port         = var.keycloak_port
+  network_id        = docker_network.flowtask_net.name
+  admin_user        = var.keycloak_admin
+  admin_password    = var.keycloak_admin_password
+  database_name     = "flowtask_keycloak"
+  database_user     = var.postgres_user
+  database_password = var.postgres_password
+  realm_file_path   = "${path.root}/../../keycloak-config/flowtask-realm.json"
+
+  depends_on = [module.postgres]
+}
+
