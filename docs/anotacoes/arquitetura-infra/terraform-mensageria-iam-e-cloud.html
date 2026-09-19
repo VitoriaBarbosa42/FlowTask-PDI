@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terraform — Mensageria Kafka KRaft, Keycloak IAM & Simulação Cloud LocalStack | FlowTask PDI</title>
+  <meta name="description" content="Guia didático aprofundado sobre as Fases 3 e 4 do Terraform no FlowTask: Apache Kafka em modo KRaft (sem ZooKeeper), Keycloak 24+ com import de Realm OIDC, LocalStack AWS Gateway, S3, SQS DLQ e Secrets Manager.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#8b5cf6',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#FF6200',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(139, 92, 246, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-purple selection:text-white pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/25">
+          <i data-lucide="radio" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Apostila Técnica — Parte 3</span>
+            <span class="text-slate-500">•</span>
+            <span>IaC, Event Streaming & Cloud</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Kafka KRaft, Keycloak OIDC & Simulação Cloud LocalStack</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Voltar ao Hub</span>
+        </a>
+        <a href="./terraform-fundamentos-e-pratica.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Parte 1 (Fundamentos)</span>
+        </a>
+        <a href="./terraform-modulos-persistencia-poliglota.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="database" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Parte 2 (Bancos & GUIs)</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO & METADATA -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-purple-500/30 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center gap-1.5">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Arquitetura & Infraestrutura (IaC)
+        </span>
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+          Nível: Intermediário / Avançado
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800 flex items-center gap-1">
+          <i data-lucide="clock" class="w-3 h-3"></i> 18 min de leitura
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          Fases 3 e 4 do SDD
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+        Mensageria Kafka KRaft, Keycloak OIDC & Simulação Cloud LocalStack
+      </h1>
+      <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+        Como provisionar declarativamente uma malha completa de comunicação assíncrona orientada a eventos, autenticação corporativa centralizada (OAuth2/OIDC) e recursos simulados de nuvem AWS (S3, SQS e Secrets Manager) com custo zero usando Terraform.
+      </p>
+
+      <div class="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-start gap-3">
+        <i data-lucide="sparkles" class="w-5 h-5 text-purple-400 shrink-0 mt-0.5"></i>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <strong class="text-white block mb-0.5">Visão Geral da Trilha de Aprendizado:</strong>
+          Esta apostila continua o aprendizado das Partes 1 e 2. Aqui você entenderá a eliminação do ZooKeeper via protocolo de consenso Raft no Kafka, a injeção declarativa de Realms no Keycloak via Quarkus runtime e a orquestração multi-provider (Docker + AWS LocalStack) economizando mais de $570/mês.
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. POR QUE ISSO IMPORTA? -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+            <i data-lucide="target" class="w-5 h-5"></i>
+          </div>
+          <h2>1. Por Que Isso Importa? (Contexto & Problema Real)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão Arquitetural</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-purple-400 font-bold font-mono text-sm block flex items-center gap-1.5">
+            <i data-lucide="message-square-share" class="w-4 h-4"></i> Desacoplamento Assíncrono
+          </span>
+          <p class="text-slate-400 leading-relaxed">
+            Em sistemas de alta escala, quando o Kanban conclui uma tarefa, ele não deve fazer chamadas síncronas HTTP bloqueantes para atualizar o PDI ou disparar e-mails. O <strong>Apache Kafka</strong> atua como o barramento de eventos (EDA), garantindo persistência durável e entrega ordenada com retenção em disco.
+          </p>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-indigo-400 font-bold font-mono text-sm block flex items-center gap-1.5">
+            <i data-lucide="key" class="w-4 h-4"></i> Segurança Centralizada (IAM)
+          </span>
+          <p class="text-slate-400 leading-relaxed">
+            Armazenar senhas e emitir tokens JWT diretamente na aplicação gera débito técnico de segurança. O <strong>Keycloak</strong> atua como Provedor de Identidade (IdP) compatível com padrões abertos <strong>OAuth 2.0</strong> e <strong>OpenID Connect (OIDC)</strong>, permitindo Single Sign-On (SSO) e validação criptográfica via JWKS.
+          </p>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-cyan-400 font-bold font-mono text-sm block flex items-center gap-1.5">
+            <i data-lucide="cloud" class="w-4 h-4"></i> FinOps & Shift-Left Cloud
+          </span>
+          <p class="text-slate-400 leading-relaxed">
+            Desenvolver diretamente na AWS real gera custos de infraestrutura, exige contas corporativas e pode provocar despesas acidentais. O <strong>LocalStack</strong> emula APIs da AWS no ambiente local, permitindo testar S3, SQS e Secrets Manager com fidelidade e custo zero de nuvem.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. EXPLICAÇÃO CONCEITUAL & FUNCIONAMENTO INTERNO -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <h2>2. Explicação Conceitual & Funcionamento por Baixo dos Panos</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Deep Dive Teórico</span>
+      </div>
+
+      <div class="space-y-6 text-xs sm:text-sm text-slate-300 leading-relaxed">
+
+        <!-- Tópico 1: KRaft -->
+        <div class="space-y-3">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-mono text-xs">2.1</span>
+            Apache Kafka em Modo KRaft (KIP-500): O Fim do ZooKeeper
+          </h3>
+          <p>
+            Historicamente, o Kafka dependia de um sistema externo chamado <strong>Apache ZooKeeper</strong>. O ZooKeeper mantinha a árvore de nós do cluster, a lista de tópicos, o mapeamento de partições e elegia o nó líder. No entanto, essa arquitetura apresentava dois grandes gargalos:
+          </p>
+          <ul class="list-disc list-inside space-y-1.5 text-slate-400 pl-2">
+            <li><strong>Sincronização Dupla:</strong> O estado existia no ZooKeeper e precisava ser propagado via RPC para o controlador do Kafka, gerando latências de recuperação em clusters com milhões de partições.</li>
+            <li><strong>Custo Operacional:</strong> Exigia subir e monitorar outro cluster distribuído com quórum ímpar (3 ou 5 nós), consumindo centenas de megabytes de RAM a mais.</li>
+          </ul>
+          <p>
+            Com a proposta <strong>KIP-500 (Kafka Improvement Proposal)</strong>, o Kafka adotou o algoritmo de consenso <strong>Raft</strong> internamente, criando o <strong>KRaft (Kafka Raft metadata mode)</strong>. Os próprios brokers Kafka armazenam os metadados em um tópico interno especial de log (`@metadata`). Em desenvolvimento local, um único container atua como <em>broker</em> e <em>controller</em> simultaneamente (`KAFKA_PROCESS_ROLES=broker,controller`), economizando mais de 400MB de RAM.
+          </p>
+        </div>
+
+        <!-- Tópico 2: Listeners no Docker -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
+          <h4 class="font-bold text-purple-300 font-mono text-xs uppercase flex items-center gap-2">
+            <i data-lucide="network" class="w-4 h-4"></i> A Armadilha Clássica dos Listeners do Kafka no Docker
+          </h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Uma das dúvidas mais comuns de desenvolvedores ao subir o Kafka em containers é: <em>"Por que minha aplicação não conecta no Kafka, se a porta 9092 está aberta?"</em>. O Kafka tem um mecanismo de <strong>dois estágios de conexão</strong>:
+          </p>
+          <ol class="list-decimal list-inside space-y-1 text-xs text-slate-400 pl-2 font-mono">
+            <li>O cliente se conecta no endereço de <em>Bootstrap</em> inicial.</li>
+            <li>O broker responde com a lista de <strong>Advertised Listeners</strong> (os endereços onde os líderes de partição realmente atendem).</li>
+            <li>O cliente desconecta do bootstrap e abre nova conexão no endereço anunciado!</li>
+          </ol>
+          <p class="text-xs text-slate-300">
+            Se o Kafka anunciar `localhost:9092`, outro container dentro da rede Docker tentará conectar em `localhost` de si mesmo e falhará. Se anunciar `kafka:29092`, seu terminal na máquina host tentará resolver o nome DNS `kafka` e também falhará. Por isso, configuramos **múltiplos listeners dedicados**:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] mt-2">
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-purple-400 font-bold block">PLAINTEXT (29092)</span>
+              <span class="text-slate-400">Rede interna Docker (`flowtask-kafka:29092`) para microsserviços.</span>
+            </div>
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-sky-400 font-bold block">PLAINTEXT_HOST (9092)</span>
+              <span class="text-slate-400">Acesso via máquina host (`localhost:9092`) para CLIs e IDEs.</span>
+            </div>
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800">
+              <span class="text-amber-400 font-bold block">CONTROLLER (29093)</span>
+              <span class="text-slate-400">Canal exclusivo de consenso Raft para eleição do cluster.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tópico 3: Keycloak & Realm Import -->
+        <div class="space-y-3 pt-2">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-mono text-xs">2.2</span>
+            Keycloak 24+ com Quarkus Runtime e Importação Automática de Realm
+          </h3>
+          <p>
+            O Keycloak moderno (versões 20+) foi completamente reescrito para utilizar o runtime **Quarkus** no lugar do antigo WildFly, proporcionando inicialização três vezes mais rápida e menor pegada de memória.
+          </p>
+          <p>
+            No FlowTask, utilizamos o recurso de <strong>Realm Import Declarativo</strong>. Em vez de exigir que o desenvolvedor clique manualmente na interface administrativa para criar o cliente OAuth2 e usuários de teste:
+          </p>
+          <ul class="list-disc list-inside space-y-1.5 text-slate-400 pl-2">
+            <li>O arquivo canônico <code class="text-indigo-300 font-mono">keycloak-config/flowtask-realm.json</code> define o realm <code class="text-slate-300 font-mono">flowtask</code>, o cliente <code class="text-slate-300 font-mono">flowtask-api</code> e credenciais de teste.</li>
+            <li>O container sobe com o comando <code class="text-indigo-300 font-mono">start-dev --import-realm</code>.</li>
+            <li>Ao detectar o JSON na pasta <code class="text-slate-300 font-mono">/opt/keycloak/data/import/</code>, o Keycloak migra as tabelas no PostgreSQL (<code class="text-slate-300 font-mono">flowtask_keycloak</code>) e instancia o realm automaticamente.</li>
+          </ul>
+        </div>
+
+        <!-- Tópico 4: LocalStack -->
+        <div class="space-y-3 pt-2">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-mono text-xs">2.3</span>
+            LocalStack AWS Gateway: Simulação de Nuvem na Porta 4566
+          </h3>
+          <p>
+            O <strong>LocalStack</strong> roda como um mock local hiper-eficiente das APIs da Amazon Web Services. Desde a versão 3.0, ele unificou todas as portas de serviços (que antigamente eram 4572 para S3, 4576 para SQS) em uma única porta <strong>Edge Service: 4566</strong>.
+          </p>
+          <p>
+            Quando o provider Terraform da AWS executa uma chamada como <code class="text-cyan-300 font-mono">aws_s3_bucket</code> ou <code class="text-cyan-300 font-mono">aws_sqs_queue</code>, ele envia a requisição HTTP assinada com credenciais dummy (`test`/`test`) para <code class="text-slate-300 font-mono">http://localhost:4566</code>. O roteador interno do LocalStack inspeciona os cabeçalhos (`X-Amz-Target` ou o host da requisição) e despacha para o serviço emulado em memória.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. REPRESENTAÇÃO VISUAL (MERMAID) -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+            <i data-lucide="git-fork" class="w-5 h-5"></i>
+          </div>
+          <h2>3. Diagramas Visuais de Topologia e Comunicação</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Mermaid.js</span>
+      </div>
+
+      <!-- Diagrama 1 -->
+      <div class="space-y-2">
+        <span class="text-xs font-mono font-bold text-slate-300 block">
+          Diagrama 1: Roteamento de Listeners do Kafka KRaft e Clientes
+        </span>
+        <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+          <div class="mermaid text-center">
+flowchart TD
+    subgraph Host ["Máquina do Desenvolvedor (Host / WSL)"]
+        CLI["Kafka CLI / Offset Explorer<br/>(localhost:9092)"]
+        Terminal["curl / testes manuais"]
+    end
+
+    subgraph Bridge ["Rede Privada Docker: flowtask-network"]
+        subgraph KafkaContainer ["Container: flowtask-kafka"]
+            PL_Host["Listener: PLAINTEXT_HOST<br/>0.0.0.0:9092"]
+            PL_Net["Listener: PLAINTEXT<br/>0.0.0.0:29092"]
+            Ctrl["Listener: CONTROLLER<br/>0.0.0.0:29093 (Raft)"]
+        end
+
+        Spring["Spring Boot Backend<br/>(flowtask-api)"]
+        Go["Go Notifier Microservice<br/>(flowtask-notifier)"]
+    end
+
+    CLI -->|Port Mapping 9092:9092| PL_Host
+    Spring -->|DNS Interno: flowtask-kafka:29092| PL_Net
+    Go -->|DNS Interno: flowtask-kafka:29092| PL_Net
+    Ctrl -.->|Consenso Interno Raft| Ctrl
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagrama 2 -->
+      <div class="space-y-2 pt-4">
+        <span class="text-xs font-mono font-bold text-slate-300 block">
+          Diagrama 2: Fluxo OIDC com Keycloak e LocalStack AWS
+        </span>
+        <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+          <div class="mermaid text-center">
+sequenceDiagram
+    autonumber
+    actor Dev as Usuário / Postman
+    participant KC as Keycloak (8080)
+    participant PG as PostgreSQL (5432)
+    participant API as Spring Boot API
+    participant LS as LocalStack (4566)
+
+    Note over KC,PG: Inicialização com Import
+    KC->>PG: Conecta em flowtask_keycloak e migra schemas
+    KC->>KC: Importa Realm 'flowtask' e Client 'flowtask-api'
+
+    Note over Dev,API: Fluxo de Autenticação
+    Dev->>KC: POST /realms/flowtask/protocol/openid-connect/token
+    KC-->>Dev: Retorna Access Token (JWT assinado)
+
+    Dev->>API: GET /api/tarefas (Header: Bearer JWT)
+    API->>KC: Consulta JWKS (/protocol/openid-connect/certs)
+    API-->>Dev: Responde Dados da Tarefa
+
+    Note over API,LS: Operações de Nuvem Similadas
+    API->>LS: PUT /flowtask-attachments/anexo.pdf (S3)
+    API->>LS: POST /flowtask-deadletter-queue (SQS DLQ)
+    LS-->>API: Confirma gravação com código 200/201
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. EXEMPLOS PRÁTICOS & HANDS-ON -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+            <i data-lucide="code-2" class="w-5 h-5"></i>
+          </div>
+          <h2>4. Exemplos Práticos & Configurações HCL Explicadas</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Código & Comandos</span>
+      </div>
+
+      <div class="space-y-4 text-xs">
+
+        <!-- HCL Kafka -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <span class="font-bold text-slate-200 font-mono text-xs flex items-center gap-2">
+            <i data-lucide="file-code" class="w-4 h-4 text-purple-400"></i> infra/terraform/modules/kafka/main.tf
+          </span>
+          <p class="text-slate-400 font-sans">
+            Variáveis essenciais do KRaft configuradas no container Docker:
+          </p>
+          <pre class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[11px] font-mono text-purple-300 overflow-x-auto">
+resource "docker_container" "kafka" {
+  name    = "flowtask-kafka"
+  image   = docker_image.kafka.image_id
+  restart = "unless-stopped"
+
+  ports {
+    internal = 9092
+    external = var.host_port
+  }
+
+  networks_advanced {
+    name    = var.network_id
+    aliases = ["kafka", "flowtask-kafka"]
+  }
+
+  env = [
+    "KAFKA_NODE_ID=1",
+    "KAFKA_PROCESS_ROLES=broker,controller",
+    "KAFKA_CONTROLLER_QUORUM_VOTERS=1@flowtask-kafka:29093",
+    "KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092",
+    "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://flowtask-kafka:29092,PLAINTEXT_HOST://localhost:${var.host_port}",
+    "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT",
+    "KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT",
+    "KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER",
+    "CLUSTER_ID=${var.cluster_id}"
+  ]
+}</pre>
+        </div>
+
+        <!-- HCL LocalStack + AWS -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <span class="font-bold text-slate-200 font-mono text-xs flex items-center gap-2">
+            <i data-lucide="file-code" class="w-4 h-4 text-cyan-400"></i> infra/terraform/modules/localstack/main.tf
+          </span>
+          <p class="text-slate-400 font-sans">
+            Criação do container e provisionamento declarativo via provider AWS:
+          </p>
+          <pre class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[11px] font-mono text-cyan-300 overflow-x-auto">
+# Bucket S3 no LocalStack
+resource "aws_s3_bucket" "attachments" {
+  bucket = "flowtask-attachments"
+  depends_on = [docker_container.localstack]
+}
+
+# Fila SQS Dead Letter Queue
+resource "aws_sqs_queue" "dlq" {
+  name                      = "flowtask-deadletter-queue"
+  message_retention_seconds = 86400
+  depends_on = [docker_container.localstack]
+}
+
+# Segredo no AWS Secrets Manager
+resource "aws_secretsmanager_secret" "app_secrets" {
+  name        = "flowtask-secrets"
+  description = "Credenciais e secrets centrais da aplicação FlowTask"
+  depends_on = [docker_container.localstack]
+}</pre>
+        </div>
+
+        <!-- Comandos de Validação -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <span class="font-bold text-slate-200 font-mono text-xs flex items-center gap-2">
+            <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i> Comandos Práticos de Validação no Terminal
+          </span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] font-mono">
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+              <span class="text-purple-400 font-bold"># Testar Kafka via CLI:</span>
+              <p class="text-slate-400">docker exec flowtask-kafka kafka-topics --bootstrap-server localhost:9092 --list</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+              <span class="text-indigo-400 font-bold"># Testar Discovery OIDC do Keycloak:</span>
+              <p class="text-slate-400">curl -s http://localhost:8080/realms/flowtask/.well-known/openid-configuration</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+              <span class="text-cyan-400 font-bold"># Testar Health do LocalStack:</span>
+              <p class="text-slate-400">curl -s http://localhost:4566/_localstack/health</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+              <span class="text-amber-400 font-bold"># Listar Bucket S3 Simulado:</span>
+              <p class="text-slate-400">curl -s http://localhost:4566/flowtask-attachments</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. ERROS COMUNS & DICAS PARA ENTREVISTAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <h2>5. Erros Comuns, Lições de Engenharia & Dicas para Entrevistas</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Boas Práticas</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
+          <strong class="text-rose-400 font-bold block flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-4 h-4"></i> 1. Armadilha da Imagem 'latest' do LocalStack
+          </strong>
+          <p class="text-slate-400 leading-relaxed">
+            Em builds recentes da tag <code class="text-slate-300 font-mono">localstack/localstack:latest</code>, o runtime passou a exigir a variável <code class="text-slate-300 font-mono">LOCALSTACK_AUTH_TOKEN</code> com código de saída 55 na ausência de licença. <strong>Solução de Engenharia:</strong> Fixar a versão na imagem estável da comunidade (<code class="text-emerald-400 font-mono">localstack/localstack:3.8.0</code>), garantindo previsibilidade e reprodutibilidade de CI/CD.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
+          <strong class="text-rose-400 font-bold block flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-4 h-4"></i> 2. Caracteres Invisíveis CRLF (\r) em Ambientes Híbridos (Windows + WSL)
+          </strong>
+          <p class="text-slate-400 leading-relaxed">
+            Editores no Windows utilizam CRLF (`\r\n`), enquanto o Linux e o analisador léxico do Terraform esperam LF (`\n`). A presença de um retorno de carro isolado no final do arquivo HCL gera o erro opaco: <code class="text-slate-300 font-mono">Error: Invalid character. This character is not used within the language</code>. <strong>Solução:</strong> Normalizar os finais de linha com <code class="text-indigo-300 font-mono">sed -i 's/\r//g' &lt;arquivo&gt;</code> ou configurar <code class="text-indigo-300 font-mono">.gitattributes</code> com <code class="text-slate-300 font-mono">* text=auto eol=lf</code>.
+          </p>
+        </div>
+
+        <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2">
+          <strong class="text-emerald-400 font-bold block text-sm flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-4 h-4"></i> Como Defender Esta Arquitetura em Entrevistas Técnicas (ex: Itaú / Mercado Livre)
+          </strong>
+          <p class="text-slate-300 leading-relaxed">
+            Quando o entrevistador perguntar sobre <em>"Como você estruturou a infraestrutura local do seu projeto?"</em>, enfatize:
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 pl-1">
+            <li><strong>Paridade Dev/Prod:</strong> "Utilizamos Terraform com LocalStack para simular o mesmo contrato das APIs AWS (S3, SQS, Secrets Manager) que teremos em produção, eliminando o clássico <em>'na minha máquina funciona'</em>."</li>
+            <li><strong>Eficiência de Recursos:</strong> "Adotamos Kafka em modo KRaft eliminando o ZooKeeper, reduzindo o consumo de memória do ecossistema local em ~400MB de RAM."</li>
+            <li><strong>Governança IAM Declarativa:</strong> "O Keycloak sobe com Realm automatizado via HCL e JSON, garantindo que qualquer desenvolvedor clone o repositório e tenha o ambiente OIDC funcional em segundos."</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. TL;DR -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="check-check" class="w-5 h-5"></i>
+        <h2>6. TL;DR — Pontos-Chave para Revisão Rápida</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>KRaft Standalone:</strong> Unifica broker e controller no nó 1 via consenso Raft, dispensando o ZooKeeper.</span>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Mapeamento de Listeners:</strong> Porta 29092 para a bridge interna e 9092 para conexões do host.</span>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Keycloak com Realm Import:</strong> Injeção do JSON do realm na pasta de importação do Quarkus conectada ao Postgres.</span>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>LocalStack Edge 4566:</strong> Ponto único de roteamento para serviços simulados de nuvem AWS (S3, SQS, Secrets).</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. REFERÊNCIAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-slate-300 font-bold text-base border-b border-slate-800/80 pb-3">
+        <i data-lucide="link" class="w-4 h-4 text-purple-400"></i>
+        <h2>7. Referências & Documentação Oficial</h2>
+      </div>
+      <ul class="space-y-2 text-xs font-mono text-slate-400">
+        <li>👉 <a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-500%3A+Replace+ZooKeeper+with+a+Self-Managed+Metadata+Quorum" target="_blank" class="text-purple-400 hover:underline">Apache Kafka KIP-500: Replace ZooKeeper with a Self-Managed Metadata Quorum</a></li>
+        <li>👉 <a href="https://www.keycloak.org/server/importExport" target="_blank" class="text-indigo-400 hover:underline">Keycloak Docs: Importing and Exporting Realms</a></li>
+        <li>👉 <a href="https://docs.localstack.cloud/user-guide/aws/feature-coverage/" target="_blank" class="text-cyan-400 hover:underline">LocalStack Docs: AWS Service Feature Coverage & Edge Port 4566</a></li>
+        <li>👉 <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs" target="_blank" class="text-amber-400 hover:underline">Terraform Registry: AWS Provider Documentation</a></li>
+      </ul>
+    </section>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
