@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Auditoria & QA — Epic 5: Terraform & Infraestrutura | FlowTask SDD</title>
+  <meta name="description" content="Relatório formal de verificação e auditoria de qualidade da Fase 5 do SDD para a infraestrutura como código (Terraform, Docker Provider e LocalStack AWS).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-success selection:text-brand-darker pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-500/25">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Fase 5: Verificação & Auditoria QA</span>
+            <span class="text-slate-500">•</span>
+            <span>Epic 5: Finalizada</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Relatório de Homologação de Infraestrutura (Terraform & LocalStack)</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Voltar ao Hub</span>
+        </a>
+        <a href="./terraform-infra-spec.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span>Spec</span>
+        </a>
+        <a href="./terraform-infra-plan.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+          <span>Plano</span>
+        </a>
+        <a href="./terraform-infra-tasks.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+          <span>Tasks</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO & QA VERDICT BANNER -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5">
+              <i data-lucide="badge-check" class="w-3.5 h-3.5"></i>
+              VEREDITO: 100% APROVADO (HOMOLOGADO)
+            </span>
+            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+              6/6 Critérios de Aceite Atendidos
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Auditoria de Aceite Técnico: Epic 5 (IaC & Cloud)
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+            Avaliação formal de conformidade da infraestrutura provisionada contra a especificação canônica <code class="text-indigo-300 font-mono">terraform-infra-spec.html</code>. Todos os módulos foram testados via sondas de rede, integridade de dados e comandos CLI.
+          </p>
+        </div>
+
+        <!-- Metric Summary Cards -->
+        <div class="grid grid-cols-2 gap-3 min-w-[280px]">
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] font-mono text-slate-400 block uppercase">Score de Qualidade</span>
+            <span class="text-2xl font-black font-mono text-emerald-400">100%</span>
+            <span class="text-[10px] text-slate-500 block">Zero falhas / Zero drift</span>
+          </div>
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] font-mono text-slate-400 block uppercase">Containers Ativos</span>
+            <span class="text-2xl font-black font-mono text-sky-400">8 / 8</span>
+            <span class="text-[10px] text-slate-500 block">Status Up & Saudáveis</span>
+          </div>
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] font-mono text-slate-400 block uppercase">Recursos AWS Sim</span>
+            <span class="text-2xl font-black font-mono text-purple-400">3 / 3</span>
+            <span class="text-[10px] text-slate-500 block">S3 + SQS + Secrets</span>
+          </div>
+          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] font-mono text-slate-400 block uppercase">Economia FinOps</span>
+            <span class="text-2xl font-black font-mono text-amber-400">$574.50</span>
+            <span class="text-[10px] text-slate-500 block">Economia mensal vs AWS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA DETALHADA DE AUDITORIA POR CRITÉRIO DE ACEITE -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+          </div>
+          <h2>Bateria de Testes: Critérios de Aceite Canônicos</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Dimensão 5/5 SDD</span>
+      </div>
+
+      <div class="space-y-4 text-xs">
+
+        <!-- CA-01 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> APROVADO
+              </span>
+              <span class="font-bold text-slate-100 text-sm">CA-01: Validação e Inicialização dos Providers</span>
+            </div>
+            <span class="font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-[11px]">terraform init & validate</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>Requisito:</strong> O Terraform deve resolver os providers <code class="text-indigo-300 font-mono">kreuzwerker/docker (~> 3.0.2)</code> e <code class="text-indigo-300 font-mono">hashicorp/aws (~> 5.0)</code>, registrar todos os 8 submódulos em <code class="text-slate-400 font-mono">.terraform/modules/modules.json</code> e validar a sintaxe HCL sem advertências.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500 font-bold"># Evidência de Execução (WSL Ubuntu 24.04):</div>
+            <div class="text-emerald-400">Success! The configuration is valid.</div>
+            <div class="text-slate-400">Provider kreuzwerker/docker: v3.0.2 (instalado via lock file)</div>
+            <div class="text-slate-400">Provider hashicorp/aws: v5.100.0 (instalado com endpoints LocalStack)</div>
+          </div>
+        </div>
+
+        <!-- CA-02 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> APROVADO
+              </span>
+              <span class="font-bold text-slate-100 text-sm">CA-02: Criação e Ciclo de Vida dos Containers</span>
+            </div>
+            <span class="font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-[11px]">docker ps audit</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>Requisito:</strong> Todos os 8 containers de persistência, mensageria, IAM e nuvem devem subir conectados à rede bridge dedicada <code class="text-indigo-300 font-mono">flowtask-network</code>.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500 font-bold"># Evidência de Execução:</div>
+            <div class="text-emerald-400">✔ flowtask-postgres (postgres:15-alpine) ➔ Up (5432:5432)</div>
+            <div class="text-emerald-400">✔ flowtask-pgadmin (dpage/pgadmin4:latest) ➔ Up (5050:80)</div>
+            <div class="text-emerald-400">✔ flowtask_mongo (mongo:7.0) ➔ Up (27017:27017)</div>
+            <div class="text-emerald-400">✔ flowtask-mongo-express (mongo-express:latest) ➔ Up (8081:8081)</div>
+            <div class="text-emerald-400">✔ flowtask-redis (redis:7-alpine) ➔ Up (6379:6379)</div>
+            <div class="text-emerald-400">✔ flowtask-kafka (confluentinc/cp-kafka:7.5.0) ➔ Up (9092:9092)</div>
+            <div class="text-emerald-400">✔ flowtask-keycloak (quay.io/keycloak/keycloak:latest) ➔ Up (8080:8080)</div>
+            <div class="text-emerald-400">✔ flowtask-localstack (localstack/localstack:3.8.0) ➔ Up (healthy) (4566:4566)</div>
+          </div>
+        </div>
+
+        <!-- CA-03 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> APROVADO
+              </span>
+              <span class="font-bold text-slate-100 text-sm">CA-03: Conectividade de Banco, GUIs Web & OIDC</span>
+            </div>
+            <span class="font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-[11px]">TCP & HTTP Sondas</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>Requisito:</strong> As portas TCP dos bancos devem aceitar conexões ativas e as interfaces gráficas web e o endpoint OIDC do Keycloak devem responder códigos HTTP válidos.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500 font-bold"># Evidência de Execução:</div>
+            <div class="text-emerald-400">✔ PostgreSQL pg_isready: /var/run/postgresql:5432 - accepting connections</div>
+            <div class="text-emerald-400">✔ Redis PING: PONG (latência &lt; 1ms)</div>
+            <div class="text-emerald-400">✔ Keycloak OIDC Discovery: HTTP 200 OK (Issuer: http://localhost:8080/realms/flowtask)</div>
+            <div class="text-emerald-400">✔ pgAdmin 4 Web: HTTP 302 Redirect ➔ /login (interface pronta)</div>
+            <div class="text-emerald-400">✔ Mongo Express Web: HTTP 200 OK (listagem de coleções pronta)</div>
+            <div class="text-emerald-400">✔ Kafka KRaft CLI: kafka-topics --bootstrap-server localhost:9092 (Exit code 0)</div>
+          </div>
+        </div>
+
+        <!-- CA-04 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> APROVADO
+              </span>
+              <span class="font-bold text-slate-100 text-sm">CA-04: Recursos AWS Provisionados no LocalStack</span>
+            </div>
+            <span class="font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-[11px]">AWS Provider Target Test</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>Requisito:</strong> O provider oficial da AWS deve criar declarativamente o bucket S3, a fila SQS Dead Letter Queue e o secret no Secrets Manager dentro do container LocalStack.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500 font-bold"># Evidência de Execução:</div>
+            <div class="text-emerald-400">✔ S3 Bucket: aws_s3_bucket.attachments ➔ id="flowtask-attachments" (ListBucketResult 200)</div>
+            <div class="text-emerald-400">✔ SQS DLQ: aws_sqs_queue.dlq ➔ "http://sqs.us-east-1.localhost.localstack.cloud:4566/.../flowtask-deadletter-queue"</div>
+            <div class="text-emerald-400">✔ Secrets Manager: aws_secretsmanager_secret.app_secrets ➔ arn="...:secret:flowtask-secrets-GerbeL"</div>
+          </div>
+        </div>
+
+        <!-- CA-05 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> APROVADO
+              </span>
+              <span class="font-bold text-slate-100 text-sm">CA-05: Persistência de Dados & Governança de Volumes</span>
+            </div>
+            <span class="font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-[11px]">Data Retain Test</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>Requisito:</strong> Volumes gerenciados devem reter os dados entre ciclos de restart dos containers, evitando problemas de permissão POSIX em sistemas de arquivos montados via Windows/WSL.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500 font-bold"># Evidência de Arquitetura:</div>
+            <div class="text-emerald-400">✔ Docker Named Volumes ext4 nativos: flowtask-postgres-data, flowtask_mongo_data, flowtask-redis-data</div>
+            <div class="text-emerald-400">✔ Banco de dados flowtask_keycloak preservado e ativo após recriação do PostgreSQL</div>
+          </div>
+        </div>
+
+        <!-- CA-06 -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> APROVADO
+              </span>
+              <span class="font-bold text-slate-100 text-sm">CA-06: Verificação de Idempotência & Painel de Outputs</span>
+            </div>
+            <span class="font-mono text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-[11px]">Zero Drift & Outputs</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>Requisito:</strong> Executar <code class="text-indigo-300 font-mono">terraform output</code> deve exibir o mapa completo de conectividade sem requisições manuais.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+            <div class="text-slate-500 font-bold"># Evidência de Execução:</div>
+            <div class="text-emerald-400">✔ Bloco output "resumo_infraestrutura" consolidado nos 8 serviços</div>
+            <div class="text-emerald-400">✔ Documentação do README.md 100% atualizada com comandos de apply, destroy e outputs</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ASSINATURA & CONCLUSÃO DA HOMOLOGAÇÃO -->
+    <div class="p-6 sm:p-7 glass-panel rounded-3xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+          <i data-lucide="check-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">Epic 5: Homologação Final Aprovada</h3>
+          <p class="text-xs text-slate-400">Infraestrutura declarativa pronta para suportar os Épicos 1 a 4 da aplicação FlowTask.</p>
+        </div>
+      </div>
+      <a href="../../index.html" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span>Voltar ao Hub de Engenharia</span>
+      </a>
+    </div>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

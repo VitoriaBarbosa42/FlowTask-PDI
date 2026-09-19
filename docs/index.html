@@ -1803,6 +1803,38 @@
         badgeColor: "border-blue-500/30 text-blue-400 bg-blue-500/10",
         date: "30 Ago 2026",
         isNew: false
+      },
+      {
+        id: "terraform-mensageria-iam-cloud",
+        title: "Terraform — Mensageria Kafka KRaft, Keycloak IAM & Simulação Cloud LocalStack",
+        category: "arquitetura",
+        categoryLabel: "Arquitetura & Infra",
+        type: "Apostila Técnica",
+        url: "./anotacoes/arquitetura-infra/terraform-mensageria-iam-e-cloud.html",
+        description: "Apostila das Fases 3 e 4: Apache Kafka em modo KRaft (sem ZooKeeper), Keycloak 24+ com Realm Import automatizado e LocalStack AWS (S3, SQS DLQ e Secrets Manager).",
+        difficulty: "Avançado",
+        readTime: "18 min",
+        tags: ["Terraform", "Kafka", "KRaft", "Keycloak", "OIDC", "LocalStack", "AWS", "S3", "SQS"],
+        icon: "radio",
+        badgeColor: "border-purple-500/30 text-purple-400 bg-purple-500/10",
+        date: "19 Set 2026",
+        isNew: true
+      },
+      {
+        id: "epic05-relatorio-qa",
+        title: "Relatório de Auditoria & QA — Epic 5: Terraform & Infraestrutura",
+        category: "refinamento",
+        categoryLabel: "Refinamento & Specs",
+        type: "Auditoria SDD (Fase 5)",
+        url: "./refinamento-tecnico/epic-05-iac-terraform/terraform-infra-relatorio-qa.html",
+        description: "Homologação de qualidade com 100% dos critérios de aceite (CA-01 a CA-06) validados e aprovados contra a especificação canônica.",
+        difficulty: "Intermediário",
+        readTime: "10 min",
+        tags: ["QA", "Auditoria", "Fase 5", "Terraform", "Docker", "LocalStack", "Definition of Done"],
+        icon: "shield-check",
+        badgeColor: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
+        date: "19 Set 2026",
+        isNew: true
       }
     ];
 
@@ -2467,7 +2499,7 @@
                 type: "folder",
                 icon: "folder",
                 color: "text-indigo-400",
-                badge: "3 Arquivos (SDD)",
+                badge: "4 Arquivos (SDD)",
                 epicTitle: "Epic 5 — Infraestrutura como Código (Terraform)",
                 techs: ["Terraform HCL", "Docker Provider", "LocalStack AWS", "FinOps"],
                 description: "Provisionamento declarativo e modularizado de todos os serviços locais (PostgreSQL, MongoDB, Redis, Kafka, Keycloak, pgAdmin, Mongo Express) e simulação AWS (S3, SQS, Secrets Manager) com análise FinOps.",
@@ -2485,7 +2517,7 @@
                     tags: ["Terraform", "LocalStack", "AWS S3", "AWS SQS", "Secrets Manager", "FinOps", "Docker Provider", "SDD"],
                     readTime: "14 min",
                     date: "30 Ago 2026",
-                    isNew: true
+                    isNew: false
                   },
                   {
                     id: "epic-05-terraform-plan",
@@ -2500,7 +2532,7 @@
                     tags: ["Plano Técnico", "Arquitetura", "ADR", "HCL", "Terraform Modules", "Mermaid"],
                     readTime: "12 min",
                     date: "30 Ago 2026",
-                    isNew: true
+                    isNew: false
                   },
                   {
                     id: "epic-05-terraform-tasks",
@@ -2515,6 +2547,21 @@
                     tags: ["Tasks", "Checklist", "Execução Atômica", "Comandos CLI", "Validação"],
                     readTime: "10 min",
                     date: "30 Ago 2026",
+                    isNew: false
+                  },
+                  {
+                    id: "epic-05-terraform-qa",
+                    name: "terraform-infra-relatorio-qa.html",
+                    title: "4. Relatório de Homologação QA — Fase 5 SDD",
+                    path: "docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-relatorio-qa.html",
+                    url: "./refinamento-tecnico/epic-05-iac-terraform/terraform-infra-relatorio-qa.html",
+                    type: "Auditoria QA SDD",
+                    category: "Refinamento & Specs",
+                    badgeColor: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
+                    description: "Relatório formal de auditoria com 100% dos critérios de aceite (CA-01 a CA-06) testados e aprovados nas Fases 1 a 4.",
+                    tags: ["QA", "Auditoria", "Fase 5", "Homologação", "Definition of Done"],
+                    readTime: "10 min",
+                    date: "19 Set 2026",
                     isNew: true
                   }
                 ]
@@ -2665,6 +2712,21 @@
                     badgeColor: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
                     description: "Guia didático de estudo sobre a Fase 2: Submódulos HCL, PostgreSQL 15, pgAdmin 4, MongoDB 7, Mongo Express, Redis 7 com AOF, Named Volumes e permissões NTFS vs Linux.",
                     tags: ["Terraform", "Postgres", "pgAdmin", "MongoDB", "Mongo Express", "Redis", "Named Volumes", "NTFS"],
+                    readTime: "18 min",
+                    date: "19 Set 2026",
+                    isNew: false
+                  },
+                  {
+                    id: "terraform-mensageria-iam-cloud",
+                    name: "terraform-mensageria-iam-e-cloud.html",
+                    title: "Terraform — Mensageria Kafka KRaft, Keycloak IAM & Simulação Cloud LocalStack",
+                    path: "docs/anotacoes/arquitetura-infra/terraform-mensageria-iam-e-cloud.html",
+                    url: "./anotacoes/arquitetura-infra/terraform-mensageria-iam-e-cloud.html",
+                    type: "Apostila Técnica",
+                    category: "Arquitetura & Infraestrutura",
+                    badgeColor: "border-purple-500/30 text-purple-400 bg-purple-500/10",
+                    description: "Apostila das Fases 3 e 4: Apache Kafka em modo KRaft (sem ZooKeeper), Keycloak 24+ com Realm Import automatizado e LocalStack AWS (S3, SQS DLQ e Secrets Manager).",
+                    tags: ["Terraform", "Kafka", "KRaft", "Keycloak", "OIDC", "LocalStack", "AWS", "S3", "SQS"],
                     readTime: "18 min",
                     date: "19 Set 2026",
                     isNew: true
