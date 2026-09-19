@@ -88,3 +88,13 @@ module "keycloak" {
   depends_on = [module.postgres]
 }
 
+# ==============================================================================
+# MÓDULO: LOCALSTACK (SIMULAÇÃO AWS CLOUD)
+# ==============================================================================
+
+module "localstack" {
+  source     = "./modules/localstack"
+  host_port  = var.localstack_port
+  network_id = docker_network.flowtask_net.name
+}
+
