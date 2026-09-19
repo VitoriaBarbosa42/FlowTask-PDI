@@ -305,8 +305,12 @@ FlowTask-PDI/
   - 📝 **[1. Especificação Técnica & Relatório FinOps](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-spec.html)**
   - 📐 **[2. Planejamento Técnico, HCL & ADRs](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-plan.html)**
   - 📋 **[3. Micro-Tarefas & Checklist de Implementação](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-tasks.html)**
+  - 🧪 **[4. Relatório de Auditoria & Homologação QA (Fase 5 SDD)](docs/refinamento-tecnico/epic-05-iac-terraform/terraform-infra-relatorio-qa.html)**
   - 📚 **[Material de Estudo 1: Terraform Fundamentos & Prática](docs/anotacoes/arquitetura-infra/terraform-fundamentos-e-pratica.html)**
   - 📚 **[Material de Estudo 2: Módulos de Persistência Poliglota](docs/anotacoes/arquitetura-infra/terraform-modulos-persistencia-poliglota.html)**
+  - 📚 **[Material de Estudo 3: Kafka KRaft, Keycloak & LocalStack](docs/anotacoes/arquitetura-infra/terraform-mensageria-iam-e-cloud.html)**
+- 🧪 **Testes & Qualidade de Software:**
+  - 📚 **[Pirâmide de Testes na Prática: Unitários, Testcontainers & E2E no Spring Boot](docs/anotacoes/testes-qa/guia-completo-piramide-de-testes.html)**
 - 📐 **[O Ciclo e as Fases do SDD](docs/anotacoes/metodologias/ciclo-e-fases-do-sdd.html)**
 - 📐 **[Anatomia de uma Especificação (Spec)](docs/anotacoes/metodologias/anatomia-de-uma-especificacao.html)**
 - 📐 **[Spec-Driven Development (SDD) — Fundamentos & Prática](docs/anotacoes/metodologias/spec-driven-development-fundamentos.html)**

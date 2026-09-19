@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pirâmide de Testes na Prática — Unitários, Integração & E2E | FlowTask PDI</title>
+  <meta name="description" content="Guia completo e didático sobre a Pirâmide de Testes no Spring Boot: Testes Unitários com JUnit 5 e Mockito, Testes de Integração com Testcontainers, Testes de API com MockMvc, Padrão AAA e Boas Práticas de QA corporativo.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              orange: '#FF6200',
+              orangeHover: '#E05600',
+              accent: '#38bdf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+              purple: '#8b5cf6',
+              indigo: '#6366f1',
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              dark: '#0b0f19',
+              darker: '#06090e',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b0f19',
+        primaryColor: '#10b981',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#FF6200',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s ease;
+    }
+    .glass-card:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-brand-darker text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-success selection:text-brand-darker pb-28">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 mb-8">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-500/25">
+          <i data-lucide="check-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>Apostila Técnica — Testes & QA</span>
+            <span class="text-slate-500">•</span>
+            <span>Engenharia de Software</span>
+          </span>
+          <h1 class="text-sm font-bold text-white tracking-tight">Pirâmide de Testes: Unitários, Testcontainers & E2E no Spring Boot</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../../index.html" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Voltar ao Hub</span>
+        </a>
+        <a href="../../index.html" onclick="localStorage.setItem('flowtask_target_view', 'board')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-brand-orange to-amber-600 hover:from-brand-orangeHover hover:to-amber-700 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm shadow-brand-orange/20 transition">
+          <i data-lucide="trello" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Quadro Kanban</span>
+        </a>
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+
+    <!-- HERO & METADATA -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 relative overflow-hidden">
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
+          <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i> Qualidade de Software & Testes
+        </span>
+        <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40">
+          Nível: Intermediário / Avançado
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800 flex items-center gap-1">
+          <i data-lucide="clock" class="w-3 h-3"></i> 20 min de leitura
+        </span>
+        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+          Padrão Corporativo (Itaú / Big Tech)
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+        A Arte dos Testes Automatizados: Da Teoria à Prática no Código
+      </h1>
+      <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+        Como arquitetar, organizar e codificar testes unitários isolados com Mockito, testes de integração reais contra containers descartáveis via Testcontainers e testes de API com MockMvc, garantindo que nenhum bug chegue a produção.
+      </p>
+
+      <div class="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex items-start gap-3">
+        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"></i>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <strong class="text-white block mb-0.5">A Grande Virada de Chave:</strong>
+          Testar manualmente com comandos de terminal (como <code>curl</code> ou <code>docker exec</code>) é útil durante o desenvolvimento de infraestrutura, mas <strong>o que protege o código em produção são baterias automatizadas que rodam em segundos a cada <code>git push</code></strong>. Aqui você aprenderá como construir essa rede de segurança do zero.
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. POR QUE ISSO IMPORTA? -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <i data-lucide="target" class="w-5 h-5"></i>
+          </div>
+          <h2>1. Por Que Testes Automatizados Importam? (O Custo da Falha)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Fundamento de Engenharia</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-emerald-400 font-bold font-mono text-sm block flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Proteção Contra Regressão
+          </span>
+          <p class="text-slate-400 leading-relaxed">
+            Regressão acontece quando uma alteração nova quebra uma regra antiga que já funcionava. Uma suíte sólida de testes roda antes de cada commit e avisa na hora: <em>"O que você alterou quebrou a regra de conclusão de tarefas da Sprint 2"</em>.
+          </p>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-sky-400 font-bold font-mono text-sm block flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-4 h-4"></i> Coragem para Refatorar
+          </span>
+          <p class="text-slate-400 leading-relaxed">
+            Desenvolvedores têm medo de limpar código feio quando não existem testes, com medo de introduzir bugs ocultos. Com testes automatizados, você refatora livremente com a certeza matemática de que o comportamento externo permanece idêntico.
+          </p>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="text-purple-400 font-bold font-mono text-sm block flex items-center gap-1.5">
+            <i data-lucide="book-marked" class="w-4 h-4"></i> Documentação Viva do Sistema
+          </span>
+          <p class="text-slate-400 leading-relaxed">
+            Comentários e wikis ficam desatualizados com o tempo. Testes nunca mentem: eles descrevem exatamente quais são as entradas aceitas, as regras de negócio e como a aplicação reage a erros em código compilável e executável.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. A PIRÂMIDE DE TESTES -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-sky-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <h2>2. A Pirâmide de Testes: Anatomia dos 3 Níveis</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Modelo Conceitual (Mike Cohn & Martin Fowler)</span>
+      </div>
+
+      <div class="bg-slate-950/90 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+        <div class="mermaid text-center">
+flowchart TD
+    subgraph Piramide ["Pirâmide Canônica de Testes"]
+        E2E["3. Testes End-to-End (E2E) & Contrato<br/>(Poucos · Alto Custo · Lentos · Fluxo Ponta a Ponta)"]
+        IT["2. Testes de Integração (Integration Tests)<br/>(Volume Médio · Custo Médio · Testcontainers · Banco/Kafka Real)"]
+        Unit["1. Testes Unitários (Unit Tests)<br/>(Base Massiva · Ultra-Rápidos · Custo Zero · Isolados com Mocks)"]
+    end
+
+    Unit -->|70% da Suíte| IT
+    IT -->|20% da Suíte| E2E
+    E2E -->|10% da Suíte| Topo["Confiança Máxima em Produção"]
+        </div>
+      </div>
+
+      <!-- Comparativo das 3 Camadas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mt-4">
+        <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 font-mono text-sm">1. Nível Unitário</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">~70%</span>
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            Testa uma única classe (ex: um <code>Service</code> ou <code>Domain Model</code>) isolando todas as suas dependências externas (como Repositórios, APIs ou Filas) usando <strong>Mocks</strong>.
+          </p>
+          <div class="text-[11px] font-mono text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1">
+            <div>⚡ <strong>Velocidade:</strong> 1 a 20 ms</div>
+            <div>🚫 <strong>Spring Boot:</strong> NÃO carrega o contexto</div>
+            <div>🧰 <strong>Ferramentas:</strong> JUnit 5, Mockito, AssertJ</div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sky-400 font-mono text-sm">2. Nível de Integração</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono">~20%</span>
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            Testa se duas ou mais partes conversam de verdade. No lugar de usar banco falso H2 em memória, usa <strong>Testcontainers</strong> para subir PostgreSQL 15 ou Kafka real em Docker temporário.
+          </p>
+          <div class="text-[11px] font-mono text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1">
+            <div>⚡ <strong>Velocidade:</strong> 500 ms a 3s</div>
+            <div>🌱 <strong>Spring Boot:</strong> Carrega fatias (`@DataJpaTest`)</div>
+            <div>🧰 <strong>Ferramentas:</strong> Spring Test, Testcontainers</div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-purple-400 font-mono text-sm">3. Nível E2E / API</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">~10%</span>
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            Simula um cliente real (Postman, Mobile, Frontend) disparando requisições HTTP REST com JSON e verificando códigos de status, headers, body e efeitos colaterais no banco.
+          </p>
+          <div class="text-[11px] font-mono text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1">
+            <div>⚡ <strong>Velocidade:</strong> 1s a 5s</div>
+            <div>🌐 <strong>Spring Boot:</strong> Servidor HTTP ativo</div>
+            <div>🧰 <strong>Ferramentas:</strong> MockMvc, RestAssured</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. O PADRÃO AAA (ARRANGE, ACT, ASSERT) -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="code" class="w-5 h-5"></i>
+          </div>
+          <h2>3. O Padrão Universal AAA (Arrange, Act, Assert)</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Estrutura Canônica de um Teste Limpo</span>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        Todo bom teste automatizado, seja unitário ou de integração, deve ser lido como uma história linear em 3 blocos bem definidos:
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div class="p-4 bg-slate-950/80 rounded-2xl border border-amber-500/30 space-y-2">
+          <span class="text-amber-400 font-bold font-mono text-sm block">1. Arrange (Preparar / Dado que)</span>
+          <p class="text-slate-400">
+            Configura o cenário inicial. Cria entidades, instancia objetos com dados válidos e instrui os mocks sobre como devem responder:
+          </p>
+          <code class="text-[11px] text-amber-300 font-mono block bg-slate-900 p-2 rounded-lg">when(repo.findById(1L)).thenReturn(tarefa);</code>
+        </div>
+
+        <div class="p-4 bg-slate-950/80 rounded-2xl border border-sky-500/30 space-y-2">
+          <span class="text-sky-400 font-bold font-mono text-sm block">2. Act (Agir / Quando)</span>
+          <p class="text-slate-400">
+            Executa a operação ou método alvo sendo testado. Deve ser <strong>apenas uma linha de código</strong>:
+          </p>
+          <code class="text-[11px] text-sky-300 font-mono block bg-slate-900 p-2 rounded-lg">Tarefa resultado = service.concluir(1L);</code>
+        </div>
+
+        <div class="p-4 bg-slate-950/80 rounded-2xl border border-emerald-500/30 space-y-2">
+          <span class="text-emerald-400 font-bold font-mono text-sm block">3. Assert (Verificar / Então)</span>
+          <p class="text-slate-400">
+            Valida o resultado final e garante que os efeitos colaterais esperados aconteceram com AssertJ e verify:
+          </p>
+          <code class="text-[11px] text-emerald-300 font-mono block bg-slate-900 p-2 rounded-lg">assertThat(resultado.getStatus()).isEqualTo(CONCLUIDO);</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. EXEMPLOS DE CÓDIGO HANDS-ON -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-purple-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+            <i data-lucide="file-code-2" class="w-5 h-5"></i>
+          </div>
+          <h2>4. Código Hands-on: Como Implementar no FlowTask</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Java 25 & Spring Boot</span>
+      </div>
+
+      <div class="space-y-6 text-xs">
+
+        <!-- Exemplo 1: Teste Unitário -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-100 text-sm flex items-center gap-2 font-mono">
+              <i data-lucide="file-code" class="w-4 h-4 text-emerald-400"></i> Exemplo 1: Teste Unitário com Mockito & AssertJ (Sem Spring)
+            </span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Tempo: ~15ms</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            Usamos <code class="text-emerald-300 font-mono">@ExtendWith(MockitoExtension.class)</code> para testar a lógica pura sem pagar o custo de inicializar o container do Spring Boot:
+          </p>
+          <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-[11px] font-mono text-emerald-300 overflow-x-auto">
+package br.com.flowtask.service;
+
+import br.com.flowtask.domain.Tarefa;
+import br.com.flowtask.domain.Status;
+import br.com.flowtask.exception.TarefaNaoEncontradaException;
+import br.com.flowtask.repository.TarefaRepository;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class) // Inicialização pura, sem banco e sem Spring!
+class ConcluirTarefaServiceTest {
+
+    @Mock
+    private TarefaRepository tarefaRepository;
+
+    @Mock
+    private KafkaEventProducer kafkaProducer;
+
+    @InjectMocks
+    private ConcluirTarefaService service;
+
+    @Test
+    @DisplayName("Deve concluir tarefa com sucesso e emitir evento assíncrono para o Kafka")
+    void deveConcluirTarefaComSucesso() {
+        // 1. Arrange (Preparação)
+        Tarefa tarefaExistente = new Tarefa(1L, "Modelar Banco", Status.FAZENDO);
+        when(tarefaRepository.findById(1L)).thenReturn(Optional.of(tarefaExistente));
+        when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // 2. Act (Ação)
+        Tarefa resultado = service.concluir(1L);
+
+        // 3. Assert (Validação com AssertJ)
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getStatus()).isEqualTo(Status.CONCLUIDO);
+
+        // Verifica que o repository salvou e o Kafka recebeu o evento exatamente 1 vez
+        verify(tarefaRepository, times(1)).save(tarefaExistente);
+        verify(kafkaProducer, times(1)).publicarTarefaConcluida(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar TarefaNaoEncontradaException quando ID não existir")
+    void deveLancarExcecaoQuandoIdNaoExiste() {
+        // Arrange
+        when(tarefaRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThatThrownBy(() -> service.concluir(999L))
+            .isInstanceOf(TarefaNaoEncontradaException.class)
+            .hasMessage("Tarefa com ID 999 não encontrada");
+
+        // Garante que nenhuma mensagem foi enviada ao Kafka em caso de erro!
+        verifyNoInteractions(kafkaProducer);
+    }
+}</pre>
+        </div>
+
+        <!-- Exemplo 2: Teste de Integração com Testcontainers -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-100 text-sm flex items-center gap-2 font-mono">
+              <i data-lucide="container" class="w-4 h-4 text-sky-400"></i> Exemplo 2: Teste de Integração com Testcontainers (PostgreSQL Real)
+            </span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">Tempo: ~1.8s</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            O código Java comanda o Docker para provisionar um PostgreSQL 15 descartável antes dos testes e injeta a URL dinâmica no Spring Data JPA:
+          </p>
+          <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-[11px] font-mono text-sky-300 overflow-x-auto">
+package br.com.flowtask.repository;
+
+import br.com.flowtask.domain.Tarefa;
+import br.com.flowtask.domain.Status;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest // Sobe apenas os repositórios JPA (muito mais rápido que @SpringBootTest inteiro)
+@Testcontainers // Habilita o ciclo de vida do Docker gerenciado pelo JUnit
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // Desativa o H2 falso!
+class TarefaRepositoryIT {
+
+    // Sobe o container oficial do Postgres idêntico ao provisionado pelo Terraform
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
+            .withDatabaseName("flowtask_test")
+            .withUsername("test")
+            .withPassword("test");
+
+    // Injeta a porta aleatória e segura gerada pelo Docker nas propriedades do Spring
+    @DynamicPropertySource
+    static void configureDatasource(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Autowired
+    private TarefaRepository repository;
+
+    @Test
+    @DisplayName("Deve persistir tarefa no PostgreSQL 15 real e recuperar por ID")
+    void deveSalvarEBuscarNoBancoReal() {
+        // Arrange
+        Tarefa novaTarefa = new Tarefa(null, "Aprender Testcontainers", Status.A_FAZER);
+
+        // Act
+        Tarefa salva = repository.save(novaTarefa);
+
+        // Assert
+        Optional<Tarefa> recuperada = repository.findById(salva.getId());
+        assertThat(recuperada).isPresent();
+        assertThat(recuperada.get().getTitulo()).isEqualTo("Aprender Testcontainers");
+        assertThat(recuperada.get().getId()).isNotNull();
+    }
+}</pre>
+        </div>
+
+        <!-- Exemplo 3: Teste de API (Controller) com MockMvc -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-100 text-sm flex items-center gap-2 font-mono">
+              <i data-lucide="globe" class="w-4 h-4 text-purple-400"></i> Exemplo 3: Teste de API com MockMvc (Validação de Contrato HTTP)
+            </span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Tempo: ~350ms</span>
+          </div>
+          <p class="text-slate-400 font-sans">
+            Testa a camada REST (rotas, validação de payload, headers e conversão JSON) isolando a regra de negócio via mock:
+          </p>
+          <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-[11px] font-mono text-purple-300 overflow-x-auto">
+package br.com.flowtask.controller;
+
+import br.com.flowtask.domain.Tarefa;
+import br.com.flowtask.domain.Status;
+import br.com.flowtask.service.ConcluirTarefaService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(TarefaController.class) // Fatiamento: sobe apenas a camada Web MVC
+class TarefaControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ConcluirTarefaService service;
+
+    @Test
+    @DisplayName("PATCH /api/tarefas/{id}/concluir deve retornar 200 OK com JSON esperado")
+    void deveRetornarStatus200AoConcluirTarefa() throws Exception {
+        Tarefa tarefaConcluida = new Tarefa(10L, "Deploy Terraform", Status.CONCLUIDO);
+        when(service.concluir(10L)).thenReturn(tarefaConcluida);
+
+        mockMvc.perform(patch("/api/tarefas/10/concluir")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.status").value("CONCLUIDO"))
+                .andExpect(jsonPath("$.titulo").value("Deploy Terraform"));
+    }
+}</pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. ESTRUTURA DE PASTAS E CONVENÇÕES -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-indigo-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+            <i data-lucide="folder-tree" class="w-5 h-5"></i>
+          </div>
+          <h2>5. Estrutura de Pastas e Convenções Maven no Projeto</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Padrão Corporativo</span>
+      </div>
+
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 font-mono text-xs text-slate-300 leading-relaxed">
+<pre class="text-indigo-300">
+flowtask/
+├── src/main/java/br/com/flowtask/            # Código de Produção
+│   ├── controller/TarefaController.java
+│   ├── service/ConcluirTarefaService.java
+│   └── repository/TarefaRepository.java
+└── src/test/java/br/com/flowtask/           # Código de Testes (Espelho da Produção)
+    ├── unit/                                # Testes Unitários (Rápidos, sem Spring)
+    │   ├── service/ConcluirTarefaServiceTest.java
+    │   └── domain/TarefaTest.java
+    ├── integration/                         # Testes de Integração (Testcontainers)
+    │   ├── repository/TarefaRepositoryIT.java
+    │   └── kafka/KafkaProducerConsumerIT.java
+    └── e2e/                                 # Testes End-to-End de API
+        └── controller/TarefaControllerE2ETest.java
+</pre>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+          <strong class="text-emerald-400 font-mono block">Sufixo *Test.java (Surefire Plugin)</strong>
+          <p class="text-slate-400">
+            Executado no comando padrão <code class="text-slate-200">./mvnw test</code>. Roda todos os testes unitários em poucos segundos. Se qualquer um falhar, o build quebra imediatamente.
+          </p>
+        </div>
+        <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+          <strong class="text-sky-400 font-mono block">Sufixo *IT.java (Failsafe Plugin)</strong>
+          <p class="text-slate-400">
+            Executado no comando <code class="text-slate-200">./mvnw verify</code>. Roda os testes de integração pesados (Testcontainers) após o empacotamento do JAR.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. ERROS COMUNS & DICAS PARA ENTREVISTAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+        <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg">
+          <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+          </div>
+          <h2>6. Erros Clássicos de Iniciantes & Dicas para Entrevistas</h2>
+        </div>
+        <span class="text-xs font-mono text-slate-400">Armadilhas & Anti-Patterns</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
+          <strong class="text-rose-400 font-bold block flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-4 h-4"></i> 1. Colocar @SpringBootTest em Tudo
+          </strong>
+          <p class="text-slate-400 leading-relaxed">
+            Anotar <code>@SpringBootTest</code> num teste unitário faz o Spring subir DataSource, JPA, Security e beans desnecessários, transformando uma suíte que deveria rodar em 2 segundos num processo lento de 3 minutos. <strong>Regra:</strong> Se o teste é unitário de lógica de negócio, use apenas <code>@ExtendWith(MockitoExtension.class)</code>.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
+          <strong class="text-rose-400 font-bold block flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-4 h-4"></i> 2. Usar Lógica Dentro do Teste (if, for, while)
+          </strong>
+          <p class="text-slate-400 leading-relaxed">
+            Testes não devem conter estruturas condicionais (<code>if</code>) ou laços (<code>for</code>). Se o teste possui lógica própria, ele próprio pode conter bugs que mascaram falhas! O teste deve ser estritamente linear e declarativo.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
+          <strong class="text-rose-400 font-bold block flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-4 h-4"></i> 3. Confiar Cegamente no Banco H2 em Memória
+          </strong>
+          <p class="text-slate-400 leading-relaxed">
+            O H2 não suporta índices JSONB do PostgreSQL, funções específicas de data ou concorrência real. Um teste que passa no H2 frequentemente explode em produção. Testcontainers é o padrão atual da indústria para paridade 100% fiel com o banco real.
+          </p>
+        </div>
+
+        <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2">
+          <strong class="text-emerald-400 font-bold block text-sm flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-4 h-4"></i> Como Explicar Sua Estratégia de Testes em Entrevistas
+          </strong>
+          <p class="text-slate-300 leading-relaxed">
+            Em entrevistas técnicas, quando te perguntarem <em>"Como você garante a qualidade do seu código?"</em>, responda com autoridade:
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 pl-1">
+            <li><em>"Adoto a Pirâmide de Testes: foco a maior parte do esforço na base com testes unitários rápidos e determinísticos com JUnit 5 e Mockito para cobrir regras de negócio."</em></li>
+            <li><em>"Para validação de persistência e eventos, uso Testcontainers. Isso nos dá a segurança de rodar testes contra o PostgreSQL 15 e Kafka reais em Docker descartável, eliminando a discrepância do H2."</em></li>
+            <li><em>"Organizo os testes no padrão AAA (Arrange, Act, Assert) e integro a execução na pipeline de CI/CD para que nenhum PR seja aceito sem testes passando."</em></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. TL;DR -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-emerald-400 font-bold text-lg border-b border-slate-800/80 pb-3">
+        <i data-lucide="check-check" class="w-5 h-5"></i>
+        <h2>7. TL;DR — Resumo dos Pontos-Chave</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Unitário vs Integração:</strong> Unitário testa classes isoladas em ms sem Spring; Integração valida conversa real com Docker Testcontainers.</span>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Estrutura AAA:</strong> Todo teste deve ter 3 partes explícitas: Preparar dados (Arrange), Agir (Act) e Validar (Assert).</span>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>AssertJ é Melhor que assertEquals:</strong> A sintaxe fluente <code>assertThat(x).isEqualTo(y)</code> é legível e gera mensagens de erro muito mais claras.</span>
+        </div>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+          <span><strong>Paridade Real com Testcontainers:</strong> Testar o PostgreSQL e o Kafka reais em containers temporários garante zero surpresas em produção.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. REFERÊNCIAS -->
+    <section class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center gap-2.5 text-slate-300 font-bold text-base border-b border-slate-800/80 pb-3">
+        <i data-lucide="link" class="w-4 h-4 text-emerald-400"></i>
+        <h2>8. Referências & Documentação Canônica</h2>
+      </div>
+      <ul class="space-y-2 text-xs font-mono text-slate-400">
+        <li>👉 <a href="https://martinfowler.com/articles/practical-test-pyramid.html" target="_blank" class="text-emerald-400 hover:underline">Martin Fowler: The Practical Test Pyramid</a></li>
+        <li>👉 <a href="https://junit.org/junit5/docs/current/user-guide/" target="_blank" class="text-sky-400 hover:underline">JUnit 5 User Guide Official</a></li>
+        <li>👉 <a href="https://site.mockito.org/" target="_blank" class="text-purple-400 hover:underline">Mockito Framework Official Documentation</a></li>
+        <li>👉 <a href="https://java.testcontainers.org/modules/databases/postgres/" target="_blank" class="text-cyan-400 hover:underline">Testcontainers: PostgreSQL & Spring Boot Guide</a></li>
+        <li>👉 <a href="https://assertj.github.io/doc/" target="_blank" class="text-amber-400 hover:underline">AssertJ: Fluent Assertions for Java</a></li>
+      </ul>
+    </section>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
