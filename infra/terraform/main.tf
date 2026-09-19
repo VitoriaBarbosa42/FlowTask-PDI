@@ -55,7 +55,17 @@ module "mongo-express" {
 }
 
 module "redis" {
-  source = "./modules/redis"
+  source     = "./modules/redis"
   host_port  = var.redis_port
+  network_id = docker_network.flowtask_net.name
+}
+
+# ==============================================================================
+# MÓDULO: APACHE KAFKA (KRAFT MODE)
+# ==============================================================================
+
+module "kafka" {
+  source     = "./modules/kafka"
+  host_port  = var.kafka_port
   network_id = docker_network.flowtask_net.name
 }
